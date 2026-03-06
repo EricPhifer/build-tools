@@ -1,0 +1,3 @@
+# SPA fallback - all other routes go to index.html
+# Note: /.netlify/functions/* is handled automatically by Netlify
+/*  /index.html  200

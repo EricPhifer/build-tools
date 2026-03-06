@@ -1,0 +1,443 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ============================================
+   PWA & iOS SAFE AREA SUPPORT
+   ============================================ */
+
+:root {
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+  }
+}
+
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: contain;
+  }
+
+  @media (orientation: landscape) {
+    body {
+      padding-left: max(env(safe-area-inset-left), 16px);
+      padding-right: max(env(safe-area-inset-right), 16px);
+    }
+  }
+}
+
+/* Touch optimizations for mobile */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+
+  button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================
+   THEME SYSTEM - Tailwind 4 @theme
+   ============================================ */
+
+@theme {
+  --breakpoint-3xl: 1920px;
+  --breakpoint-4xl: 2560px;
+
+  --color-primary: var(--theme-primary);
+  --color-primary-hover: var(--theme-primary-hover);
+  --color-primary-light: var(--theme-primary-light);
+  --color-secondary: var(--theme-secondary);
+  --color-secondary-hover: var(--theme-secondary-hover);
+  --color-accent: var(--theme-accent);
+  --color-accent-hover: var(--theme-accent-hover);
+
+  --color-bg-primary: var(--theme-bg-primary);
+  --color-bg-secondary: var(--theme-bg-secondary);
+  --color-bg-tertiary: var(--theme-bg-tertiary);
+  --color-bg-card: var(--theme-bg-card);
+  --color-bg-hover: var(--theme-bg-hover);
+
+  --color-text-primary: var(--theme-text-primary);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-text-muted: var(--theme-text-muted);
+  --color-text-inverse: var(--theme-text-inverse);
+
+  --color-border: var(--theme-border);
+  --color-border-light: var(--theme-border-light);
+
+  --color-success: var(--theme-success);
+  --color-success-light: var(--theme-success-light);
+  --color-warning: var(--theme-warning);
+  --color-warning-light: var(--theme-warning-light);
+  --color-danger: var(--theme-danger);
+  --color-danger-light: var(--theme-danger-light);
+
+  --color-sidebar-bg: var(--theme-sidebar-bg);
+  --color-sidebar-text: var(--theme-sidebar-text);
+  --color-sidebar-hover: var(--theme-sidebar-hover);
+  --color-sidebar-active: var(--theme-sidebar-active);
+}
+
+/* ============================================
+   OCEAN THEME (Default)
+   ============================================ */
+
+:root,
+[data-color-scheme="ocean"][data-mode="light"] {
+  --theme-primary: #2563eb;
+  --theme-primary-hover: #1d4ed8;
+  --theme-primary-light: #dbeafe;
+  --theme-secondary: #64748b;
+  --theme-secondary-hover: #475569;
+  --theme-accent: #0ea5e9;
+  --theme-accent-hover: #0284c7;
+
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f8fafc;
+  --theme-bg-tertiary: #f1f5f9;
+  --theme-bg-card: #ffffff;
+  --theme-bg-hover: #f1f5f9;
+
+  --theme-text-primary: #1e293b;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #94a3b8;
+  --theme-text-inverse: #ffffff;
+
+  --theme-border: #e2e8f0;
+  --theme-border-light: #f1f5f9;
+
+  --theme-success: #22c55e;
+  --theme-success-light: #dcfce7;
+  --theme-warning: #f97316;
+  --theme-warning-light: #ffedd5;
+  --theme-danger: #ef4444;
+  --theme-danger-light: #fee2e2;
+
+  --theme-sidebar-bg: #f1f5f9;
+  --theme-sidebar-text: #374151;
+  --theme-sidebar-hover: #e2e8f0;
+  --theme-sidebar-active: #2563eb;
+}
+
+[data-color-scheme="ocean"][data-mode="dark"] {
+  --theme-primary: #3b82f6;
+  --theme-primary-hover: #60a5fa;
+  --theme-primary-light: #1e3a5f;
+  --theme-secondary: #94a3b8;
+  --theme-secondary-hover: #cbd5e1;
+  --theme-accent: #38bdf8;
+  --theme-accent-hover: #7dd3fc;
+
+  --theme-bg-primary: #0f172a;
+  --theme-bg-secondary: #1e293b;
+  --theme-bg-tertiary: #334155;
+  --theme-bg-card: #1e293b;
+  --theme-bg-hover: #334155;
+
+  --theme-text-primary: #f1f5f9;
+  --theme-text-secondary: #cbd5e1;
+  --theme-text-muted: #64748b;
+  --theme-text-inverse: #0f172a;
+
+  --theme-border: #334155;
+  --theme-border-light: #1e293b;
+
+  --theme-success: #4ade80;
+  --theme-success-light: #14532d;
+  --theme-warning: #fb923c;
+  --theme-warning-light: #7c2d12;
+  --theme-danger: #f87171;
+  --theme-danger-light: #7f1d1d;
+
+  --theme-sidebar-bg: #1e293b;
+  --theme-sidebar-text: #e2e8f0;
+  --theme-sidebar-hover: #334155;
+  --theme-sidebar-active: #3b82f6;
+}
+
+/* ============================================
+   TEAL WARMTH THEME
+   ============================================ */
+
+[data-color-scheme="teal-warmth"][data-mode="light"] {
+  --theme-primary: #0d9488;
+  --theme-primary-hover: #0f766e;
+  --theme-primary-light: #ccfbf1;
+  --theme-secondary: #78716c;
+  --theme-secondary-hover: #57534e;
+  --theme-accent: #f59e0b;
+  --theme-accent-hover: #d97706;
+
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #fafaf9;
+  --theme-bg-tertiary: #f5f5f4;
+  --theme-bg-card: #ffffff;
+  --theme-bg-hover: #f5f5f4;
+
+  --theme-text-primary: #1c1917;
+  --theme-text-secondary: #57534e;
+  --theme-text-muted: #a8a29e;
+  --theme-text-inverse: #ffffff;
+
+  --theme-border: #e7e5e4;
+  --theme-border-light: #f5f5f4;
+
+  --theme-success: #10b981;
+  --theme-success-light: #d1fae5;
+  --theme-warning: #f59e0b;
+  --theme-warning-light: #fef3c7;
+  --theme-danger: #ef4444;
+  --theme-danger-light: #fee2e2;
+
+  --theme-sidebar-bg: #f5f5f4;
+  --theme-sidebar-text: #44403c;
+  --theme-sidebar-hover: #e7e5e4;
+  --theme-sidebar-active: #0d9488;
+}
+
+[data-color-scheme="teal-warmth"][data-mode="dark"] {
+  --theme-primary: #14b8a6;
+  --theme-primary-hover: #2dd4bf;
+  --theme-primary-light: #134e4a;
+  --theme-secondary: #a8a29e;
+  --theme-secondary-hover: #d6d3d1;
+  --theme-accent: #fbbf24;
+  --theme-accent-hover: #fcd34d;
+
+  --theme-bg-primary: #1c1917;
+  --theme-bg-secondary: #292524;
+  --theme-bg-tertiary: #44403c;
+  --theme-bg-card: #292524;
+  --theme-bg-hover: #44403c;
+
+  --theme-text-primary: #fafaf9;
+  --theme-text-secondary: #d6d3d1;
+  --theme-text-muted: #78716c;
+  --theme-text-inverse: #1c1917;
+
+  --theme-border: #44403c;
+  --theme-border-light: #292524;
+
+  --theme-success: #34d399;
+  --theme-success-light: #064e3b;
+  --theme-warning: #fbbf24;
+  --theme-warning-light: #78350f;
+  --theme-danger: #f87171;
+  --theme-danger-light: #7f1d1d;
+
+  --theme-sidebar-bg: #292524;
+  --theme-sidebar-text: #e7e5e4;
+  --theme-sidebar-hover: #44403c;
+  --theme-sidebar-active: #14b8a6;
+}
+
+/* ============================================
+   GLOBAL THEME STYLES
+   ============================================ */
+
+body {
+  background-color: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* ============================================
+   AUTH0 BUTTON STYLING
+   ============================================ */
+
+.button {
+  padding: 1.1rem 2.8rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  outline: none;
+}
+
+.button:focus {
+  box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.5);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button.login {
+  background-color: var(--theme-primary);
+  color: var(--theme-text-inverse);
+}
+
+.button.login:hover:not(:disabled) {
+  background-color: var(--theme-primary-hover);
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+}
+
+.button.logout {
+  background-color: var(--theme-danger);
+  color: var(--theme-text-inverse);
+}
+
+.button.logout:hover:not(:disabled) {
+  background-color: var(--theme-danger);
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   LOADING ANIMATION
+   ============================================ */
+
+.loading-text {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--theme-text-muted);
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-70px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ============================================
+   VUE TRANSITIONS
+   ============================================ */
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(-100%);
+}
+
+/* ============================================
+   CARD ACTION BUTTONS
+   ============================================ */
+
+.btn-action-primary {
+  background-color: var(--theme-primary);
+  color: var(--theme-text-inverse);
+  transition: all 0.2s ease;
+}
+
+.btn-action-primary:hover:not(:disabled) {
+  background-color: var(--theme-primary-hover);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-action-secondary {
+  background-color: var(--theme-bg-tertiary);
+  color: var(--theme-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.btn-action-secondary:hover:not(:disabled) {
+  background-color: var(--theme-bg-hover);
+  color: var(--theme-text-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-action-success {
+  background-color: var(--theme-success-light);
+  color: var(--theme-success);
+  transition: all 0.2s ease;
+}
+
+.btn-action-success:hover:not(:disabled) {
+  background-color: var(--theme-success);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-action-danger {
+  background-color: var(--theme-danger-light);
+  color: var(--theme-danger);
+  transition: all 0.2s ease;
+}
+
+.btn-action-danger:hover:not(:disabled) {
+  background-color: var(--theme-danger);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

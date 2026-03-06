@@ -1,0 +1,43 @@
+[dev]
+  command = "npm run dev"
+  targetPort = 5176
+  port = 8890
+  framework = "#custom"
+  autoLaunch = false
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  # Skip secrets scanning for Auth0 public credentials (they're designed to be in frontend)
+  SECRETS_SCAN_OMIT_KEYS = "VITE_AUTH0_DOMAIN,VITE_AUTH0_CLIENT_ID"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["@libsql/linux-x64-gnu", "@libsql/linux-x64-musl", "@libsql/client"]
+  included_files = ["node_modules/@libsql/**"]
+
+# Security headers for bot blocking
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    Permissions-Policy = "interest-cohort=()"
+
+# Allow preview routes to be embedded in same-origin iframes
+[[headers]]
+  for = "/preview/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+
+# Ensure robots.txt is served correctly
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain"
