@@ -66,16 +66,6 @@ function toggleEntity(id: string) {
   else expandedEntities.value.add(id)
 }
 
-function updateEntityName(id: string, value: string) {
-  const e = entities.value.find(e => e.id === id)
-  if (e) e.name = value
-}
-
-function updateEntityDescription(id: string, value: string) {
-  const e = entities.value.find(e => e.id === id)
-  if (e) e.description = value
-}
-
 function removeEntity(id: string) {
   entities.value = entities.value.filter(e => e.id !== id)
   expandedEntities.value.delete(id)

@@ -84,7 +84,7 @@ provide(SITE_CONTEXT_KEY, siteContext)
 // ── Legal page block props ─────────────────────────────────────────────────────
 const LEGAL_ID_MAP: Record<string, { key: keyof typeof composition.siteBuilder.legalContent; heading: string }> = {
   privacy:       { key: 'privacyPolicy',           heading: 'Privacy Policy' },
-  terms:         { key: 'termsConditions',          heading: 'Terms & Conditions' },
+  terms:         { key: 'termsAndConditions',       heading: 'Terms & Conditions' },
   accessibility: { key: 'accessibilityStatement',  heading: 'Accessibility Statement' },
   cookie:        { key: 'cookiePolicy',             heading: 'Cookie Policy' }
 }

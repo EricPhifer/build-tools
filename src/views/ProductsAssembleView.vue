@@ -11,12 +11,12 @@ const composition = useCompositionStore()
 const workflow = useWorkflowStore()
 
 function handleContinue() {
-  workflow.completeStep('assemble')
+  workflow.completeStep('site')
   workflow.goToStep('dashboard')
   router.push('/dashboards')
 }
 
-workflow.goToStep('assemble')
+workflow.goToStep('site')
 
 // Sync project name with composition store
 watch(() => composition.composition.name, () => {}, { immediate: true })

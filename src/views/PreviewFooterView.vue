@@ -23,9 +23,6 @@ const borderRadius = (route.query.borderRadius as string) || ''
 const colorsLight = (() => {
   try { return JSON.parse((route.query.colorsLight as string) || '{}') } catch { return {} }
 })()
-const colorsDark = (() => {
-  try { return JSON.parse((route.query.colorsDark as string) || '{}') } catch { return {} }
-})()
 
 const KEY_TO_VAR: Record<string, string> = {
   primary: '--theme-primary', primaryHover: '--theme-primary-hover', primaryLight: '--theme-primary-light',

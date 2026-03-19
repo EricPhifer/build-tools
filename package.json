@@ -12,9 +12,11 @@
   "dependencies": {
     "@auth0/auth0-vue": "^2.5.0",
     "@libsql/client": "^0.17.0",
+    "@netlify/blobs": "^10.7.4",
     "dotenv": "^17.3.1",
     "lucide-vue-next": "^0.562.0",
     "pinia": "^3.0.4",
+    "resend": "^6.9.4",
     "vue": "^3.5.24",
     "vue-router": "^4.6.4"
   },

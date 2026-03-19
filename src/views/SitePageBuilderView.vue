@@ -126,14 +126,14 @@ function removeBlock(blockId: string) {
 function moveBlockUp(index: number) {
   const arr = [...getSlotBlocks(selectedSlot.value)]
   if (index === 0) return
-  ;[arr[index - 1], arr[index]] = [arr[index], arr[index - 1]]
+  const tmp1 = arr[index - 1]!; arr[index - 1] = arr[index]!; arr[index] = tmp1
   setSlotBlocks(selectedSlot.value, arr)
 }
 
 function moveBlockDown(index: number) {
   const arr = [...getSlotBlocks(selectedSlot.value)]
   if (index >= arr.length - 1) return
-  ;[arr[index], arr[index + 1]] = [arr[index + 1], arr[index]]
+  const tmp2 = arr[index]!; arr[index] = arr[index + 1]!; arr[index + 1] = tmp2
   setSlotBlocks(selectedSlot.value, arr)
 }
 

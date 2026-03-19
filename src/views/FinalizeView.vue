@@ -54,7 +54,7 @@ const pageBlocks   = computed(() => {
   for (const page of composition.siteBuilder.sitemapPages) {
     for (const id of page.blocks ?? []) allIds.add(id)
     for (const ids of Object.values(page.slotBlocks ?? {})) {
-      for (const id of ids) allIds.add(id)
+      for (const id of ids ?? []) allIds.add(id)
     }
   }
   return [...allIds]
@@ -95,6 +95,8 @@ const checklist = computed(() => [
   { label: 'Content blocks assigned to pages', done: blockCount.value > 0 },
   { label: 'CMS schemas generated',            done: schemaCount.value > 0 },
   { label: 'Dashboard widgets configured',     done: enabledWidgetCount.value > 0 },
+  { label: 'Billing Stripe Customer ID set',   done: !!dashboardConfig.value.billing?.stripeCustomerId },
+  { label: 'Content Kit configured',            done: dashboardConfig.value.contentKit?.enabled && dashboardConfig.value.contentKit.sections.some(s => s.enabled) },
 ])
 const allChecksPassed = computed(() => checklist.value.every(c => c.done))
 
@@ -124,6 +126,7 @@ const PHASES: Phase[] = [
       { id: 'p1-15', label: 'Auth0 flow tested locally (if enabled)' },
       { id: 'p1-16', label: '`pnpm build` succeeds — no type errors' },
       { id: 'p1-17', label: 'Lighthouse score checked — no critical issues' },
+      { id: 'p1-18', label: 'Billing page loads — subscription card and portal button render' },
     ]
   },
   {
@@ -171,11 +174,13 @@ const PHASES: Phase[] = [
       { id: 'p4-12', label: 'Google Analytics connected and verified (if GA4 ID configured)' },
       { id: 'p4-13', label: 'Contact forms and interactive features tested in production' },
       { id: 'p4-14', label: 'Client access credentials and all links delivered' },
+      { id: 'p4-15', label: 'Stripe Customer Portal settings reviewed (Settings → Customer Portal in Stripe Dashboard)' },
+      { id: 'p4-16', label: 'Billing page tested — portal redirect works, subscription + payment data displays correctly' },
     ]
   }
 ]
 
-const TOTAL_ITEMS = 46
+const TOTAL_ITEMS = 49
 
 // ─── Deployment checklist state ─────────────────────────────────────────────
 const checkedItems = computed(() =>
@@ -352,7 +357,7 @@ function buildExportConfig() {
     cms: { sanityDocumentTypes, schemas: composition.mergedSchemaRequirements, schemaJsonLd },
     legal: {
       privacyPolicy:          sb.legalContent.privacyPolicy ?? '',
-      termsConditions:        sb.legalContent.termsConditions ?? '',
+      termsAndConditions:     sb.legalContent.termsAndConditions ?? '',
       accessibilityStatement: sb.legalContent.accessibilityStatement ?? '',
       cookiePolicy:           sb.legalContent.cookiePolicy ?? ''
     },

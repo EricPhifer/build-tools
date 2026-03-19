@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Project, ProjectType, ProjectStatus, ProjectLink } from '../types/registry'
+import type { Project, ProjectLink } from '../types/registry'
 
 const STORAGE_KEY = 'build-tools-projects'
 

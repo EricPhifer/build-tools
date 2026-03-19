@@ -307,9 +307,7 @@ export function buildLegalTemplates(
   year: number,
   businessType: BusinessType
 ): LegalPageContent {
-  const isNonprofit = businessType === 'nonprofit' || businessType === 'church'
   const isRetail = businessType === 'retail'
-  const entityType = isNonprofit ? 'nonprofit organization' : 'company'
 
   const privacyPolicy = `# Privacy Policy
 
@@ -379,7 +377,7 @@ If you have questions about this Privacy Policy, contact us at:
 Email: ${contactEmail}
 Website: ${domain}`
 
-  const termsConditions = `# Terms & Conditions
+  const termsAndConditions = `# Terms & Conditions
 
 **Last updated:** January 1, ${year}
 
@@ -511,7 +509,7 @@ For questions about our use of cookies, contact us at:
 Email: ${contactEmail}
 Website: ${domain}`
 
-  return { privacyPolicy, termsConditions, accessibilityStatement, cookiePolicy }
+  return { privacyPolicy, termsAndConditions, accessibilityStatement, cookiePolicy }
 }
 
 // ─── Build Checklist Defaults ──────────────────────────────────────────────

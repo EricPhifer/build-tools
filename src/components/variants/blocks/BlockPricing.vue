@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSiteContext, colorWithOpacity } from '../../../composables/useSiteContext'
+import { useSiteContext } from '../../../composables/useSiteContext'
 
 withDefaults(defineProps<{
   heading?: string

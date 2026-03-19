@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef, onMounted, type Component } from 'vue'
+import { shallowRef, onMounted, type Component } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRegistryStore } from '../stores/registry'
 
@@ -7,7 +7,6 @@ const route = useRoute()
 const registry = useRegistryStore()
 
 const PreviewComponent = shallowRef<Component | null>(null)
-const wrapper = ref<HTMLElement | null>(null)
 
 const id = route.query.id as string
 const siteName = (route.query.siteName as string) || 'Your Business'

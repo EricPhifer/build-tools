@@ -2,13 +2,15 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  LayoutDashboard, Globe, PencilLine, Zap, BarChart3, BookOpen, Link2, FileEdit,
-  ArrowRight, Plus, Trash2, Lock, ExternalLink, Monitor, Tablet, Smartphone
+  LayoutDashboard, Zap, BarChart3, BookOpen, Link2, FileEdit,
+  ArrowRight, Plus, Trash2, Lock, ExternalLink, Monitor, Tablet, Smartphone, CreditCard,
+  ClipboardList, GripVertical
 } from 'lucide-vue-next'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
 import WorkflowProgress from '../components/WorkflowProgress.vue'
-import type { DashboardWidgetType, TutorialVideo, HelpfulLink, QuickAction, ContentEditorWidget, ContentEditorField } from '../types/dashboard'
+import type { DashboardWidgetType, TutorialVideo, HelpfulLink, QuickAction, ContentEditorWidget, ContentEditorField, ContentKitSectionConfig } from '../types/dashboard'
+import { BRAND_PERSONALITY_OPTIONS } from '../types/dashboard'
 
 const router = useRouter()
 const composition = useCompositionStore()
@@ -186,6 +188,16 @@ function removeField(editorId: string, fieldId: string) {
   })
 }
 
+// --- Content Kit ---
+function updateContentKitSection(id: string, partial: Partial<ContentKitSectionConfig>) {
+  composition.setDashboardConfig({
+    contentKit: {
+      ...config.value.contentKit,
+      sections: config.value.contentKit.sections.map(s => s.id === id ? { ...s, ...partial } : s)
+    }
+  })
+}
+
 const canContinue = computed(() => config.value.enabledWidgets.length > 0)
 
 function handleContinue() {
@@ -259,6 +271,29 @@ const inputStyle = {
             class="ml-auto text-xs px-1.5 py-0.5 rounded"
             :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
           >Off</span>
+        </button>
+
+        <!-- Standard Pages separator -->
+        <p class="text-[10px] font-semibold uppercase tracking-wider pt-3 pb-1 px-3" :style="{ color: 'var(--theme-text-muted)' }">Standard Pages</p>
+        <button
+          @click="activeTab = 'billing'"
+          class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-left transition-colors"
+          :style="activeTab === 'billing'
+            ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+            : { color: 'var(--theme-text-secondary)' }"
+        >
+          <CreditCard class="w-4 h-4 shrink-0" />
+          Billing
+        </button>
+        <button
+          @click="activeTab = 'contentKit'"
+          class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-left transition-colors"
+          :style="activeTab === 'contentKit'
+            ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+            : { color: 'var(--theme-text-secondary)' }"
+        >
+          <ClipboardList class="w-4 h-4 shrink-0" />
+          Content Kit
         </button>
       </nav>
 
@@ -488,7 +523,7 @@ const inputStyle = {
                     :key="emoji"
                     @click="selectEmoji(link.id, emoji)"
                     class="w-7 h-7 flex items-center justify-center rounded text-base transition-colors"
-                    :style="{ ':hover': { backgroundColor: 'var(--theme-bg-secondary)' } }"
+                    :style="{ backgroundColor: 'transparent' }"
                   >{{ emoji }}</button>
                 </div>
               </div>
@@ -617,6 +652,192 @@ const inputStyle = {
           <button @click="addEditor" class="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed text-sm transition-colors" :style="{ borderColor: 'var(--theme-border)', color: 'var(--theme-text-muted)' }">
             <Plus class="w-3.5 h-3.5" /> Add Content Editor
           </button>
+        </template>
+
+        <!-- BILLING TAB -->
+        <template v-else-if="activeTab === 'billing'">
+          <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">Configure the billing page that connects to Stripe Customer Portal. This page is always present on the client dashboard.</p>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Stripe Customer ID</label>
+              <input
+                :value="config.billing.stripeCustomerId"
+                @input="composition.setDashboardConfig({ billing: { ...config.billing, stripeCustomerId: ($event.target as HTMLInputElement).value } })"
+                placeholder="cus_xxxxxxxxxxxxxxxxxx"
+                :class="inputClass"
+                :style="inputStyle"
+              />
+              <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">From Stripe Dashboard or the client record in your admin tool. Required for the billing page to function.</p>
+            </div>
+
+            <div class="pt-1 border-t" :style="{ borderColor: 'var(--theme-border)' }">
+              <div class="flex items-center justify-between py-2">
+                <div>
+                  <p class="text-sm font-medium" :style="{ color: 'var(--theme-text-primary)' }">Show Pending Charges</p>
+                  <p class="text-xs mt-0.5" :style="{ color: 'var(--theme-text-muted)' }">Display open invoices and ad-hoc charges (day rate work, etc.) on the billing page.</p>
+                </div>
+                <button
+                  @click="composition.setDashboardConfig({ billing: { ...config.billing, showPendingCharges: !config.billing.showPendingCharges } })"
+                  class="shrink-0 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
+                  :style="config.billing.showPendingCharges
+                    ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+                    : { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
+                >{{ config.billing.showPendingCharges ? 'On' : 'Off' }}</button>
+              </div>
+            </div>
+
+            <div class="pt-1 border-t" :style="{ borderColor: 'var(--theme-border)' }">
+              <div class="flex items-center justify-between py-2">
+                <div>
+                  <p class="text-sm font-medium" :style="{ color: 'var(--theme-text-primary)' }">Show Offline Invoices</p>
+                  <p class="text-xs mt-0.5" :style="{ color: 'var(--theme-text-muted)' }">Include offline payment invoices (Zelle/Check) alongside Stripe invoices.</p>
+                </div>
+                <button
+                  @click="composition.setDashboardConfig({ billing: { ...config.billing, showOfflineInvoices: !config.billing.showOfflineInvoices } })"
+                  class="shrink-0 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
+                  :style="config.billing.showOfflineInvoices
+                    ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+                    : { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
+                >{{ config.billing.showOfflineInvoices ? 'On' : 'Off' }}</button>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- CONTENT KIT TAB -->
+        <template v-else-if="activeTab === 'contentKit'">
+          <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">Configure the Content Kit form that clients fill out to provide their business info, story, and assets for the build.</p>
+
+          <!-- Master toggle -->
+          <div
+            class="p-3 rounded-xl border flex items-center justify-between"
+            :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
+          >
+            <div>
+              <p class="text-sm font-medium" :style="{ color: 'var(--theme-text-primary)' }">Enable Content Kit</p>
+              <p class="text-xs mt-0.5" :style="{ color: 'var(--theme-text-muted)' }">Show the Content Kit page in the client dashboard sidebar.</p>
+            </div>
+            <button
+              @click="composition.setDashboardConfig({ contentKit: { ...config.contentKit, enabled: !config.contentKit.enabled } })"
+              class="shrink-0 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
+              :style="config.contentKit.enabled
+                ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+                : { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
+            >{{ config.contentKit.enabled ? 'On' : 'Off' }}</button>
+          </div>
+
+          <template v-if="config.contentKit.enabled">
+            <!-- Welcome message -->
+            <div>
+              <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Welcome Message</label>
+              <textarea
+                :value="config.contentKit.welcomeMessage"
+                @input="composition.setDashboardConfig({ contentKit: { ...config.contentKit, welcomeMessage: ($event.target as HTMLTextAreaElement).value } })"
+                placeholder="Help us build the perfect website for you! Fill out each section below with as much detail as you can."
+                rows="3"
+                :class="inputClass"
+                :style="inputStyle"
+              />
+              <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">Shown at the top of the Content Kit form. Leave blank for default.</p>
+            </div>
+
+            <!-- Max personality picks -->
+            <div>
+              <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Max Brand Personality Picks</label>
+              <select
+                :value="config.contentKit.maxPersonalityPicks"
+                @change="composition.setDashboardConfig({ contentKit: { ...config.contentKit, maxPersonalityPicks: Number(($event.target as HTMLSelectElement).value) } })"
+                :class="inputClass"
+                :style="inputStyle"
+              >
+                <option :value="2">2</option>
+                <option :value="3">3</option>
+                <option :value="4">4</option>
+                <option :value="5">5</option>
+              </select>
+              <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">How many brand personality traits the client can select in the Brand & Style section.</p>
+            </div>
+
+            <!-- Personality preview chips -->
+            <div>
+              <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Personality Options Preview</label>
+              <div class="flex flex-wrap gap-1.5">
+                <span
+                  v-for="p in BRAND_PERSONALITY_OPTIONS"
+                  :key="p"
+                  class="px-2.5 py-1 rounded-full text-xs font-medium"
+                  :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-secondary)' }"
+                >{{ p }}</span>
+              </div>
+              <p class="text-xs mt-1.5" :style="{ color: 'var(--theme-text-muted)' }">All 12 options are shown to the client as toggleable chips.</p>
+            </div>
+
+            <!-- Email notification toggle -->
+            <div
+              class="p-3 rounded-xl border flex items-center justify-between"
+              :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
+            >
+              <div>
+                <p class="text-sm font-medium" :style="{ color: 'var(--theme-text-primary)' }">Completion Email</p>
+                <p class="text-xs mt-0.5" :style="{ color: 'var(--theme-text-muted)' }">Notify admin when the client completes all required sections.</p>
+              </div>
+              <button
+                @click="composition.setDashboardConfig({ contentKit: { ...config.contentKit, completionEmailNotify: !config.contentKit.completionEmailNotify } })"
+                class="shrink-0 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
+                :style="config.contentKit.completionEmailNotify
+                  ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+                  : { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
+              >{{ config.contentKit.completionEmailNotify ? 'On' : 'Off' }}</button>
+            </div>
+
+            <!-- Sections list -->
+            <div class="pt-1 border-t" :style="{ borderColor: 'var(--theme-border)' }">
+              <p class="text-xs font-semibold mb-3" :style="{ color: 'var(--theme-text-secondary)' }">Sections</p>
+              <p class="text-xs mb-3" :style="{ color: 'var(--theme-text-muted)' }">Toggle sections on/off and mark which are required for completion.</p>
+              <div class="space-y-2">
+                <div
+                  v-for="section in config.contentKit.sections"
+                  :key="section.id"
+                  class="p-3 rounded-xl border flex items-start gap-3"
+                  :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
+                >
+                  <GripVertical class="w-3.5 h-3.5 mt-0.5 shrink-0" :style="{ color: 'var(--theme-text-muted)' }" />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <p class="text-sm font-medium" :style="{ color: section.enabled ? 'var(--theme-text-primary)' : 'var(--theme-text-muted)' }">{{ section.label }}</p>
+                      <span
+                        v-if="section.required && section.enabled"
+                        class="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                        :style="{ backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }"
+                      >Required</span>
+                    </div>
+                    <p class="text-xs mt-0.5" :style="{ color: 'var(--theme-text-muted)' }">{{ section.description }}</p>
+                    <!-- Required toggle (only when enabled) -->
+                    <label
+                      v-if="section.enabled"
+                      class="flex items-center gap-1.5 mt-2 text-xs cursor-pointer"
+                      :style="{ color: 'var(--theme-text-secondary)' }"
+                    >
+                      <input
+                        type="checkbox"
+                        :checked="section.required"
+                        @change="updateContentKitSection(section.id, { required: ($event.target as HTMLInputElement).checked })"
+                        class="rounded"
+                      />
+                      Required for completion
+                    </label>
+                  </div>
+                  <button
+                    @click="updateContentKitSection(section.id, { enabled: !section.enabled })"
+                    class="shrink-0 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
+                    :style="section.enabled
+                      ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+                      : { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
+                  >{{ section.enabled ? 'On' : 'Off' }}</button>
+                </div>
+              </div>
+            </div>
+          </template>
         </template>
 
         <!-- Continue -->

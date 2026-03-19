@@ -10,20 +10,20 @@ const router = useRouter()
 const composition = useCompositionStore()
 const workflow = useWorkflowStore()
 
-type LegalTab = 'privacyPolicy' | 'termsConditions' | 'accessibilityStatement' | 'cookiePolicy'
+type LegalTab = 'privacyPolicy' | 'termsAndConditions' | 'accessibilityStatement' | 'cookiePolicy'
 
 const activeTab = ref<LegalTab>('privacyPolicy')
 
 const TABS: { id: LegalTab; label: string }[] = [
   { id: 'privacyPolicy', label: 'Privacy Policy' },
-  { id: 'termsConditions', label: 'Terms & Conditions' },
+  { id: 'termsAndConditions', label: 'Terms & Conditions' },
   { id: 'accessibilityStatement', label: 'Accessibility Statement' },
   { id: 'cookiePolicy', label: 'Cookie Policy' }
 ]
 
 const content = ref({
   privacyPolicy: '',
-  termsConditions: '',
+  termsAndConditions: '',
   accessibilityStatement: '',
   cookiePolicy: ''
 })
@@ -44,7 +44,7 @@ onMounted(() => {
 
   content.value = {
     privacyPolicy: existing.privacyPolicy ?? templates.privacyPolicy,
-    termsConditions: existing.termsConditions ?? templates.termsConditions,
+    termsAndConditions: existing.termsAndConditions ?? templates.termsAndConditions,
     accessibilityStatement: existing.accessibilityStatement ?? templates.accessibilityStatement,
     cookiePolicy: existing.cookiePolicy ?? templates.cookiePolicy
   }

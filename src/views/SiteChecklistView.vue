@@ -92,7 +92,7 @@ const legalStatus = computed(() => {
   const lc = sb.value.legalContent
   return [
     { label: 'Privacy Policy', key: 'privacyPolicy', done: !!lc.privacyPolicy },
-    { label: 'Terms & Conditions', key: 'termsConditions', done: !!lc.termsConditions },
+    { label: 'Terms & Conditions', key: 'termsAndConditions', done: !!lc.termsAndConditions },
     { label: 'Accessibility Statement', key: 'accessibilityStatement', done: !!lc.accessibilityStatement },
     { label: 'Cookie Policy', key: 'cookiePolicy', done: !!lc.cookiePolicy }
   ]

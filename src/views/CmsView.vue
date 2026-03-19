@@ -39,7 +39,7 @@ const contributingVariants = computed(() => {
   for (const page of composition.siteBuilder.sitemapPages) {
     const allPageBlockIds = [
       ...(page.blocks ?? []),
-      ...Object.values(page.slotBlocks ?? {}).flat()
+      ...Object.values(page.slotBlocks ?? {}).flatMap(v => v ?? [])
     ]
     for (const blockId of [...new Set(allPageBlockIds)]) {
       const block = registry.getBlockById(blockId)

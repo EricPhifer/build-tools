@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import DarkModeSlot from './DarkModeSlot.vue'
 
 defineProps<{
   siteName?: string

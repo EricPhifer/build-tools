@@ -7,6 +7,7 @@ import type {
   AppScreen, DataEntity
 } from '../types/registry'
 import type { DashboardConfig } from '../types/dashboard'
+import { DEFAULT_CONTENT_KIT_SECTIONS } from '../types/dashboard'
 
 const STORAGE_KEY = 'build-tools-composition'
 
@@ -58,7 +59,19 @@ function createDefaultDashboardConfig(): DashboardConfig {
     quickActions: [],
     tutorialVideos: [],
     helpfulLinks: [],
-    contentEditors: []
+    contentEditors: [],
+    billing: {
+      stripeCustomerId: '',
+      showPendingCharges: true,
+      showOfflineInvoices: true
+    },
+    contentKit: {
+      enabled: true,
+      sections: DEFAULT_CONTENT_KIT_SECTIONS.map(s => ({ ...s })),
+      maxPersonalityPicks: 4,
+      welcomeMessage: '',
+      completionEmailNotify: true
+    }
   }
 }
 
@@ -201,7 +214,7 @@ export const useCompositionStore = defineStore('composition', () => {
     for (const page of siteBuilder.value.sitemapPages) {
       const allPageBlockIds = [
         ...(page.blocks ?? []),
-        ...Object.values(page.slotBlocks ?? {}).flat()
+        ...Object.values(page.slotBlocks ?? {}).flatMap(v => v ?? [])
       ]
       for (const blockId of [...new Set(allPageBlockIds)]) {
         const block = registry.getBlockById(blockId)
@@ -492,7 +505,7 @@ export const useCompositionStore = defineStore('composition', () => {
     if (config.legal) {
       siteBuilder.value.legalContent = {
         privacyPolicy:          config.legal.privacyPolicy          ?? '',
-        termsConditions:        config.legal.termsConditions        ?? '',
+        termsAndConditions:     config.legal.termsAndConditions ?? config.legal.termsConditions ?? '',
         accessibilityStatement: config.legal.accessibilityStatement ?? '',
         cookiePolicy:           config.legal.cookiePolicy           ?? ''
       }

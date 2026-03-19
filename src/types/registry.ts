@@ -65,7 +65,7 @@ export interface PageTemplate {
 }
 
 // === Content Block Types ===
-export type BlockCategory = 'hero' | 'content' | 'features' | 'cta' | 'gallery' | 'testimonial'
+export type BlockCategory = 'hero' | 'content' | 'features' | 'cta' | 'gallery' | 'testimonial' | 'social-proof' | 'about' | 'media' | 'contact'
 
 export interface ContentBlock {
   id: string
@@ -328,7 +328,7 @@ export function isAppProjectType(type: BusinessType | null): boolean {
 // === Legal Pages ===
 export interface LegalPageContent {
   privacyPolicy: string
-  termsConditions: string
+  termsAndConditions: string
   accessibilityStatement: string
   cookiePolicy: string
 }

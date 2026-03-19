@@ -5,9 +5,11 @@ import {
   LayoutDashboard, BarChart3, BookOpen, Link2, FileEdit, Zap,
   ExternalLink, MessageSquare, Send, CheckCircle2, LogIn,
   Menu, X, ChevronLeft, ChevronRight,
-  UserCircle, LogOut, Sun, Moon
+  UserCircle, LogOut, Sun, Moon, CreditCard, ClipboardList,
+  Upload, ChevronDown
 } from 'lucide-vue-next'
-import type { DashboardConfig, DashboardWidgetType, TutorialVideo } from '../types/dashboard'
+import type { DashboardConfig, TutorialVideo } from '../types/dashboard'
+import { BRAND_PERSONALITY_OPTIONS } from '../types/dashboard'
 
 const route        = useRoute()
 const clientName   = computed(() => (route.query.clientName as string) || 'Client Dashboard')
@@ -68,7 +70,7 @@ async function submitContact() {
 // ─── Video helpers ────────────────────────────────────────────────────────────
 function getYouTubeId(url: string): string | null {
   const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
-  return match ? match[1] : null
+  return match ? match[1] ?? null : null
 }
 function getVideoThumbnail(video: TutorialVideo): string | null {
   if (video.source === 'mux' && video.muxPlaybackId)
@@ -112,6 +114,9 @@ const navItems = computed((): NavItem[] => {
     (config.value?.enabledWidgets.includes('links') && config.value.helpfulLinks.some(l => l.title && l.url))
   if (hasResources)
     items.push({ id: 'resources', label: 'Resources', icon: BookOpen })
+  items.push({ id: 'billing', label: 'Billing', icon: CreditCard })
+  if (config.value?.contentKit?.enabled)
+    items.push({ id: 'contentKit', label: 'Content Kit', icon: ClipboardList })
   items.push({ id: 'contact', label: 'Contact & Support', icon: MessageSquare })
   return items
 })
@@ -147,6 +152,13 @@ const summaryCards = computed(() => {
     if (videoCount > 0) parts.push(`${videoCount} video${videoCount === 1 ? '' : 's'}`)
     if (linkCount > 0)  parts.push(`${linkCount} link${linkCount === 1 ? '' : 's'}`)
     cards.push({ id: 'resources', title: 'Resources', icon: BookOpen, sub: parts.join(' · ') })
+  }
+  cards.push({ id: 'billing', title: 'Billing', icon: CreditCard,
+    sub: 'Manage subscription & payments' })
+  if (config.value?.contentKit?.enabled) {
+    const enabledSections = config.value.contentKit.sections.filter(s => s.enabled).length
+    cards.push({ id: 'contentKit', title: 'Content Kit', icon: ClipboardList,
+      sub: `${enabledSections} section${enabledSections === 1 ? '' : 's'} to complete` })
   }
   cards.push({ id: 'contact', title: 'Contact & Support', icon: MessageSquare,
     sub: 'Get help from your developer' })
@@ -585,6 +597,291 @@ onMounted(() => {
           <div v-if="Object.keys(videosByCategory).length === 0 && (!config?.helpfulLinks || config.helpfulLinks.filter(l => l.title && l.url).length === 0)" class="text-center py-16 text-gray-400">
             <BookOpen class="w-8 h-8 mx-auto mb-3 opacity-30" />
             <p class="text-sm">No resources configured yet.</p>
+          </div>
+        </template>
+
+        <!-- ─── BILLING ────────────────────────────────────────────────────────── -->
+        <template v-else-if="activePage === 'billing'">
+          <div class="max-w-2xl">
+            <div class="mb-6">
+              <h2 class="text-xl font-bold text-gray-900">Billing & Payments</h2>
+              <p class="text-gray-500 text-sm mt-1">Manage your subscription, payment method, and invoices</p>
+            </div>
+
+            <!-- Subscription card -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-3">Subscription</p>
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span class="text-xs font-medium text-green-600">Active</span>
+                  </div>
+                  <p class="text-sm font-semibold text-gray-900">Passive Maintenance — Monthly</p>
+                  <p class="text-xs text-gray-500 mt-0.5">Next billing: April 1, 2026</p>
+                </div>
+                <p class="text-lg font-bold text-gray-900">$300<span class="text-xs font-normal text-gray-400">/mo</span></p>
+              </div>
+              <button
+                disabled
+                class="mt-4 flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-white cursor-not-allowed opacity-60"
+                :style="{ backgroundColor: primaryColor }"
+                title="Available on live dashboard"
+              >
+                Manage Subscription
+                <ExternalLink class="w-3.5 h-3.5" />
+              </button>
+              <p class="text-[10px] text-gray-400 mt-1.5">Opens Stripe Customer Portal</p>
+            </div>
+
+            <!-- Pending charges card -->
+            <div v-if="config?.billing?.showPendingCharges !== false" class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-3">Pending Charges</p>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between text-sm">
+                  <div>
+                    <p class="font-medium text-gray-900">Day rate — Homepage redesign</p>
+                    <p class="text-xs text-gray-400">Mar 5</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-medium text-gray-900">$650.00</p>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">Open</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <div>
+                    <p class="font-medium text-gray-900">Rush delivery fee</p>
+                    <p class="text-xs text-gray-400">Mar 3</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-medium text-gray-900">$150.00</p>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">Open</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+                <p class="text-sm font-semibold text-gray-900">Total pending: $800.00</p>
+                <button
+                  disabled
+                  class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-white cursor-not-allowed opacity-60"
+                  :style="{ backgroundColor: primaryColor }"
+                  title="Available on live dashboard"
+                >
+                  Pay Now
+                  <ExternalLink class="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Recent payments card -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-3">Recent Payments</p>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <CheckCircle2 class="w-4 h-4 text-green-500 shrink-0" />
+                    <div>
+                      <p class="font-medium text-gray-900">Maintenance — Mar 2026</p>
+                      <p class="text-xs text-gray-400">Mar 1</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-medium text-gray-900">$300.00</p>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Paid</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <CheckCircle2 class="w-4 h-4 text-green-500 shrink-0" />
+                    <div>
+                      <p class="font-medium text-gray-900">Maintenance — Feb 2026</p>
+                      <p class="text-xs text-gray-400">Feb 1</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-medium text-gray-900">$300.00</p>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Paid</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <CheckCircle2 class="w-4 h-4 text-green-500 shrink-0" />
+                    <div>
+                      <p class="font-medium text-gray-900">Day rate — Logo refresh</p>
+                      <p class="text-xs text-gray-400">Jan 15</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-medium text-gray-900">$650.00</p>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Paid</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                disabled
+                class="mt-4 flex items-center gap-1.5 text-sm font-medium cursor-not-allowed opacity-60"
+                :style="{ color: primaryColor }"
+                title="Available on live dashboard"
+              >
+                View All Invoices
+                <ExternalLink class="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <!-- Payment method card -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-5">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-3">Payment Method</p>
+              <div class="flex items-center gap-3">
+                <CreditCard class="w-5 h-5 text-gray-400 shrink-0" />
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Visa ending in 4242</p>
+                  <p class="text-xs text-gray-500">Expires 12/27</p>
+                </div>
+              </div>
+              <button
+                disabled
+                class="mt-3 flex items-center gap-1.5 text-sm font-medium cursor-not-allowed opacity-60"
+                :style="{ color: primaryColor }"
+                title="Available on live dashboard"
+              >
+                Update Payment Method
+                <ExternalLink class="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <p class="text-xs text-gray-400 text-center mt-4">Preview only — all actions will be functional on the live dashboard via Stripe Customer Portal.</p>
+          </div>
+        </template>
+
+        <!-- ─── CONTENT KIT ──────────────────────────────────────────────────── -->
+        <template v-else-if="activePage === 'contentKit'">
+          <div class="max-w-2xl">
+            <div class="mb-6">
+              <h2 class="text-xl font-bold text-gray-900">Content Kit</h2>
+              <p class="text-gray-500 text-sm mt-1">
+                {{ config?.contentKit?.welcomeMessage || 'Help us build the perfect website for you! Fill out each section below with as much detail as you can.' }}
+              </p>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-4 mb-6">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-xs font-semibold text-gray-500">Overall Progress</p>
+                <p class="text-xs font-bold" :style="{ color: primaryColor }">2 of {{ config?.contentKit?.sections.filter(s => s.enabled).length ?? 7 }} sections</p>
+              </div>
+              <div class="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+                <div class="h-full rounded-full transition-all" :style="{ width: '28%', backgroundColor: primaryColor }" />
+              </div>
+            </div>
+
+            <!-- Section cards -->
+            <div class="space-y-3">
+              <button
+                v-for="(section, idx) in (config?.contentKit?.sections ?? []).filter(s => s.enabled)"
+                :key="section.id"
+                class="w-full bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4 text-left hover:shadow-md transition-shadow"
+              >
+                <!-- Status icon -->
+                <div
+                  v-if="idx < 2"
+                  class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-green-100"
+                >
+                  <CheckCircle2 class="w-4 h-4 text-green-600" />
+                </div>
+                <div
+                  v-else
+                  class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-gray-100"
+                >
+                  <span class="text-xs font-bold text-gray-400">{{ idx + 1 }}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <p class="text-sm font-semibold text-gray-900">{{ section.label }}</p>
+                    <span
+                      v-if="section.required"
+                      class="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                      :style="{ backgroundColor: primaryColor + '20', color: primaryColor }"
+                    >Required</span>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-0.5">{{ section.description }}</p>
+                </div>
+                <ChevronDown class="w-4 h-4 text-gray-300 shrink-0 -rotate-90" />
+              </button>
+            </div>
+
+            <!-- Example expanded section: Your Business -->
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <div class="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" :style="{ backgroundColor: primaryColor + '20' }">
+                  <ClipboardList class="w-4 h-4" :style="{ color: primaryColor }" />
+                </div>
+                <div>
+                  <h3 class="font-semibold text-sm text-gray-900">Your Business</h3>
+                  <p class="text-xs text-gray-500">Tell us about your business</p>
+                </div>
+              </div>
+              <div class="p-5 space-y-4">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Business Name <span class="text-red-400">*</span></label>
+                  <input type="text" disabled placeholder="e.g. Acme Web Design" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm bg-gray-50 text-gray-400 cursor-not-allowed" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Tagline</label>
+                  <input type="text" disabled placeholder="A short phrase that captures what you do" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm bg-gray-50 text-gray-400 cursor-not-allowed" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Industry</label>
+                  <input type="text" disabled placeholder="e.g. Home Services, Healthcare, Retail" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm bg-gray-50 text-gray-400 cursor-not-allowed" />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Years in Business</label>
+                    <input type="text" disabled placeholder="e.g. 5" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm bg-gray-50 text-gray-400 cursor-not-allowed" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Location</label>
+                    <input type="text" disabled placeholder="City, State" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm bg-gray-50 text-gray-400 cursor-not-allowed" />
+                  </div>
+                </div>
+
+                <!-- Brand personality chips preview -->
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-2">Brand Personality <span class="text-xs font-normal text-gray-400">(pick up to {{ config?.contentKit?.maxPersonalityPicks ?? 4 }})</span></label>
+                  <div class="flex flex-wrap gap-2">
+                    <span
+                      v-for="(p, i) in BRAND_PERSONALITY_OPTIONS"
+                      :key="p"
+                      class="px-3 py-1.5 rounded-full text-xs font-medium cursor-not-allowed transition-colors"
+                      :style="i < 2
+                        ? { backgroundColor: primaryColor, color: '#fff' }
+                        : { backgroundColor: '#f3f4f6', color: '#6b7280' }"
+                    >{{ p }}</span>
+                  </div>
+                </div>
+
+                <!-- File upload mockup -->
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Logo Upload</label>
+                  <div class="w-full px-4 py-8 rounded-lg border-2 border-dashed border-gray-200 text-center cursor-not-allowed">
+                    <Upload class="w-6 h-6 text-gray-300 mx-auto mb-2" />
+                    <p class="text-xs text-gray-400">Drag & drop or click to upload</p>
+                    <p class="text-[10px] text-gray-300 mt-1">PNG, JPG, SVG up to 5MB</p>
+                  </div>
+                </div>
+
+                <!-- Skip / Save buttons -->
+                <div class="flex items-center justify-between pt-2">
+                  <button disabled class="text-xs font-medium cursor-not-allowed" :style="{ color: primaryColor }">Skip for now</button>
+                  <button
+                    disabled
+                    class="px-5 py-2 rounded-xl text-sm font-medium text-white cursor-not-allowed opacity-60"
+                    :style="{ backgroundColor: primaryColor }"
+                  >Save & Continue</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-xs text-gray-400 text-center mt-4">Preview only — auto-save and submissions will be functional on the live dashboard.</p>
           </div>
         </template>
 
