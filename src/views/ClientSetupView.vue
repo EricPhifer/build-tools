@@ -5,6 +5,7 @@ import { Search, ArrowRight, Palette, Type, Globe, Loader2, X, Upload, Link, Ext
 import { useWorkflowStore } from '../stores/workflow'
 import { useClientApi } from '../composables/useClientApi'
 import WorkflowProgress from '../components/WorkflowProgress.vue'
+import { SOCIAL_PLATFORM_LABELS } from '../types/registry'
 import type { ClientInfo, BrandKit, ConnectedWebsite, ManagedService, ClientHealthCheck } from '../types/registry'
 
 const router = useRouter()
@@ -105,7 +106,7 @@ const connectedWebsites = ref<ConnectedWebsite[]>(workflow.clientInfo?.connected
 const managedServices = ref<ManagedService[]>(workflow.clientInfo?.managedServices ?? [])
 const healthCheck = ref<ClientHealthCheck | null>(workflow.clientInfo?.healthCheck ?? null)
 
-const socialLinks = computed(() => connectedWebsites.value.filter(s => s.label !== 'Main Website'))
+const socialLinks = computed(() => connectedWebsites.value.filter(s => SOCIAL_PLATFORM_LABELS.has(s.label)))
 
 // ─── Domain Handling ──────────────────────────────────────────────────────────
 const domainEdited = ref(!!workflow.clientInfo?.domain)

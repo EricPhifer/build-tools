@@ -203,6 +203,14 @@ export interface ConnectedWebsite {
   label: string  // "Main Website" | "Facebook" | "Instagram" | "LinkedIn" | "Twitter/X" | etc.
 }
 
+/** Labels from ConnectedWebsite that represent social/external links suitable for the website footer. */
+export const SOCIAL_PLATFORM_LABELS = new Set([
+  'Facebook', 'Instagram', 'LinkedIn', 'Twitter/X', 'YouTube',
+  'TikTok', 'Pinterest', 'Yelp', 'Google Business', 'Nextdoor',
+  'GitHub', 'Dribbble', 'Behance', 'Threads', 'Bluesky',
+  'Mastodon', 'Reddit', 'Discord', 'Twitch', 'Vimeo', 'Snapchat'
+])
+
 export interface ManagedService {
   id?: string
   type: string         // "domain" | "hosting" | "CDN" | "database" | "email" | "DNS" | "SSL" | "storage" | "analytics" | "other"

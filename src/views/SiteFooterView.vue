@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useRegistryStore } from '../stores/registry'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
+import { SOCIAL_PLATFORM_LABELS } from '../types/registry'
 import type { ComponentVariant } from '../types/registry'
 import { Check, ArrowLeft } from 'lucide-vue-next'
 
@@ -27,14 +28,14 @@ const copyrightText = computed(() =>
 )
 
 const footerNavLinks = computed(() => {
-  const pages = composition.siteBuilder.sitemapPages.filter(p => p.nav === 'footer').map(p => p.name)
+  const pages = composition.siteBuilder.sitemapPages.filter(p => p.nav === 'footer' || p.nav === 'both').map(p => p.name)
   return pages.length > 0 ? pages : ['Privacy Policy', 'Terms & Conditions', 'Accessibility']
 })
 
 const socialLinks = computed(() => {
   const sites = client.value?.connectedWebsites ?? []
   return sites
-    .filter(s => s.label !== 'Main Website')
+    .filter(s => SOCIAL_PLATFORM_LABELS.has(s.label))
     .map(s => s.label)
     .slice(0, 5)
 })

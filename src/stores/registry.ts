@@ -1115,6 +1115,28 @@ const contentBlocks: ContentBlock[] = [
     ]
   },
   {
+    id: 'block-contact-info',
+    name: 'Contact Info',
+    description: 'Two-column contact details with intro copy, email, optional phone, response time, and preference notes. Right column reserved for a paired form block.',
+    component: () => import('../components/variants/blocks/BlockContactInfo.vue'),
+    category: 'contact',
+    tags: ['contact', 'info', 'email', 'phone', 'split'],
+    schemaRequirements: [
+      {
+        documentType: 'page',
+        title: 'Page',
+        fields: [
+          { name: 'contactIntroText', type: 'string', description: 'Empathy intro line' },
+          { name: 'contactEmail', type: 'string', description: 'Displayed as mailto link', required: true },
+          { name: 'contactPhone', type: 'string', description: 'Phone number (optional)' },
+          { name: 'contactShowPhone', type: 'boolean', description: 'Whether to display the phone number' },
+          { name: 'contactResponseTime', type: 'string', description: 'Expected response time note' },
+          { name: 'contactPreferenceNotes', type: 'string', description: 'Communication preference note' }
+        ]
+      }
+    ]
+  },
+  {
     id: 'block-timeline',
     name: 'Timeline',
     description: 'Vertical milestone timeline with year circles, titles, and descriptions.',

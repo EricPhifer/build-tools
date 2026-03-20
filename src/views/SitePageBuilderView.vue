@@ -5,6 +5,7 @@ import { useRegistryStore } from '../stores/registry'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
 import { ArrowLeft, ArrowUp, ArrowDown, Check, Layers, Lock } from 'lucide-vue-next'
+import { SOCIAL_PLATFORM_LABELS } from '../types/registry'
 import type { TemplateSlot } from '../types/registry'
 
 const router = useRouter()
@@ -207,7 +208,7 @@ const footerNavLinks = computed(() => {
 const socialLinks = computed(() => {
   const sites = workflow.clientInfo?.connectedWebsites ?? []
   return sites
-    .filter((s: { label: string }) => s.label !== 'Main Website')
+    .filter((s: { label: string }) => SOCIAL_PLATFORM_LABELS.has(s.label))
     .map((s: { label: string }) => s.label)
     .slice(0, 5)
 })
