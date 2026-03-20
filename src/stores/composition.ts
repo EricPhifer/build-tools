@@ -51,10 +51,9 @@ function createDefaultEnvConfig(): EnvConfig {
 function createDefaultDashboardConfig(): DashboardConfig {
   return {
     enabledWidgets: ['quickActions', 'analytics', 'tutorials', 'links'],
-    analyticsId: '',
-    useSimpleAnalytics: false,
     simpleAnalyticsId: '',
-    netlifyWebhookUrl: '',
+    useGoogleAnalytics: false,
+    analyticsId: '',
     contactWebhookUrl: '',
     auth0Domain: '',
     auth0ClientId: '',

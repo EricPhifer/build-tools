@@ -84,7 +84,7 @@ watch(config, () => {
 
 const ALL_WIDGETS: { id: DashboardWidgetType; label: string; description: string }[] = [
   { id: 'quickActions', label: 'Quick Actions', description: 'Shortcut buttons to live site, Studio, and other key URLs.' },
-  { id: 'analytics', label: 'Site Analytics', description: 'Traffic overview widget — Google Analytics or Simple Analytics (privacy upgrade).' },
+  { id: 'analytics', label: 'Site Analytics', description: 'Traffic overview widget — Simple Analytics by default, GA4 override available.' },
   { id: 'tutorials', label: 'Tutorial Videos', description: 'Embedded video library grouped by category.' },
   { id: 'links', label: 'Helpful Links', description: 'Curated resource cards with emoji, title, and description.' },
   { id: 'contentEditor', label: 'Content Editors', description: 'Simple forms for clients to update Sanity content and trigger rebuilds.' },
@@ -371,28 +371,23 @@ const inputStyle = {
 
         <!-- ANALYTICS TAB -->
         <template v-else-if="activeTab === 'analytics'">
-          <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">Configure site analytics and the Netlify build hook for Content Editors.</p>
+          <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">Configure site analytics and integration webhooks.</p>
           <div class="space-y-3">
-            <!-- Privacy Upgrade toggle -->
-            <div class="flex items-center justify-between rounded-lg p-3 border" :style="{ borderColor: config.useSimpleAnalytics ? 'var(--theme-primary)' : 'var(--theme-border)', backgroundColor: config.useSimpleAnalytics ? 'var(--theme-primary-light)' : 'var(--theme-bg-secondary)' }">
-              <div>
-                <p class="text-xs font-semibold" :style="{ color: 'var(--theme-text-primary)' }">Privacy Upgrade</p>
-                <p class="text-xs mt-0.5" :style="{ color: 'var(--theme-text-muted)' }">Use Simple Analytics instead of Google Analytics — cookieless, privacy-first, GDPR compliant.</p>
-              </div>
-              <button
-                @click="composition.setDashboardConfig({ useSimpleAnalytics: !config.useSimpleAnalytics })"
-                class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ml-3"
-                :style="{ backgroundColor: config.useSimpleAnalytics ? 'var(--theme-primary)' : 'var(--theme-bg-tertiary)' }"
-              >
-                <span
-                  class="inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform shadow-sm"
-                  :class="config.useSimpleAnalytics ? 'translate-x-4.5' : 'translate-x-0.5'"
-                />
-              </button>
+            <!-- Simple Analytics (default) -->
+            <div v-if="!config.useGoogleAnalytics">
+              <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Simple Analytics Site ID</label>
+              <input
+                :value="config.simpleAnalyticsId"
+                @input="composition.setDashboardConfig({ simpleAnalyticsId: ($event.target as HTMLInputElement).value })"
+                placeholder="yourdomain.com"
+                :class="inputClass"
+                :style="inputStyle"
+              />
+              <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">Your domain as registered in Simple Analytics. Cookieless, privacy-first — no cookie banner needed.</p>
             </div>
 
-            <!-- GA4 field (when NOT using Simple Analytics) -->
-            <div v-if="!config.useSimpleAnalytics">
+            <!-- GA4 (override) -->
+            <div v-else>
               <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">GA4 Measurement ID</label>
               <input
                 :value="config.analyticsId"
@@ -404,28 +399,22 @@ const inputStyle = {
               <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">Found in Google Analytics → Admin → Data Streams.</p>
             </div>
 
-            <!-- Simple Analytics field (when using Simple Analytics) -->
-            <div v-else>
-              <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Simple Analytics Site ID</label>
-              <input
-                :value="config.simpleAnalyticsId"
-                @input="composition.setDashboardConfig({ simpleAnalyticsId: ($event.target as HTMLInputElement).value })"
-                placeholder="yourdomain.com"
-                :class="inputClass"
-                :style="inputStyle"
-              />
-              <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">Your domain as registered in Simple Analytics. No tracking script config needed — the build script handles it.</p>
-            </div>
-            <div>
-              <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Netlify Build Hook URL</label>
-              <input
-                :value="config.netlifyWebhookUrl"
-                @input="composition.setDashboardConfig({ netlifyWebhookUrl: ($event.target as HTMLInputElement).value })"
-                placeholder="https://api.netlify.com/build_hooks/..."
-                :class="inputClass"
-                :style="inputStyle"
-              />
-              <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">Used by Content Editors to trigger a site rebuild after publishing.</p>
+            <!-- Use Google Analytics override toggle -->
+            <div class="flex items-center justify-between rounded-lg p-3 border" :style="{ borderColor: config.useGoogleAnalytics ? 'var(--theme-warning)' : 'var(--theme-border)', backgroundColor: config.useGoogleAnalytics ? 'var(--theme-warning-light)' : 'var(--theme-bg-secondary)' }">
+              <div>
+                <p class="text-xs font-semibold" :style="{ color: 'var(--theme-text-primary)' }">Use Google Analytics instead</p>
+                <p class="text-xs mt-0.5" :style="{ color: 'var(--theme-text-muted)' }">Override with GA4 if the client specifically requests it. Requires a cookie consent banner.</p>
+              </div>
+              <button
+                @click="composition.setDashboardConfig({ useGoogleAnalytics: !config.useGoogleAnalytics })"
+                class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ml-3"
+                :style="{ backgroundColor: config.useGoogleAnalytics ? 'var(--theme-warning)' : 'var(--theme-bg-tertiary)' }"
+              >
+                <span
+                  class="inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform shadow-sm"
+                  :class="config.useGoogleAnalytics ? 'translate-x-4.5' : 'translate-x-0.5'"
+                />
+              </button>
             </div>
             <div>
               <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Contact Form Webhook URL</label>
