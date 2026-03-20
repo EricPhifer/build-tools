@@ -153,7 +153,8 @@ const PHASES: Phase[] = [
       { id: 'p3-6', label: 'Dashboard staging deploy succeeds — no build errors' },
       { id: 'p3-7', label: 'Sanity studio deployed (`pnpm deploy`)' },
       { id: 'p3-8', label: 'Sanity CORS origins include all staging URLs' },
-      { id: 'p3-9', label: 'Smoke test: all three staging URLs load correctly' },
+      { id: 'p3-9', label: 'Create build hook in Netlify: Site Settings → Build & Deploy → Build Hooks → Add build hook → Copy URL → paste into Client Dashboard → Managed Services → Netlify → Build Hook URL → Add as VITE_NETLIFY_BUILD_HOOK_URL in Netlify env vars for the dashboard site' },
+      { id: 'p3-10', label: 'Smoke test: all three staging URLs load correctly' },
     ]
   },
   {
@@ -171,7 +172,7 @@ const PHASES: Phase[] = [
       { id: 'p4-9',  label: 'Production dashboard deployed — live at `dashboard.[clientdomain.com]`' },
       { id: 'p4-10', label: 'All production page routes tested' },
       { id: 'p4-11', label: 'Sanity studio accessible at `studio.[clientdomain.com]`' },
-      { id: 'p4-12', label: 'Google Analytics connected and verified (if GA4 ID configured)' },
+      { id: 'p4-12', label: 'Simple Analytics connected and verified — Google Analytics added only if client requested' },
       { id: 'p4-13', label: 'Contact forms and interactive features tested in production' },
       { id: 'p4-14', label: 'Client access credentials and all links delivered' },
       { id: 'p4-15', label: 'Stripe Customer Portal settings reviewed (Settings → Customer Portal in Stripe Dashboard)' },
@@ -180,7 +181,7 @@ const PHASES: Phase[] = [
   }
 ]
 
-const TOTAL_ITEMS = 49
+const TOTAL_ITEMS = 50
 
 // ─── Deployment checklist state ─────────────────────────────────────────────
 const checkedItems = computed(() =>
