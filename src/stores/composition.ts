@@ -52,6 +52,8 @@ function createDefaultDashboardConfig(): DashboardConfig {
   return {
     enabledWidgets: ['quickActions', 'analytics', 'tutorials', 'links'],
     analyticsId: '',
+    useSimpleAnalytics: false,
+    simpleAnalyticsId: '',
     netlifyWebhookUrl: '',
     contactWebhookUrl: '',
     auth0Domain: '',

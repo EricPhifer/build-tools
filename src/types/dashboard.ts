@@ -101,6 +101,8 @@ export interface BillingConfig {
 export interface DashboardConfig {
   enabledWidgets: DashboardWidgetType[]
   analyticsId: string           // GA4 Measurement ID (G-XXXXXXXX)
+  useSimpleAnalytics: boolean   // Privacy upgrade: use Simple Analytics instead of GA4
+  simpleAnalyticsId: string     // Simple Analytics custom domain or site ID
   netlifyWebhookUrl: string     // Netlify build hook URL for content editor publish
   contactWebhookUrl: string     // POST endpoint for client contact form submissions
   auth0Domain: string           // Auth0 tenant domain (e.g. dev-abc.us.auth0.com)
