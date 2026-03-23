@@ -109,7 +109,8 @@ const CORE_PAGES: SitemapPage[] = [
   { id: 'contact', name: 'Contact', slug: '/contact', nav: 'primary', isCore: true, isLegal: false, isEnrichOnly: false },
   { id: 'privacy', name: 'Privacy Policy', slug: '/privacy-policy', nav: 'footer', isCore: true, isLegal: true, isEnrichOnly: false, blocks: ['block-text'] },
   { id: 'terms', name: 'Terms & Conditions', slug: '/terms-and-conditions', nav: 'footer', isCore: true, isLegal: true, isEnrichOnly: false, blocks: ['block-text'] },
-  { id: 'accessibility', name: 'Accessibility Statement', slug: '/accessibility', nav: 'footer', isCore: true, isLegal: true, isEnrichOnly: false, blocks: ['block-text'] }
+  { id: 'accessibility', name: 'Accessibility Statement', slug: '/accessibility', nav: 'footer', isCore: true, isLegal: true, isEnrichOnly: false, blocks: ['block-text'] },
+  { id: 'cookie', name: 'Cookie Policy', slug: '/cookie-policy', nav: 'footer', isCore: true, isLegal: true, isEnrichOnly: false, blocks: ['block-text'] }
 ]
 
 const EXTRA_PAGES: Record<BusinessType, SitemapPage[]> = {

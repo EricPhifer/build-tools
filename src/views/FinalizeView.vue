@@ -114,9 +114,9 @@ const PHASES: Phase[] = [
       { id: 'p1-3',  label: 'Run `pnpm install` in dashboard project' },
       { id: 'p1-4',  label: 'Add `.env.local` with all VITE_ vars to website' },
       { id: 'p1-5',  label: 'Add `.env.local` with all VITE_ vars to dashboard' },
-      { id: 'p1-6',  label: 'Website runs locally — all pages load' },
-      { id: 'p1-7',  label: 'Sanity studio runs locally — schemas load correctly' },
-      { id: 'p1-8',  label: 'Dashboard runs locally — all widgets render' },
+      { id: 'p1-6',  label: 'Website runs locally (`pnpm dev`) — all pages load' },
+      { id: 'p1-7',  label: 'Sanity studio runs locally (`pnpm dev`) — schemas load correctly' },
+      { id: 'p1-8',  label: 'Dashboard runs locally (`pnpm dev`, or `netlify dev` to test functions) — all widgets render' },
       { id: 'p1-9',  label: 'All page routes verified in local website' },
       { id: 'p1-10', label: 'Header and footer display correctly' },
       { id: 'p1-11', label: 'Content blocks render correctly on each page' },
@@ -252,7 +252,8 @@ function buildExportConfig() {
     return {
       id: b.id, componentName: toComponentName(b.id),
       name: b.name, category: b.category, description: b.description,
-      schemaRequirements: b.schemaRequirements ?? []
+      schemaRequirements: b.schemaRequirements ?? [],
+      ...(b.styleNotes ? { styleNotes: b.styleNotes } : {})
     }
   }
 
@@ -336,18 +337,21 @@ function buildExportConfig() {
         name: headerVariant.name, description: headerVariant.description,
         authEnabled: composition.composition.headerAuthEnabled,
         darkModeEnabled: composition.composition.headerDarkModeEnabled,
-        schemaRequirements: headerVariant.schemaRequirements ?? []
+        schemaRequirements: headerVariant.schemaRequirements ?? [],
+        ...(headerVariant.styleNotes ? { styleNotes: headerVariant.styleNotes } : {})
       } : null,
       footer: footerVariant ? {
         id: footerVariant.id, componentName: toComponentName(footerVariant.id),
         name: footerVariant.name, description: footerVariant.description,
-        schemaRequirements: footerVariant.schemaRequirements ?? []
+        schemaRequirements: footerVariant.schemaRequirements ?? [],
+        ...(footerVariant.styleNotes ? { styleNotes: footerVariant.styleNotes } : {})
       } : null,
       defaultTemplate: templateVariant ? {
         id: templateVariant.id, componentName: toComponentName(templateVariant.id),
         name: templateVariant.name, description: templateVariant.description,
         layout: templateVariant.layout ?? [],
-        schemaRequirements: templateVariant.schemaRequirements ?? []
+        schemaRequirements: templateVariant.schemaRequirements ?? [],
+        ...(templateVariant.styleNotes ? { styleNotes: templateVariant.styleNotes } : {})
       } : null,
       pages,
       navigation: {
@@ -426,7 +430,8 @@ function buildDeltaConfig() {
     return {
       id: b.id, componentName: toComponentName(b.id),
       name: b.name, category: b.category, description: b.description,
-      schemaRequirements: b.schemaRequirements ?? []
+      schemaRequirements: b.schemaRequirements ?? [],
+      ...(b.styleNotes ? { styleNotes: b.styleNotes } : {})
     }
   }
 

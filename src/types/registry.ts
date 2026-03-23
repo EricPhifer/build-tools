@@ -39,6 +39,7 @@ export interface ComponentVariant {
   defaultProps?: Record<string, unknown>
   schemaRequirements?: SchemaRequirement[]
   formats?: OutputFormat[]
+  styleNotes?: string
 }
 
 export interface SiteSectionConfig {
@@ -62,6 +63,7 @@ export interface PageTemplate {
   defaultBlocks?: Partial<Record<TemplateSlot, string[]>>
   requiredBlocks?: Partial<Record<TemplateSlot, string[]>>
   schemaRequirements?: SchemaRequirement[]
+  styleNotes?: string
 }
 
 // === Content Block Types ===
@@ -77,6 +79,7 @@ export interface ContentBlock {
   fullWidthOnly?: boolean
   defaultProps?: Record<string, unknown>
   schemaRequirements?: SchemaRequirement[]
+  styleNotes?: string
 }
 
 // === Composition Types ===
