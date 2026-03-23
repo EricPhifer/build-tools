@@ -34,6 +34,10 @@ const extendSourceEntry = computed(() =>
     : null
 )
 
+// ─── Export state ───────────────────────────────────────────────────────────
+const exported = ref(false)
+const exportedFilename = ref('')
+
 // ─── Domain (works in both modes) ───────────────────────────────────────────
 const client = computed(() => workflow.clientInfo)
 const domain = computed(() => {
@@ -389,7 +393,10 @@ function buildExportConfig() {
 
 function exportProject() {
   const output = buildExportConfig()
-  downloadFile(JSON.stringify(output, null, 2), `${domain.value}-build-config.json`)
+  const filename = `${domain.value}-build-config.json`
+  downloadFile(JSON.stringify(output, null, 2), filename)
+  exportedFilename.value = filename
+  exported.value = true
 }
 
 function reexportEntryConfig() {
@@ -492,7 +499,10 @@ function buildDeltaConfig() {
 
 function exportDelta() {
   const output = buildDeltaConfig()
-  downloadFile(JSON.stringify(output, null, 2), `${domain.value}-build-config-delta.json`)
+  const filename = `${domain.value}-build-config-delta.json`
+  downloadFile(JSON.stringify(output, null, 2), filename)
+  exportedFilename.value = filename
+  exported.value = true
 }
 
 function handleCompleteExtension() {
@@ -597,6 +607,31 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
           </button>
         </div>
 
+        <!-- Scaffold instructions (shown after delta export) -->
+        <div
+          v-if="exported"
+          class="mb-6 p-5 rounded-xl border-2"
+          :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-warning)' }"
+        >
+          <div class="flex items-center gap-2 mb-3">
+            <Rocket class="w-5 h-5" :style="{ color: 'var(--theme-warning)' }" />
+            <h3 class="font-bold text-sm" :style="{ color: 'var(--theme-text-primary)' }">Next: Extend the Project</h3>
+          </div>
+          <p class="text-sm mb-3" :style="{ color: 'var(--theme-text-secondary)' }">
+            Move <code class="px-1.5 py-0.5 rounded text-xs font-mono" :style="{ backgroundColor: 'var(--theme-bg-tertiary)' }">{{ exportedFilename }}</code> into the project directory, then run:
+          </p>
+          <div
+            class="p-3 rounded-lg font-mono text-sm select-all cursor-pointer"
+            :style="{ backgroundColor: 'var(--theme-bg-secondary)', color: 'var(--theme-text-primary)' }"
+          >
+            cd ~/Desktop/Business\ Pipeline/build-script/pws-scaffolder<br>
+            node scaffold.js extend ./{{ exportedFilename }}
+          </div>
+          <p class="text-xs mt-2" :style="{ color: 'var(--theme-text-muted)' }">
+            This adds new pages, schemas, and dashboard items without overwriting existing files.
+          </p>
+        </div>
+
         <!-- Delta summary card -->
         <div
           class="p-5 rounded-xl border mb-6"
@@ -639,6 +674,31 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
             <Download class="w-4 h-4" />
             Export Build Config
           </button>
+        </div>
+
+        <!-- Scaffold instructions (shown after export) -->
+        <div
+          v-if="exported"
+          class="mb-6 p-5 rounded-xl border-2"
+          :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-primary)' }"
+        >
+          <div class="flex items-center gap-2 mb-3">
+            <Rocket class="w-5 h-5" :style="{ color: 'var(--theme-primary)' }" />
+            <h3 class="font-bold text-sm" :style="{ color: 'var(--theme-text-primary)' }">Next: Scaffold the Project</h3>
+          </div>
+          <p class="text-sm mb-3" :style="{ color: 'var(--theme-text-secondary)' }">
+            Move <code class="px-1.5 py-0.5 rounded text-xs font-mono" :style="{ backgroundColor: 'var(--theme-bg-tertiary)' }">{{ exportedFilename }}</code> into the scaffolder directory, then run:
+          </p>
+          <div
+            class="p-3 rounded-lg font-mono text-sm select-all cursor-pointer"
+            :style="{ backgroundColor: 'var(--theme-bg-secondary)', color: 'var(--theme-text-primary)' }"
+          >
+            cd ~/Desktop/Business\ Pipeline/build-script/pws-scaffolder<br>
+            node scaffold.js all ./{{ exportedFilename }}
+          </div>
+          <p class="text-xs mt-2" :style="{ color: 'var(--theme-text-muted)' }">
+            This creates <strong>frontend/</strong>, <strong>studio/</strong>, and <strong>dashboard/</strong> in one step.
+          </p>
         </div>
       </template>
 
