@@ -257,7 +257,20 @@ function buildExportConfig() {
     }
   }
 
-  const pages = sb.sitemapPages.map(page => {
+  // Map sitemap legal page IDs to enabledLegalPages keys
+  const legalIdToKey: Record<string, keyof typeof sb.enabledLegalPages> = {
+    privacy: 'privacyPolicy',
+    terms: 'termsAndConditions',
+    accessibility: 'accessibilityStatement',
+    cookie: 'cookiePolicy'
+  }
+  const isLegalPageEnabled = (page: { id: string; isLegal?: boolean }) => {
+    if (!page.isLegal) return true
+    const key = legalIdToKey[page.id]
+    return !key || sb.enabledLegalPages[key]
+  }
+
+  const pages = sb.sitemapPages.filter(isLegalPageEnabled).map(page => {
     const pageTemplate = page.template ? registry.getTemplateById(page.template) : null
     const slots: Record<string, ReturnType<typeof resolveBlock>[]> = {
       content: (page.blocks ?? []).map(resolveBlock)
@@ -355,16 +368,17 @@ function buildExportConfig() {
       } : null,
       pages,
       navigation: {
-        primary: sb.sitemapPages.filter(p => p.nav === 'primary' || p.nav === 'both').map(p => ({ name: p.name, slug: p.slug })),
-        footer:  sb.sitemapPages.filter(p => p.nav === 'footer'  || p.nav === 'both').map(p => ({ name: p.name, slug: p.slug }))
+        primary: sb.sitemapPages.filter(p => (p.nav === 'primary' || p.nav === 'both') && isLegalPageEnabled(p)).map(p => ({ name: p.name, slug: p.slug })),
+        footer:  sb.sitemapPages.filter(p => (p.nav === 'footer'  || p.nav === 'both') && isLegalPageEnabled(p)).map(p => ({ name: p.name, slug: p.slug }))
       }
     },
     cms: { sanityDocumentTypes, schemas: composition.mergedSchemaRequirements, schemaJsonLd },
     legal: {
-      privacyPolicy:          sb.legalContent.privacyPolicy ?? '',
-      termsAndConditions:     sb.legalContent.termsAndConditions ?? '',
-      accessibilityStatement: sb.legalContent.accessibilityStatement ?? '',
-      cookiePolicy:           sb.legalContent.cookiePolicy ?? ''
+      enabledPages: sb.enabledLegalPages,
+      ...(sb.enabledLegalPages.privacyPolicy          ? { privacyPolicy:          sb.legalContent.privacyPolicy ?? '' } : {}),
+      ...(sb.enabledLegalPages.termsAndConditions      ? { termsAndConditions:     sb.legalContent.termsAndConditions ?? '' } : {}),
+      ...(sb.enabledLegalPages.accessibilityStatement  ? { accessibilityStatement: sb.legalContent.accessibilityStatement ?? '' } : {}),
+      ...(sb.enabledLegalPages.cookiePolicy            ? { cookiePolicy:           sb.legalContent.cookiePolicy ?? '' } : {})
     },
     dashboard: sb.dashboardConfig,
     ...(sb.appScreens.length > 0 || sb.dataModel.length > 0

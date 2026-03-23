@@ -19,11 +19,19 @@ export interface EnvConfig {
   auth0ClientId: string
 }
 
+export interface EnabledLegalPages {
+  privacyPolicy: boolean
+  termsAndConditions: boolean
+  accessibilityStatement: boolean
+  cookiePolicy: boolean
+}
+
 export interface SiteBuilderData {
   bundle: BundleType | null
   businessType: BusinessType | null
   sitemapPages: SitemapPage[]
   legalContent: Partial<LegalPageContent>
+  enabledLegalPages: EnabledLegalPages
   checklist: Partial<Record<ChecklistCategory, ChecklistItem[]>>
   projectMode: boolean
   // App build path
@@ -82,6 +90,12 @@ function createDefaultSiteBuilder(): SiteBuilderData {
     businessType: null,
     sitemapPages: [],
     legalContent: {},
+    enabledLegalPages: {
+      privacyPolicy: true,
+      termsAndConditions: true,
+      accessibilityStatement: true,
+      cookiePolicy: false
+    },
     checklist: {},
     projectMode: false,
     appScreens: [],
@@ -391,6 +405,11 @@ export const useCompositionStore = defineStore('composition', () => {
     saveSiteBuilder()
   }
 
+  function setEnabledLegalPages(partial: Partial<EnabledLegalPages>) {
+    siteBuilder.value.enabledLegalPages = { ...siteBuilder.value.enabledLegalPages, ...partial }
+    saveSiteBuilder()
+  }
+
   function setChecklist(category: ChecklistCategory, items: ChecklistItem[]) {
     siteBuilder.value.checklist[category] = items
     saveSiteBuilder()
@@ -561,6 +580,7 @@ export const useCompositionStore = defineStore('composition', () => {
     addSitemapPage,
     removeSitemapPage,
     setLegalContent,
+    setEnabledLegalPages,
     setChecklist,
     updateChecklistItem,
     setAppScreens,

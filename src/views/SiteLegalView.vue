@@ -68,6 +68,12 @@ function save() {
   router.push('/site/sitemap')
 }
 
+const enabledPages = computed(() => composition.siteBuilder.enabledLegalPages)
+
+function togglePage(id: LegalTab) {
+  composition.setEnabledLegalPages({ [id]: !enabledPages.value[id] })
+}
+
 const wordCount = computed(() => {
   const text = content.value[activeTab.value]
   return text.trim() ? text.trim().split(/\s+/).length : 0
@@ -125,16 +131,51 @@ const wordCount = computed(() => {
         class="flex-1 text-xs font-medium py-2 px-3 rounded-lg transition-all"
         :style="activeTab === tab.id
           ? { backgroundColor: 'var(--theme-bg-card)', color: 'var(--theme-primary)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
-          : { color: 'var(--theme-text-secondary)' }"
+          : { color: 'var(--theme-text-secondary)', opacity: enabledPages[tab.id] ? 1 : 0.5 }"
       >
         {{ tab.label }}
+        <span v-if="!enabledPages[tab.id]" class="ml-1 opacity-60">off</span>
+      </button>
+    </div>
+
+    <!-- Enable/disable toggle for active tab -->
+    <div
+      class="flex items-center justify-between rounded-lg p-3 border mb-4"
+      :style="{
+        borderColor: enabledPages[activeTab] ? 'var(--theme-border)' : 'var(--theme-warning)',
+        backgroundColor: enabledPages[activeTab] ? 'var(--theme-bg-secondary)' : 'var(--theme-warning-light)'
+      }"
+    >
+      <div>
+        <p class="text-xs font-semibold" :style="{ color: 'var(--theme-text-primary)' }">
+          {{ enabledPages[activeTab] ? 'Included in site' : 'Excluded from site' }}
+        </p>
+        <p class="text-xs mt-0.5" :style="{ color: 'var(--theme-text-muted)' }">
+          {{ enabledPages[activeTab]
+            ? 'This page will be generated and linked in the footer.'
+            : 'This page will not be generated. Toggle on if needed.' }}
+        </p>
+      </div>
+      <button
+        @click="togglePage(activeTab)"
+        class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ml-3"
+        :style="{ backgroundColor: enabledPages[activeTab] ? 'var(--theme-primary)' : 'var(--theme-bg-tertiary)' }"
+      >
+        <span
+          class="inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform shadow-sm"
+          :class="enabledPages[activeTab] ? 'translate-x-4.5' : 'translate-x-0.5'"
+        />
       </button>
     </div>
 
     <!-- Editor -->
     <div
-      class="rounded-xl border overflow-hidden mb-6"
-      :style="{ borderColor: 'var(--theme-border)' }"
+      class="rounded-xl border overflow-hidden mb-6 transition-opacity"
+      :style="{
+        borderColor: 'var(--theme-border)',
+        opacity: enabledPages[activeTab] ? 1 : 0.4,
+        pointerEvents: enabledPages[activeTab] ? 'auto' : 'none'
+      }"
     >
       <!-- Toolbar -->
       <div
