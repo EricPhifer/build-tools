@@ -618,14 +618,14 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
             <h3 class="font-bold text-sm" :style="{ color: 'var(--theme-text-primary)' }">Next: Extend the Project</h3>
           </div>
           <p class="text-sm mb-3" :style="{ color: 'var(--theme-text-secondary)' }">
-            Move <code class="px-1.5 py-0.5 rounded text-xs font-mono" :style="{ backgroundColor: 'var(--theme-bg-tertiary)' }">{{ exportedFilename }}</code> into the project directory, then run:
+            Move <code class="px-1.5 py-0.5 rounded text-xs font-mono" :style="{ backgroundColor: 'var(--theme-bg-tertiary)' }">{{ exportedFilename }}</code> into <code class="px-1.5 py-0.5 rounded text-xs font-mono" :style="{ backgroundColor: 'var(--theme-bg-tertiary)' }">pws-scaffolder/projects/</code>, then run:
           </p>
           <div
             class="p-3 rounded-lg font-mono text-sm select-all cursor-pointer"
             :style="{ backgroundColor: 'var(--theme-bg-secondary)', color: 'var(--theme-text-primary)' }"
           >
             cd ~/Desktop/Business\ Pipeline/build-script/pws-scaffolder<br>
-            node scaffold.js extend ./{{ exportedFilename }}
+            node scaffold.js extend ./projects/{{ exportedFilename }}
           </div>
           <p class="text-xs mt-2" :style="{ color: 'var(--theme-text-muted)' }">
             This adds new pages, schemas, and dashboard items without overwriting existing files.
@@ -687,17 +687,17 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
             <h3 class="font-bold text-sm" :style="{ color: 'var(--theme-text-primary)' }">Next: Scaffold the Project</h3>
           </div>
           <p class="text-sm mb-3" :style="{ color: 'var(--theme-text-secondary)' }">
-            Move <code class="px-1.5 py-0.5 rounded text-xs font-mono" :style="{ backgroundColor: 'var(--theme-bg-tertiary)' }">{{ exportedFilename }}</code> into the scaffolder directory, then run:
+            Move <code class="px-1.5 py-0.5 rounded text-xs font-mono" :style="{ backgroundColor: 'var(--theme-bg-tertiary)' }">{{ exportedFilename }}</code> into <code class="px-1.5 py-0.5 rounded text-xs font-mono" :style="{ backgroundColor: 'var(--theme-bg-tertiary)' }">pws-scaffolder/projects/</code>, then run:
           </p>
           <div
             class="p-3 rounded-lg font-mono text-sm select-all cursor-pointer"
             :style="{ backgroundColor: 'var(--theme-bg-secondary)', color: 'var(--theme-text-primary)' }"
           >
             cd ~/Desktop/Business\ Pipeline/build-script/pws-scaffolder<br>
-            node scaffold.js all ./{{ exportedFilename }}
+            node scaffold.js all ./projects/{{ exportedFilename }}
           </div>
           <p class="text-xs mt-2" :style="{ color: 'var(--theme-text-muted)' }">
-            This creates <strong>frontend/</strong>, <strong>studio/</strong>, and <strong>dashboard/</strong> in one step.
+            This creates <strong>frontend/</strong>, <strong>studio/</strong>, and <strong>dashboard/</strong> in one step. The config is automatically archived after a successful scaffold.
           </p>
         </div>
       </template>

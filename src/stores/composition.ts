@@ -250,11 +250,16 @@ export const useCompositionStore = defineStore('composition', () => {
             existing.fields.push(field)
           }
         }
+        // Merge defaultValues
+        if (req.defaultValues) {
+          existing.defaultValues = { ...(existing.defaultValues ?? {}), ...req.defaultValues }
+        }
       } else {
         merged.set(req.documentType, {
           documentType: req.documentType,
           title: req.title,
-          fields: [...req.fields]
+          fields: [...req.fields],
+          ...(req.defaultValues ? { defaultValues: { ...req.defaultValues } } : {})
         })
       }
     }

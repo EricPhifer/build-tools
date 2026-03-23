@@ -6,16 +6,21 @@ export type SiteSection = 'header' | 'footer' | 'main'
 // === Schema Manifest Types ===
 export interface SchemaField {
   name: string
-  type: string           // Sanity type: 'string' | 'image' | 'array' | 'reference' | 'block' | 'object'
-  description: string
+  type: string           // Sanity type: 'string' | 'text' | 'image' | 'array' | 'reference' | 'block' | 'object' | 'url' | 'number' | 'boolean' | 'date'
+  title?: string         // Human-readable label for Sanity Studio UI
+  description?: string   // Help text shown below the field in Studio
   required?: boolean
-  of?: string            // For arrays: item type (e.g., 'menuItem')
+  of?: string            // For arrays: item type name (e.g., 'testimonialItem')
+  ofFields?: SchemaField[] // For arrays/objects: inline field definitions for the item type
+  options?: Record<string, unknown> // Sanity field options (e.g., { hotspot: true } for images)
+  to?: string[]          // For references: array of document type names this can reference
 }
 
 export interface SchemaRequirement {
   documentType: string   // Sanity document type: 'siteSettings', 'navigation', 'page', etc.
   title: string          // Display name: 'Site Settings', 'Navigation'
   fields: SchemaField[]
+  defaultValues?: Record<string, unknown> // Initial values for seeding (supports ##CLIENT_NAME## tokens)
 }
 
 // === Format Types ===

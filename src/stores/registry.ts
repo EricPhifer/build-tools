@@ -18,15 +18,15 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       },
       {
         documentType: 'navigation',
         title: 'Navigation',
         fields: [
-          { name: 'items', type: 'array', description: 'Navigation menu items', of: 'menuItem', required: true }
+          { name: 'items', type: 'array', title: 'Menu Items', description: 'Navigation menu items', of: 'menuItem', required: true, ofFields: [{ name: 'label', type: 'string', title: 'Label', required: true }, { name: 'url', type: 'url', title: 'URL', required: true }, { name: 'children', type: 'array', title: 'Submenu Items', of: 'menuItem' }] }
         ]
       }
     ]
@@ -44,16 +44,16 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
-          { name: 'logo', type: 'image', description: 'Site logo displayed in header' },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
+          { name: 'logo', type: 'image', title: 'Site Logo', description: 'Site logo displayed in header', options: { hotspot: true } },
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       },
       {
         documentType: 'navigation',
         title: 'Navigation',
         fields: [
-          { name: 'items', type: 'array', description: 'Navigation menu items', of: 'menuItem', required: true }
+          { name: 'items', type: 'array', title: 'Menu Items', description: 'Navigation menu items', of: 'menuItem', required: true, ofFields: [{ name: 'label', type: 'string', title: 'Label', required: true }, { name: 'url', type: 'url', title: 'URL', required: true }, { name: 'children', type: 'array', title: 'Submenu Items', of: 'menuItem' }] }
         ]
       }
     ]
@@ -71,8 +71,8 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       }
     ]
@@ -92,18 +92,18 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
-          { name: 'logo', type: 'image', description: 'Site logo' },
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
+          { name: 'logo', type: 'image', title: 'Site Logo', description: 'Site logo', options: { hotspot: true } },
           { name: 'ctaLabel', type: 'string', description: 'CTA button label (e.g. "Book Now")', required: true },
           { name: 'ctaUrl', type: 'string', description: 'CTA button destination URL', required: true },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       },
       {
         documentType: 'navigation',
         title: 'Navigation',
         fields: [
-          { name: 'items', type: 'array', description: 'Navigation menu items', of: 'menuItem', required: true }
+          { name: 'items', type: 'array', title: 'Menu Items', description: 'Navigation menu items', of: 'menuItem', required: true, ofFields: [{ name: 'label', type: 'string', title: 'Label', required: true }, { name: 'url', type: 'url', title: 'URL', required: true }, { name: 'children', type: 'array', title: 'Submenu Items', of: 'menuItem' }] }
         ]
       }
     ]
@@ -121,9 +121,9 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
           { name: 'logo', type: 'image', description: 'Site logo (centered)' },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       },
       {
@@ -150,11 +150,11 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
-          { name: 'logo', type: 'image', description: 'Site logo' },
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
+          { name: 'logo', type: 'image', title: 'Site Logo', description: 'Site logo', options: { hotspot: true } },
           { name: 'ctaLabel', type: 'string', description: 'CTA button label' },
           { name: 'ctaUrl', type: 'string', description: 'CTA button URL' },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       },
       {
@@ -179,16 +179,16 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
           { name: 'logo', type: 'image', description: 'Site logo (light version recommended for transparent state)' },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       },
       {
         documentType: 'navigation',
         title: 'Navigation',
         fields: [
-          { name: 'items', type: 'array', description: 'Navigation menu items', of: 'menuItem', required: true }
+          { name: 'items', type: 'array', title: 'Menu Items', description: 'Navigation menu items', of: 'menuItem', required: true, ofFields: [{ name: 'label', type: 'string', title: 'Label', required: true }, { name: 'url', type: 'url', title: 'URL', required: true }, { name: 'children', type: 'array', title: 'Submenu Items', of: 'menuItem' }] }
         ]
       }
     ]
@@ -206,16 +206,16 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
-          { name: 'logo', type: 'image', description: 'Site logo' },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
+          { name: 'logo', type: 'image', title: 'Site Logo', description: 'Site logo', options: { hotspot: true } },
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       },
       {
         documentType: 'navigation',
         title: 'Navigation',
         fields: [
-          { name: 'items', type: 'array', description: 'Navigation menu items', of: 'menuItem', required: true }
+          { name: 'items', type: 'array', title: 'Menu Items', description: 'Navigation menu items', of: 'menuItem', required: true, ofFields: [{ name: 'label', type: 'string', title: 'Label', required: true }, { name: 'url', type: 'url', title: 'URL', required: true }, { name: 'children', type: 'array', title: 'Submenu Items', of: 'menuItem' }] }
         ]
       },
       {
@@ -245,9 +245,9 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
-          { name: 'logo', type: 'image', description: 'Site logo' },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
+          { name: 'logo', type: 'image', title: 'Site Logo', description: 'Site logo', options: { hotspot: true } },
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       },
       {
@@ -281,17 +281,17 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
-          { name: 'logo', type: 'image', description: 'Site logo' },
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
+          { name: 'logo', type: 'image', title: 'Site Logo', description: 'Site logo', options: { hotspot: true } },
           { name: 'searchEnabled', type: 'boolean', description: 'Toggle site-wide search on/off' },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       },
       {
         documentType: 'navigation',
         title: 'Navigation',
         fields: [
-          { name: 'items', type: 'array', description: 'Navigation menu items', of: 'menuItem', required: true }
+          { name: 'items', type: 'array', title: 'Menu Items', description: 'Navigation menu items', of: 'menuItem', required: true, ofFields: [{ name: 'label', type: 'string', title: 'Label', required: true }, { name: 'url', type: 'url', title: 'URL', required: true }, { name: 'children', type: 'array', title: 'Submenu Items', of: 'menuItem' }] }
         ]
       }
     ]
@@ -309,11 +309,11 @@ const headerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'siteName', type: 'string', description: 'Site name displayed in header', required: true },
-          { name: 'logo', type: 'image', description: 'Site logo' },
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Site name displayed in header', required: true },
+          { name: 'logo', type: 'image', title: 'Site Logo', description: 'Site logo', options: { hotspot: true } },
           { name: 'ctaLabel', type: 'string', description: 'Header CTA button label' },
           { name: 'ctaUrl', type: 'string', description: 'Header CTA button URL' },
-          { name: 'authEnabled', type: 'boolean', description: 'Show login / account button in header' }
+          { name: 'authEnabled', type: 'boolean', title: 'Auth Enabled', description: 'Show login / account button in header' }
         ]
       },
       {
@@ -398,14 +398,14 @@ const footerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'copyrightText', type: 'string', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
         ]
       },
       {
         documentType: 'socialLinks',
         title: 'Social Links',
         fields: [
-          { name: 'items', type: 'array', description: 'Social media links', of: 'socialLink' }
+          { name: 'items', type: 'array', title: 'Social Links', description: 'Social media links', of: 'socialLink', ofFields: [{ name: 'platform', type: 'string', title: 'Platform', required: true }, { name: 'url', type: 'url', title: 'Profile URL', required: true }] }
         ]
       }
     ]
@@ -423,7 +423,7 @@ const footerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'copyrightText', type: 'string', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
         ]
       },
       {
@@ -448,7 +448,7 @@ const footerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'copyrightText', type: 'string', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
         ]
       }
     ]
@@ -468,14 +468,14 @@ const footerVariants: ComponentVariant[] = [
         fields: [
           { name: 'siteName', type: 'string', description: 'Brand name displayed in footer' },
           { name: 'tagline', type: 'string', description: 'Short tagline beneath brand name' },
-          { name: 'copyrightText', type: 'string', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
         ]
       },
       {
         documentType: 'socialLinks',
         title: 'Social Links',
         fields: [
-          { name: 'items', type: 'array', description: 'Social media links', of: 'socialLink' }
+          { name: 'items', type: 'array', title: 'Social Links', description: 'Social media links', of: 'socialLink', ofFields: [{ name: 'platform', type: 'string', title: 'Platform', required: true }, { name: 'url', type: 'url', title: 'Profile URL', required: true }] }
         ]
       }
     ]
@@ -497,14 +497,14 @@ const footerVariants: ComponentVariant[] = [
           { name: 'ctaSubtext', type: 'string', description: 'Supporting text beneath CTA headline' },
           { name: 'ctaLabel', type: 'string', description: 'CTA button label' },
           { name: 'ctaUrl', type: 'url', description: 'CTA button destination URL' },
-          { name: 'copyrightText', type: 'string', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
         ]
       },
       {
         documentType: 'socialLinks',
         title: 'Social Links',
         fields: [
-          { name: 'items', type: 'array', description: 'Social media links', of: 'socialLink' }
+          { name: 'items', type: 'array', title: 'Social Links', description: 'Social media links', of: 'socialLink', ofFields: [{ name: 'platform', type: 'string', title: 'Platform', required: true }, { name: 'url', type: 'url', title: 'Profile URL', required: true }] }
         ]
       }
     ]
@@ -524,7 +524,7 @@ const footerVariants: ComponentVariant[] = [
         fields: [
           { name: 'newsletterHeadline', type: 'string', description: 'Newsletter section headline' },
           { name: 'newsletterSubtext', type: 'string', description: 'Supporting text for newsletter signup' },
-          { name: 'copyrightText', type: 'string', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
         ]
       },
       {
@@ -538,7 +538,7 @@ const footerVariants: ComponentVariant[] = [
         documentType: 'socialLinks',
         title: 'Social Links',
         fields: [
-          { name: 'items', type: 'array', description: 'Social media links', of: 'socialLink' }
+          { name: 'items', type: 'array', title: 'Social Links', description: 'Social media links', of: 'socialLink', ofFields: [{ name: 'platform', type: 'string', title: 'Platform', required: true }, { name: 'url', type: 'url', title: 'Profile URL', required: true }] }
         ]
       }
     ]
@@ -558,7 +558,7 @@ const footerVariants: ComponentVariant[] = [
         fields: [
           { name: 'siteName', type: 'string', description: 'Brand name in footer' },
           { name: 'description', type: 'text', description: 'Short brand description' },
-          { name: 'copyrightText', type: 'string', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
         ]
       },
       {
@@ -572,7 +572,7 @@ const footerVariants: ComponentVariant[] = [
         documentType: 'socialLinks',
         title: 'Social Links',
         fields: [
-          { name: 'items', type: 'array', description: 'Social media links', of: 'socialLink' }
+          { name: 'items', type: 'array', title: 'Social Links', description: 'Social media links', of: 'socialLink', ofFields: [{ name: 'platform', type: 'string', title: 'Platform', required: true }, { name: 'url', type: 'url', title: 'Profile URL', required: true }] }
         ]
       }
     ]
@@ -592,7 +592,7 @@ const footerVariants: ComponentVariant[] = [
         fields: [
           { name: 'siteName', type: 'string', description: 'Brand name in footer' },
           { name: 'description', type: 'text', description: 'Short brand description' },
-          { name: 'copyrightText', type: 'string', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
         ]
       },
       {
@@ -606,7 +606,7 @@ const footerVariants: ComponentVariant[] = [
         documentType: 'socialLinks',
         title: 'Social Links',
         fields: [
-          { name: 'items', type: 'array', description: 'Social media links', of: 'socialLink' }
+          { name: 'items', type: 'array', title: 'Social Links', description: 'Social media links', of: 'socialLink', ofFields: [{ name: 'platform', type: 'string', title: 'Platform', required: true }, { name: 'url', type: 'url', title: 'Profile URL', required: true }] }
         ]
       }
     ]
@@ -625,14 +625,14 @@ const footerVariants: ComponentVariant[] = [
         title: 'Site Settings',
         fields: [
           { name: 'siteName', type: 'string', description: 'Brand name in footer' },
-          { name: 'copyrightText', type: 'string', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
         ]
       },
       {
         documentType: 'socialLinks',
         title: 'Social Links',
         fields: [
-          { name: 'items', type: 'array', description: 'Social media links', of: 'socialLink' }
+          { name: 'items', type: 'array', title: 'Social Links', description: 'Social media links', of: 'socialLink', ofFields: [{ name: 'platform', type: 'string', title: 'Platform', required: true }, { name: 'url', type: 'url', title: 'Profile URL', required: true }] }
         ]
       },
       {
@@ -659,14 +659,14 @@ const footerVariants: ComponentVariant[] = [
         fields: [
           { name: 'siteName', type: 'string', description: 'Brand name in footer' },
           { name: 'tagline', type: 'string', description: 'Short tagline beneath brand name' },
-          { name: 'copyrightText', type: 'string', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
         ]
       },
       {
         documentType: 'socialLinks',
         title: 'Social Links',
         fields: [
-          { name: 'items', type: 'array', description: 'Social media links', of: 'socialLink' }
+          { name: 'items', type: 'array', title: 'Social Links', description: 'Social media links', of: 'socialLink', ofFields: [{ name: 'platform', type: 'string', title: 'Platform', required: true }, { name: 'url', type: 'url', title: 'Profile URL', required: true }] }
         ]
       },
       {
@@ -803,11 +803,19 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'heroTitle', type: 'string', description: 'Hero headline text', required: true },
-          { name: 'heroSubtitle', type: 'string', description: 'Hero subtitle or tagline' },
-          { name: 'heroImage', type: 'image', description: 'Hero background image' },
-          { name: 'heroCta', type: 'object', description: 'Call-to-action button (label + URL)' }
-        ]
+          { name: 'heroTitle', type: 'string', title: 'Hero Heading', description: 'Hero headline text', required: true },
+          { name: 'heroSubtitle', type: 'text', title: 'Hero Subtitle', description: 'Hero subtitle or tagline' },
+          { name: 'heroImage', type: 'image', title: 'Hero Background Image', description: 'Full-width background image', options: { hotspot: true } },
+          { name: 'heroCta', type: 'object', title: 'CTA Button', description: 'Call-to-action button', ofFields: [
+            { name: 'label', type: 'string', title: 'Button Label', required: true },
+            { name: 'url', type: 'url', title: 'Button URL', required: true }
+          ] }
+        ],
+        defaultValues: {
+          heroTitle: '##CLIENT_NAME##',
+          heroSubtitle: 'Serving ##CLIENT_LOCATION## with purpose-driven solutions.',
+          heroCta: { label: 'Get Started', url: '/contact' }
+        }
       }
     ]
   },
@@ -824,10 +832,15 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'servicesHeading', type: 'string', description: 'Section heading', required: true },
-          { name: 'servicesSubheading', type: 'string', description: 'Section subheading' },
-          { name: 'services', type: 'array', description: 'Service items (title, description, icon)', of: 'serviceItem', required: true }
-        ]
+          { name: 'servicesHeading', type: 'string', title: 'Services Heading', description: 'Section heading', required: true },
+          { name: 'servicesSubheading', type: 'string', title: 'Services Subheading', description: 'Section subheading' },
+          { name: 'services', type: 'array', title: 'Services', description: 'Service cards', of: 'serviceItem', required: true, ofFields: [
+            { name: 'title', type: 'string', title: 'Service Title', required: true },
+            { name: 'description', type: 'text', title: 'Service Description' },
+            { name: 'icon', type: 'string', title: 'Icon Emoji', description: 'Emoji or icon identifier' }
+          ] }
+        ],
+        defaultValues: { servicesHeading: 'Our Services', servicesSubheading: 'What we offer' }
       }
     ]
   },
@@ -844,7 +857,11 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'features', type: 'array', description: 'Feature items (title, description, icon)', of: 'featureItem', required: true }
+          { name: 'features', type: 'array', title: 'Features', description: 'Feature cards', of: 'featureItem', required: true, ofFields: [
+            { name: 'title', type: 'string', title: 'Feature Title', required: true },
+            { name: 'description', type: 'text', title: 'Feature Description' },
+            { name: 'icon', type: 'string', title: 'Icon Emoji', description: 'Emoji or icon identifier' }
+          ] }
         ]
       }
     ]
@@ -862,8 +879,8 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'textHeading', type: 'string', description: 'Section heading' },
-          { name: 'bodyContent', type: 'text', description: 'Body text content', required: true }
+          { name: 'textHeading', type: 'string', title: 'Section Heading', description: 'Heading above the text block' },
+          { name: 'bodyContent', type: 'array', title: 'Body Content', description: 'Rich text content (portable text)', of: 'block', required: true }
         ]
       }
     ]
@@ -881,11 +898,17 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'ctaHeadline', type: 'string', description: 'CTA headline', required: true },
-          { name: 'ctaText', type: 'string', description: 'Supporting text below headline' },
-          { name: 'ctaButtonLabel', type: 'string', description: 'Button label text', required: true },
-          { name: 'ctaButtonUrl', type: 'string', description: 'Button link URL', required: true }
-        ]
+          { name: 'ctaHeadline', type: 'string', title: 'CTA Headline', description: 'CTA headline', required: true },
+          { name: 'ctaText', type: 'text', title: 'CTA Text', description: 'Supporting text below headline' },
+          { name: 'ctaButtonLabel', type: 'string', title: 'Button Label', description: 'Button label text', required: true },
+          { name: 'ctaButtonUrl', type: 'url', title: 'Button URL', description: 'Button link URL', required: true }
+        ],
+        defaultValues: {
+          ctaHeadline: 'Ready to get started?',
+          ctaText: 'Contact us today to learn how we can help.',
+          ctaButtonLabel: 'Contact Us',
+          ctaButtonUrl: '/contact'
+        }
       }
     ]
   },
@@ -902,7 +925,11 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'galleryImages', type: 'array', description: 'Gallery images with alt text and captions', of: 'galleryImage', required: true }
+          { name: 'galleryImages', type: 'array', title: 'Gallery Images', description: 'Gallery images with alt text and captions', of: 'galleryImage', required: true, ofFields: [
+            { name: 'image', type: 'image', title: 'Image', required: true, options: { hotspot: true } },
+            { name: 'alt', type: 'string', title: 'Alt Text', description: 'Accessibility description' },
+            { name: 'caption', type: 'string', title: 'Caption' }
+          ] }
         ]
       }
     ]
@@ -920,9 +947,17 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'testimonialsHeading', type: 'string', description: 'Section heading' },
-          { name: 'testimonials', type: 'array', description: 'Testimonial items (quote, author, role, rating)', of: 'testimonialItem', required: true }
-        ]
+          { name: 'testimonialsHeading', type: 'string', title: 'Testimonials Heading', description: 'Section heading' },
+          { name: 'testimonials', type: 'array', title: 'Testimonials', description: 'Customer testimonials', of: 'testimonialItem', required: true, ofFields: [
+            { name: 'quote', type: 'text', title: 'Quote', required: true },
+            { name: 'authorName', type: 'string', title: 'Author Name', required: true },
+            { name: 'authorRole', type: 'string', title: 'Author Role' },
+            { name: 'authorCompany', type: 'string', title: 'Company' },
+            { name: 'rating', type: 'number', title: 'Star Rating', description: '1-5 stars' },
+            { name: 'authorImage', type: 'image', title: 'Author Photo', options: { hotspot: true } }
+          ] }
+        ],
+        defaultValues: { testimonialsHeading: 'What Our Clients Say' }
       }
     ]
   },
@@ -939,10 +974,16 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'teamHeading', type: 'string', description: 'Section heading' },
-          { name: 'teamSubheading', type: 'string', description: 'Section subheading' },
-          { name: 'teamMembers', type: 'array', description: 'Team member items (name, role, bio, color)', of: 'teamMember', required: true }
-        ]
+          { name: 'teamHeading', type: 'string', title: 'Team Heading', description: 'Section heading' },
+          { name: 'teamSubheading', type: 'string', title: 'Team Subheading', description: 'Section subheading' },
+          { name: 'teamMembers', type: 'array', title: 'Team Members', description: 'Team member profiles', of: 'teamMember', required: true, ofFields: [
+            { name: 'name', type: 'string', title: 'Full Name', required: true },
+            { name: 'role', type: 'string', title: 'Role / Title', required: true },
+            { name: 'bio', type: 'text', title: 'Short Bio' },
+            { name: 'photo', type: 'image', title: 'Photo', options: { hotspot: true } }
+          ] }
+        ],
+        defaultValues: { teamHeading: 'Meet the Team', teamSubheading: 'The people behind the work' }
       }
     ]
   },
@@ -960,8 +1001,13 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'statsHeading', type: 'string', description: 'Optional section heading' },
-          { name: 'stats', type: 'array', description: 'Stat items (value, label, prefix, suffix)', of: 'statItem', required: true }
+          { name: 'statsHeading', type: 'string', title: 'Stats Heading', description: 'Optional section heading' },
+          { name: 'stats', type: 'array', title: 'Statistics', description: 'Key metrics to display', of: 'statItem', required: true, ofFields: [
+            { name: 'value', type: 'string', title: 'Value', description: 'The number (e.g. "500")', required: true },
+            { name: 'label', type: 'string', title: 'Label', description: 'Description below the number', required: true },
+            { name: 'prefix', type: 'string', title: 'Prefix', description: 'Before the number (e.g. "$")' },
+            { name: 'suffix', type: 'string', title: 'Suffix', description: 'After the number (e.g. "+")' }
+          ] }
         ]
       }
     ]
@@ -979,10 +1025,14 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'faqHeading', type: 'string', description: 'Section heading' },
-          { name: 'faqSubheading', type: 'string', description: 'Section subheading' },
-          { name: 'faqs', type: 'array', description: 'FAQ items (question, answer)', of: 'faqItem', required: true }
-        ]
+          { name: 'faqHeading', type: 'string', title: 'FAQ Heading', description: 'Section heading' },
+          { name: 'faqSubheading', type: 'string', title: 'FAQ Subheading', description: 'Section subheading' },
+          { name: 'faqs', type: 'array', title: 'FAQ Items', description: 'Question and answer pairs', of: 'faqItem', required: true, ofFields: [
+            { name: 'question', type: 'string', title: 'Question', required: true },
+            { name: 'answer', type: 'text', title: 'Answer', required: true }
+          ] }
+        ],
+        defaultValues: { faqHeading: 'Frequently Asked Questions' }
       }
     ]
   },
@@ -999,10 +1049,15 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'processHeading', type: 'string', description: 'Section heading' },
-          { name: 'processSubheading', type: 'string', description: 'Section subheading' },
-          { name: 'steps', type: 'array', description: 'Process step items (title, description, icon)', of: 'processStep', required: true }
-        ]
+          { name: 'processHeading', type: 'string', title: 'Process Heading', description: 'Section heading' },
+          { name: 'processSubheading', type: 'string', title: 'Process Subheading', description: 'Section subheading' },
+          { name: 'steps', type: 'array', title: 'Process Steps', description: 'Ordered steps', of: 'processStep', required: true, ofFields: [
+            { name: 'title', type: 'string', title: 'Step Title', required: true },
+            { name: 'description', type: 'text', title: 'Step Description' },
+            { name: 'icon', type: 'string', title: 'Icon Emoji', description: 'Emoji or icon identifier' }
+          ] }
+        ],
+        defaultValues: { processHeading: 'How It Works' }
       }
     ]
   },
@@ -1019,9 +1074,17 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'pricingHeading', type: 'string', description: 'Section heading' },
-          { name: 'pricingSubheading', type: 'string', description: 'Section subheading' },
-          { name: 'plans', type: 'array', description: 'Pricing plan items (name, price, features, highlighted)', of: 'pricingPlan', required: true }
+          { name: 'pricingHeading', type: 'string', title: 'Pricing Heading', description: 'Section heading' },
+          { name: 'pricingSubheading', type: 'string', title: 'Pricing Subheading', description: 'Section subheading' },
+          { name: 'plans', type: 'array', title: 'Pricing Plans', description: 'Pricing tiers', of: 'pricingPlan', required: true, ofFields: [
+            { name: 'name', type: 'string', title: 'Plan Name', required: true },
+            { name: 'price', type: 'string', title: 'Price', description: 'e.g. "$29/mo"', required: true },
+            { name: 'period', type: 'string', title: 'Billing Period', description: 'e.g. "per month"' },
+            { name: 'features', type: 'array', title: 'Features', of: 'string', description: 'List of included features' },
+            { name: 'highlighted', type: 'boolean', title: 'Highlighted', description: 'Mark as recommended tier' },
+            { name: 'ctaLabel', type: 'string', title: 'Button Label' },
+            { name: 'ctaUrl', type: 'url', title: 'Button URL' }
+          ] }
         ]
       }
     ]
@@ -1039,9 +1102,14 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'logosLabel', type: 'string', description: 'Label above logos (e.g. "Trusted by")' },
-          { name: 'logos', type: 'array', description: 'Logo items (name, image)', of: 'logoItem', required: true }
-        ]
+          { name: 'logosLabel', type: 'string', title: 'Trust Bar Label', description: 'Label above logos (e.g. "Trusted by")' },
+          { name: 'logos', type: 'array', title: 'Logos', description: 'Client or partner logos', of: 'logoItem', required: true, ofFields: [
+            { name: 'name', type: 'string', title: 'Company Name', required: true },
+            { name: 'logo', type: 'image', title: 'Logo Image', options: { hotspot: true } },
+            { name: 'url', type: 'url', title: 'Website URL' }
+          ] }
+        ],
+        defaultValues: { logosLabel: 'Trusted By' }
       }
     ]
   },
@@ -1058,19 +1126,24 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'blogHeading', type: 'string', description: 'Blog section heading' },
-          { name: 'blogSubheading', type: 'string', description: 'Blog section subheading' }
-        ]
+          { name: 'blogHeading', type: 'string', title: 'Blog Heading', description: 'Blog section heading' },
+          { name: 'blogSubheading', type: 'string', title: 'Blog Subheading', description: 'Blog section subheading' },
+          { name: 'blogCtaLabel', type: 'string', title: 'View All Label', description: 'Link text for blog archive' },
+          { name: 'blogCtaUrl', type: 'url', title: 'View All URL', description: 'Link to blog archive page' }
+        ],
+        defaultValues: { blogHeading: 'Latest News', blogCtaLabel: 'View all posts →', blogCtaUrl: '/blog' }
       },
       {
         documentType: 'post',
         title: 'Blog Post',
         fields: [
-          { name: 'title', type: 'string', description: 'Post title', required: true },
-          { name: 'excerpt', type: 'string', description: 'Short excerpt or summary' },
-          { name: 'category', type: 'string', description: 'Post category label' },
-          { name: 'date', type: 'string', description: 'Publication date' },
-          { name: 'slug', type: 'slug', description: 'URL slug', required: true }
+          { name: 'title', type: 'string', title: 'Title', description: 'Post title', required: true },
+          { name: 'slug', type: 'slug', title: 'Slug', description: 'URL slug', required: true },
+          { name: 'excerpt', type: 'text', title: 'Excerpt', description: 'Short summary for preview cards' },
+          { name: 'category', type: 'string', title: 'Category', description: 'Post category label' },
+          { name: 'publishedAt', type: 'date', title: 'Published Date', required: true },
+          { name: 'featuredImage', type: 'image', title: 'Featured Image', options: { hotspot: true } },
+          { name: 'body', type: 'array', title: 'Body Content', of: 'block', description: 'Full post content (portable text)', required: true }
         ]
       }
     ]
@@ -1088,10 +1161,11 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'videoHeading', type: 'string', description: 'Section heading' },
-          { name: 'videoSubheading', type: 'string', description: 'Section subheading' },
-          { name: 'videoUrl', type: 'string', description: 'YouTube or Vimeo embed URL', required: true },
-          { name: 'videoCaption', type: 'string', description: 'Video caption or title overlay' }
+          { name: 'videoHeading', type: 'string', title: 'Video Heading', description: 'Section heading' },
+          { name: 'videoSubheading', type: 'string', title: 'Video Subheading', description: 'Section subheading' },
+          { name: 'videoUrl', type: 'url', title: 'Video URL', description: 'YouTube or Vimeo embed URL', required: true },
+          { name: 'videoCaption', type: 'string', title: 'Video Caption', description: 'Caption text overlay' },
+          { name: 'videoDuration', type: 'string', title: 'Duration', description: 'Display duration (e.g. "2:45")' }
         ]
       }
     ]
@@ -1109,11 +1183,19 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'newsletterHeading', type: 'string', description: 'Section heading' },
-          { name: 'newsletterSubheading', type: 'string', description: 'Supporting text' },
-          { name: 'newsletterCtaLabel', type: 'string', description: 'Subscribe button label' },
-          { name: 'newsletterPlaceholder', type: 'string', description: 'Email input placeholder text' }
-        ]
+          { name: 'newsletterHeading', type: 'string', title: 'Newsletter Heading', description: 'Section heading' },
+          { name: 'newsletterSubheading', type: 'string', title: 'Newsletter Subheading', description: 'Supporting text' },
+          { name: 'newsletterCtaLabel', type: 'string', title: 'Subscribe Button Label', description: 'Subscribe button text' },
+          { name: 'newsletterPlaceholder', type: 'string', title: 'Placeholder Text', description: 'Email input placeholder' },
+          { name: 'newsletterNote', type: 'string', title: 'Privacy Note', description: 'Small print below the form' }
+        ],
+        defaultValues: {
+          newsletterHeading: 'Stay in the Loop',
+          newsletterSubheading: 'Get tips, updates, and news delivered to your inbox.',
+          newsletterCtaLabel: 'Subscribe',
+          newsletterPlaceholder: 'Enter your email',
+          newsletterNote: 'No spam. Unsubscribe anytime.'
+        }
       }
     ]
   },
@@ -1131,14 +1213,14 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'splitEyebrow', type: 'string', description: 'Eyebrow text above heading' },
-          { name: 'splitHeading', type: 'string', description: 'Section heading', required: true },
-          { name: 'splitBody', type: 'string', description: 'Body text' },
-          { name: 'splitCtaLabel', type: 'string', description: 'CTA button label' },
-          { name: 'splitCtaUrl', type: 'string', description: 'CTA button URL' },
-          { name: 'splitImage', type: 'image', description: 'Section image' },
-          { name: 'splitImageRight', type: 'boolean', description: 'Place image on the right side' },
-          { name: 'splitFeatures', type: 'array', description: 'Optional feature bullet points', of: 'splitFeatureItem' }
+          { name: 'splitEyebrow', type: 'string', title: 'Eyebrow Text', description: 'Small text above heading' },
+          { name: 'splitHeading', type: 'string', title: 'Split Heading', description: 'Section heading', required: true },
+          { name: 'splitBody', type: 'text', title: 'Body Text', description: 'Paragraph below heading' },
+          { name: 'splitCtaLabel', type: 'string', title: 'CTA Button Label' },
+          { name: 'splitCtaUrl', type: 'url', title: 'CTA Button URL' },
+          { name: 'splitImage', type: 'image', title: 'Image', description: 'Section image', options: { hotspot: true } },
+          { name: 'splitImageRight', type: 'boolean', title: 'Image on Right', description: 'Place image on the right side' },
+          { name: 'splitFeatures', type: 'array', title: 'Feature Bullets', description: 'Optional feature bullet points', of: 'string' }
         ]
       }
     ]
@@ -1156,13 +1238,18 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'contactHeading', type: 'string', description: 'Section heading' },
-          { name: 'contactSubheading', type: 'string', description: 'Section subheading' },
-          { name: 'contactAddress', type: 'string', description: 'Physical address' },
-          { name: 'contactPhone', type: 'string', description: 'Phone number' },
-          { name: 'contactEmail', type: 'string', description: 'Contact email address' },
-          { name: 'contactHours', type: 'string', description: 'Business hours' }
-        ]
+          { name: 'contactHeading', type: 'string', title: 'Contact Heading', description: 'Section heading' },
+          { name: 'contactSubheading', type: 'string', title: 'Contact Subheading', description: 'Section subheading' },
+          { name: 'contactAddress', type: 'text', title: 'Address', description: 'Physical address (multiline)' },
+          { name: 'contactPhone', type: 'string', title: 'Phone Number' },
+          { name: 'contactEmail', type: 'string', title: 'Email Address' },
+          { name: 'contactHours', type: 'text', title: 'Business Hours', description: 'Operating hours (multiline)' }
+        ],
+        defaultValues: {
+          contactHeading: 'Get in Touch',
+          contactSubheading: "We'd love to hear from you.",
+          contactEmail: '##CLIENT_EMAIL##'
+        }
       }
     ]
   },
@@ -1179,13 +1266,18 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'contactIntroText', type: 'string', description: 'Empathy intro line' },
-          { name: 'contactEmail', type: 'string', description: 'Displayed as mailto link', required: true },
-          { name: 'contactPhone', type: 'string', description: 'Phone number (optional)' },
-          { name: 'contactShowPhone', type: 'boolean', description: 'Whether to display the phone number' },
-          { name: 'contactResponseTime', type: 'string', description: 'Expected response time note' },
-          { name: 'contactPreferenceNotes', type: 'string', description: 'Communication preference note' }
-        ]
+          { name: 'contactIntroText', type: 'text', title: 'Intro Text', description: 'Empathy intro paragraph' },
+          { name: 'contactEmail', type: 'string', title: 'Contact Email', description: 'Displayed as mailto link', required: true },
+          { name: 'contactPhone', type: 'string', title: 'Phone Number', description: 'Phone number (optional)' },
+          { name: 'contactShowPhone', type: 'boolean', title: 'Show Phone', description: 'Whether to display the phone number' },
+          { name: 'contactResponseTime', type: 'string', title: 'Response Time', description: 'Expected response time note' },
+          { name: 'contactPreferenceNotes', type: 'string', title: 'Preference Notes', description: 'Communication preference note' }
+        ],
+        defaultValues: {
+          contactIntroText: "No sales pitch, just an honest conversation about what your business needs and whether we're the right fit.",
+          contactEmail: '##CLIENT_EMAIL##',
+          contactResponseTime: 'We typically respond within 1 business day'
+        }
       }
     ]
   },
@@ -1202,10 +1294,15 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'timelineHeading', type: 'string', description: 'Section heading' },
-          { name: 'timelineSubheading', type: 'string', description: 'Section subheading' },
-          { name: 'milestones', type: 'array', description: 'Milestone items (year, title, description)', of: 'milestoneItem', required: true }
-        ]
+          { name: 'timelineHeading', type: 'string', title: 'Timeline Heading', description: 'Section heading' },
+          { name: 'timelineSubheading', type: 'string', title: 'Timeline Subheading', description: 'Section subheading' },
+          { name: 'milestones', type: 'array', title: 'Milestones', description: 'Timeline entries', of: 'milestoneItem', required: true, ofFields: [
+            { name: 'year', type: 'string', title: 'Year', required: true },
+            { name: 'title', type: 'string', title: 'Title', required: true },
+            { name: 'description', type: 'text', title: 'Description' }
+          ] }
+        ],
+        defaultValues: { timelineHeading: 'Our Journey' }
       }
     ]
   },
@@ -1222,19 +1319,21 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'portfolioHeading', type: 'string', description: 'Portfolio section heading' },
-          { name: 'portfolioSubheading', type: 'string', description: 'Portfolio section subheading' }
-        ]
+          { name: 'portfolioHeading', type: 'string', title: 'Portfolio Heading', description: 'Portfolio section heading' },
+          { name: 'portfolioSubheading', type: 'string', title: 'Portfolio Subheading', description: 'Portfolio section subheading' }
+        ],
+        defaultValues: { portfolioHeading: 'Our Work', portfolioSubheading: 'Recent projects and case studies' }
       },
       {
         documentType: 'caseStudy',
         title: 'Case Study',
         fields: [
-          { name: 'title', type: 'string', description: 'Project title', required: true },
-          { name: 'category', type: 'string', description: 'Project category' },
-          { name: 'description', type: 'string', description: 'Short project description' },
-          { name: 'image', type: 'image', description: 'Project cover image' },
-          { name: 'slug', type: 'slug', description: 'URL slug', required: true }
+          { name: 'title', type: 'string', title: 'Project Title', description: 'Project title', required: true },
+          { name: 'slug', type: 'slug', title: 'Slug', description: 'URL slug', required: true },
+          { name: 'category', type: 'string', title: 'Category', description: 'Project category' },
+          { name: 'description', type: 'text', title: 'Description', description: 'Short project description' },
+          { name: 'image', type: 'image', title: 'Cover Image', description: 'Project cover image', options: { hotspot: true } },
+          { name: 'body', type: 'array', title: 'Full Content', of: 'block', description: 'Full case study content (portable text)' }
         ]
       }
     ]
@@ -1252,12 +1351,14 @@ const contentBlocks: ContentBlock[] = [
         documentType: 'page',
         title: 'Page',
         fields: [
-          { name: 'mapHeading', type: 'string', description: 'Section heading' },
-          { name: 'mapAddress', type: 'string', description: 'Physical address', required: true },
-          { name: 'mapPhone', type: 'string', description: 'Phone number' },
-          { name: 'mapEmail', type: 'string', description: 'Email address' },
-          { name: 'mapHours', type: 'string', description: 'Business hours' }
-        ]
+          { name: 'mapHeading', type: 'string', title: 'Map Heading', description: 'Section heading' },
+          { name: 'mapAddress', type: 'text', title: 'Address', description: 'Physical address (multiline)', required: true },
+          { name: 'mapPhone', type: 'string', title: 'Phone Number' },
+          { name: 'mapEmail', type: 'string', title: 'Email Address' },
+          { name: 'mapHours', type: 'text', title: 'Business Hours', description: 'Operating hours (multiline)' },
+          { name: 'mapEmbedUrl', type: 'url', title: 'Google Maps Embed URL', description: 'Embed URL from Google Maps' }
+        ],
+        defaultValues: { mapEmail: '##CLIENT_EMAIL##' }
       }
     ]
   }
