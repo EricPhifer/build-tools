@@ -116,21 +116,19 @@ const PHASES: Phase[] = [
       { id: 'p1-1',  label: 'Run `pnpm install` in website project' },
       { id: 'p1-2',  label: 'Run `pnpm install` in Sanity studio project' },
       { id: 'p1-3',  label: 'Run `pnpm install` in dashboard project' },
-      { id: 'p1-4',  label: 'Add `.env.local` with all VITE_ vars to website' },
-      { id: 'p1-5',  label: 'Add `.env.local` with all VITE_ vars to dashboard' },
-      { id: 'p1-6',  label: 'Website runs locally (`pnpm dev`) — all pages load' },
-      { id: 'p1-7',  label: 'Sanity studio runs locally (`pnpm dev`) — schemas load correctly' },
-      { id: 'p1-8',  label: 'Dashboard runs locally (`pnpm dev`, or `netlify dev` to test functions) — all widgets render' },
-      { id: 'p1-9',  label: 'All page routes verified in local website' },
-      { id: 'p1-10', label: 'Header and footer display correctly' },
-      { id: 'p1-11', label: 'Content blocks render correctly on each page' },
-      { id: 'p1-12', label: 'Mobile responsiveness tested (Chrome DevTools)' },
-      { id: 'p1-13', label: 'Seed content added in local Sanity studio' },
-      { id: 'p1-14', label: 'Sanity content appears in local website' },
-      { id: 'p1-15', label: 'Auth0 flow tested locally (if enabled)' },
-      { id: 'p1-16', label: '`pnpm build` succeeds — no type errors' },
-      { id: 'p1-17', label: 'Lighthouse score checked — no critical issues' },
-      { id: 'p1-18', label: 'Billing page loads — subscription card and portal button render' },
+      { id: 'p1-4',  label: 'Website runs locally (`pnpm dev`) — all pages load' },
+      { id: 'p1-5',  label: 'Sanity studio runs locally (`pnpm dev`) — schemas load correctly' },
+      { id: 'p1-6',  label: 'Dashboard runs locally (`pnpm dev`, or `netlify dev` to test functions) — all widgets render' },
+      { id: 'p1-7',  label: 'All page routes verified in local website' },
+      { id: 'p1-8',  label: 'Header and footer display correctly' },
+      { id: 'p1-9',  label: 'Content blocks render correctly on each page' },
+      { id: 'p1-10', label: 'Mobile responsiveness tested (Firefox Developer Edition)' },
+      { id: 'p1-11', label: 'Seed content added in local Sanity studio' },
+      { id: 'p1-12', label: 'Sanity content appears in local website' },
+      { id: 'p1-13', label: 'Auth0 flow tested locally (if enabled)' },
+      { id: 'p1-14', label: '`pnpm build` succeeds — no type errors' },
+      { id: 'p1-15', label: 'Lighthouse score checked — no critical issues' },
+      { id: 'p1-16', label: 'Billing page loads — subscription card and portal button render' },
     ]
   },
   {
@@ -156,9 +154,10 @@ const PHASES: Phase[] = [
       { id: 'p3-5', label: 'Website staging deploy succeeds — no build errors' },
       { id: 'p3-6', label: 'Dashboard staging deploy succeeds — no build errors' },
       { id: 'p3-7', label: 'Sanity studio deployed (`pnpm deploy`)' },
-      { id: 'p3-8', label: 'Sanity CORS origins include all staging URLs' },
-      { id: 'p3-9', label: 'Create build hook in Netlify: Site Settings → Build & Deploy → Build Hooks → Add build hook → Copy URL → paste into Client Dashboard → Managed Services → Netlify → Build Hook URL → Add as VITE_NETLIFY_BUILD_HOOK_URL in Netlify env vars for the dashboard site' },
-      { id: 'p3-10', label: 'Smoke test: all three staging URLs load correctly' },
+      { id: 'p3-8', label: 'Run seed script from studio directory: `npx sanity exec seed.ts --with-user-token`' },
+      { id: 'p3-9', label: 'Sanity CORS origins include all staging URLs' },
+      { id: 'p3-10', label: 'Create build hook in Netlify: Site Settings → Build & Deploy → Build Hooks → Add build hook → Copy URL → paste into Client Dashboard → Managed Services → Netlify → Build Hook URL → Add as VITE_NETLIFY_BUILD_HOOK_URL in Netlify env vars for the dashboard site' },
+      { id: 'p3-11', label: 'Smoke test: all three staging URLs load correctly' },
     ]
   },
   {
@@ -185,7 +184,7 @@ const PHASES: Phase[] = [
   }
 ]
 
-const TOTAL_ITEMS = 50
+const TOTAL_ITEMS = 49
 
 // ─── Deployment checklist state ─────────────────────────────────────────────
 const checkedItems = computed(() =>

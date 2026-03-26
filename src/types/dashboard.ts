@@ -103,6 +103,8 @@ export interface DashboardConfig {
   simpleAnalyticsId: string     // Simple Analytics site ID / domain (default analytics provider)
   useGoogleAnalytics: boolean   // Override: use Google Analytics GA4 instead of Simple Analytics
   analyticsId: string           // GA4 Measurement ID (G-XXXXXXXX) — only used when useGoogleAnalytics is true
+  analyticsInternalRoutes: string[]  // Dashboard routes filtered from public traffic view
+  analyticsConversionPage: string    // Goal page slug for visitor journey funnel (default: '/contact')
   contactWebhookUrl: string     // POST endpoint for client contact form submissions
   auth0Domain: string           // Auth0 tenant domain (e.g. dev-abc.us.auth0.com)
   auth0ClientId: string         // Auth0 Application Client ID for this dashboard

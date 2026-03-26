@@ -447,23 +447,106 @@ onMounted(() => {
 
         <!-- ─── ANALYTICS ────────────────────────────────────────────────────── -->
         <template v-else-if="activePage === 'analytics'">
-          <div class="bg-white rounded-2xl border border-gray-200 p-6">
-            <div v-if="config?.analyticsId" class="flex items-start gap-4">
-              <div
-                class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                :style="{ backgroundColor: primaryColor + '20' }"
-              >
-                <BarChart3 class="w-5 h-5" :style="{ color: primaryColor }" />
+          <div class="space-y-4">
+            <!-- Period selector -->
+            <div class="flex gap-1 bg-white border border-gray-200 rounded-lg p-1 w-fit">
+              <span class="px-3 py-1 text-xs font-medium rounded text-gray-500">Today</span>
+              <span class="px-3 py-1 text-xs font-medium rounded text-gray-500">Last 7 days</span>
+              <span class="px-3 py-1 text-xs font-medium rounded text-white" :style="{ backgroundColor: primaryColor }">Last 30 days</span>
+            </div>
+
+            <!-- Story card -->
+            <div class="bg-white rounded-xl p-5 border-l-[3px]" :style="{ borderLeftColor: primaryColor }">
+              <p class="text-sm font-medium text-gray-800 leading-relaxed">142 people visited your site this month — up from last month.</p>
+              <p class="text-xs text-gray-500 mt-1">Most traffic landed on your homepage. Only 18 people explored further.</p>
+            </div>
+
+            <!-- Mini bar chart mockup -->
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-2">Weekly visitors</p>
+              <div class="flex items-end gap-1.5 h-14">
+                <div v-for="(h, i) in [40, 55, 35, 70]" :key="i" class="flex-1 rounded-t" :style="{ height: h + '%', backgroundColor: primaryColor }"></div>
               </div>
-              <div>
-                <p class="font-semibold text-gray-900 text-sm">Analytics Connected</p>
-                <p class="text-xs text-gray-500 mt-0.5 font-mono">{{ config.analyticsId }}</p>
-                <p class="text-xs text-gray-400 mt-2">Your Google Analytics data is connected. Contact your developer for custom reports and dashboards.</p>
+              <div class="flex gap-1.5 mt-1">
+                <span v-for="w in ['Week 1', 'Week 2', 'Week 3', 'Week 4']" :key="w" class="flex-1 text-center text-[9px] text-gray-400">{{ w }}</span>
               </div>
             </div>
-            <div v-else class="flex items-center gap-3 text-gray-400">
-              <BarChart3 class="w-5 h-5" />
-              <p class="text-sm">Analytics not configured — add your GA4 Measurement ID in the Dashboard Builder.</p>
+
+            <!-- Metric cards -->
+            <div class="grid grid-cols-3 gap-3">
+              <div v-for="stat in [
+                { label: 'Visitors', value: '142', trend: '↑', color: '#16a34a' },
+                { label: 'Page views', value: '389', trend: '↑', color: '#16a34a' },
+                { label: 'Avg. time', value: '28s', trend: '→', color: '#9ca3af' }
+              ]" :key="stat.label" class="bg-white border border-gray-200 rounded-xl p-3">
+                <p class="text-[9px] font-medium uppercase tracking-wider text-gray-400">{{ stat.label }}</p>
+                <p class="text-lg font-bold text-gray-900 mt-0.5">{{ stat.value }}</p>
+                <p class="text-[10px] mt-0.5" :style="{ color: stat.color }">{{ stat.trend }} {{ stat.trend === '↑' ? 'Trending up' : 'About the same' }}</p>
+              </div>
+            </div>
+
+            <!-- Funnel -->
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-2">Visitor journey</p>
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="w-28 text-gray-700 shrink-0">Visited your site</span>
+                  <div class="flex-1 h-4 bg-gray-100 rounded overflow-hidden"><div class="h-full rounded" :style="{ width: '100%', backgroundColor: primaryColor }"></div></div>
+                  <span class="text-gray-600 font-semibold w-8 text-right">100%</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="w-28 text-gray-700 shrink-0">Explored a page</span>
+                  <div class="flex-1 h-4 bg-gray-100 rounded overflow-hidden"><div class="h-full rounded" style="width: 13%; min-width: 24px; background-color: #64748b"></div></div>
+                  <span class="text-gray-600 font-semibold w-8 text-right">13%</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="w-28 text-gray-700 shrink-0">Reached {{ (config?.analyticsConversionPage ?? '/contact').replace(/^\//, '').replace(/-/g, ' ') }}</span>
+                  <div class="flex-1 h-4 bg-gray-100 rounded overflow-hidden"><div class="h-full rounded" style="width: 4%; min-width: 24px; background-color: #f59e0b"></div></div>
+                  <span class="text-gray-600 font-semibold w-8 text-right">4%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Insight card -->
+            <div class="bg-white border border-gray-200 rounded-xl p-4 flex gap-3">
+              <div class="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0"></div>
+              <div>
+                <p class="text-xs font-semibold text-gray-800">What to focus on this month</p>
+                <p class="text-xs text-gray-500 mt-1 leading-relaxed">Consistent, genuine outreach tends to compound over time. Even one new post or updated page per month keeps your site active in search results.</p>
+              </div>
+            </div>
+
+            <!-- Top pages sample -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Top pages — real visitors only</p>
+                <span class="text-[10px] font-medium" :style="{ color: primaryColor }">Show your own activity</span>
+              </div>
+              <div class="space-y-1">
+                <div v-for="page in [{ path: '/', count: 112, pct: 100 }, { path: '/services', count: 24, pct: 21 }, { path: '/about', count: 18, pct: 16 }, { path: config?.analyticsConversionPage ?? '/contact', count: 6, pct: 5 }]" :key="page.path" class="flex items-center gap-2 bg-white rounded-lg px-3 py-1.5">
+                  <span class="text-xs font-mono text-gray-700 w-24 shrink-0 truncate">{{ page.path }}</span>
+                  <div class="flex-1 h-1.5 bg-gray-100 rounded overflow-hidden"><div class="h-full rounded" :style="{ width: page.pct + '%', backgroundColor: primaryColor }"></div></div>
+                  <span class="text-xs font-semibold text-gray-600 w-6 text-right">{{ page.count }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Referrers sample -->
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-2">How people found you</p>
+              <div class="divide-y divide-gray-100">
+                <div v-for="ref in [
+                  { name: 'Direct / typed your URL', desc: 'Existing contacts, bookmarks, or word of mouth', count: 78 },
+                  { name: 'Google Search', desc: 'Someone searched and found you', count: 41 },
+                  { name: 'Facebook', desc: 'A post or profile link', count: 23 }
+                ]" :key="ref.name" class="flex items-center justify-between py-2">
+                  <div>
+                    <p class="text-xs font-medium text-gray-800">{{ ref.name }}</p>
+                    <p class="text-[10px] text-gray-400">{{ ref.desc }}</p>
+                  </div>
+                  <span class="text-xs font-semibold text-gray-600">{{ ref.count }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </template>

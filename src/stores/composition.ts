@@ -62,6 +62,8 @@ function createDefaultDashboardConfig(): DashboardConfig {
     simpleAnalyticsId: '',
     useGoogleAnalytics: false,
     analyticsId: '',
+    analyticsInternalRoutes: [],
+    analyticsConversionPage: '/contact',
     contactWebhookUrl: '',
     auth0Domain: '',
     auth0ClientId: '',

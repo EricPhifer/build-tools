@@ -52,6 +52,39 @@ function selectEmoji(linkId: string, emoji: string) {
   activeEmojiPicker.value = null
 }
 
+const linksWereSeeded = ref(false)
+const newRouteInput = ref('')
+
+function seedInternalRoutes() {
+  if (config.value.analyticsInternalRoutes.length > 0) return
+  const defaults = ['/analytics', '/billing', '/content-kit', '/support']
+  const sitemap = composition.siteBuilder.sitemapPages
+  if (sitemap.some(p => p.slug === '/about-us')) {
+    defaults.push('/about-us')
+  }
+  composition.setDashboardConfig({ analyticsInternalRoutes: defaults })
+}
+
+function addInternalRoute() {
+  const route = newRouteInput.value.trim()
+  if (!route) return
+  const normalized = route.startsWith('/') ? route : `/${route}`
+  if (config.value.analyticsInternalRoutes.includes(normalized)) {
+    newRouteInput.value = ''
+    return
+  }
+  composition.setDashboardConfig({
+    analyticsInternalRoutes: [...config.value.analyticsInternalRoutes, normalized]
+  })
+  newRouteInput.value = ''
+}
+
+function removeInternalRoute(route: string) {
+  composition.setDashboardConfig({
+    analyticsInternalRoutes: config.value.analyticsInternalRoutes.filter(r => r !== route)
+  })
+}
+
 onMounted(() => {
   if (config.value.quickActions.length === 0) {
     const siteUrl = composition.siteBuilder.envConfig.siteUrl || `https://${domain.value}.com`
@@ -62,6 +95,37 @@ onMounted(() => {
       ]
     })
   }
+
+  // Seed helpful links from known project config if empty
+  if (config.value.helpfulLinks.length === 0) {
+    const seeds: HelpfulLink[] = []
+    const siteUrl = composition.siteBuilder.envConfig.siteUrl
+    const studioUrl = `https://studio.${domain.value}.com`
+    const useGA = config.value.useGoogleAnalytics
+    const saId = config.value.simpleAnalyticsId
+    const gaId = config.value.analyticsId
+
+    if (siteUrl) {
+      seeds.push({ id: 'live-site', title: 'Live Site', url: siteUrl, description: 'View your published website', emoji: '🌐' })
+    }
+    if (studioUrl) {
+      seeds.push({ id: 'studio', title: 'Sanity Studio', url: studioUrl, description: 'Edit your content', emoji: '✏️' })
+    }
+    if (!useGA && saId) {
+      seeds.push({ id: 'analytics', title: 'Simple Analytics', url: `https://dashboard.simpleanalytics.com/${saId}`, description: 'View site traffic', emoji: '📊' })
+    } else if (useGA && gaId) {
+      seeds.push({ id: 'analytics', title: 'Google Analytics', url: `https://analytics.google.com/analytics/web/#/p${gaId}`, description: 'View site traffic', emoji: '📊' })
+    }
+
+    if (seeds.length > 0) {
+      composition.setDashboardConfig({ helpfulLinks: seeds })
+      linksWereSeeded.value = true
+    }
+  }
+
+  // Seed internal routes for analytics filtering
+  seedInternalRoutes()
+
   // Close emoji picker on outside click
   document.addEventListener('click', () => { activeEmojiPicker.value = null })
 })
@@ -416,6 +480,57 @@ const inputStyle = {
                 />
               </button>
             </div>
+            <!-- Page filtering (SA only) -->
+            <div v-if="!config.useGoogleAnalytics" class="pt-1 border-t space-y-3" :style="{ borderColor: 'var(--theme-border)' }">
+              <div>
+                <p class="text-xs font-semibold mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Page filtering</p>
+                <p class="text-xs mb-2" :style="{ color: 'var(--theme-text-muted)' }">These routes are your dashboard pages — they'll be hidden from the public traffic view by default, since they only appear when you log in.</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Goal page</label>
+                <input
+                  :value="config.analyticsConversionPage"
+                  @input="composition.setDashboardConfig({ analyticsConversionPage: ($event.target as HTMLInputElement).value })"
+                  placeholder="/contact"
+                  :class="inputClass"
+                  :style="inputStyle"
+                />
+                <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">The page you most want visitors to reach (e.g. /contact, /donate, /apply).</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Internal routes</label>
+                <div class="flex flex-wrap gap-1.5 mb-2">
+                  <span
+                    v-for="route in config.analyticsInternalRoutes"
+                    :key="route"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+                    :style="{ backgroundColor: 'var(--theme-bg-secondary)', color: 'var(--theme-text-secondary)', border: '1px solid var(--theme-border)' }"
+                  >
+                    {{ route }}
+                    <button @click="removeInternalRoute(route)" class="ml-0.5 hover:text-red-500 transition-colors">&times;</button>
+                  </span>
+                  <span v-if="config.analyticsInternalRoutes.length === 0" class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">No routes added.</span>
+                </div>
+                <div class="flex gap-2">
+                  <input
+                    v-model="newRouteInput"
+                    @keydown.enter.prevent="addInternalRoute"
+                    placeholder="/route-path"
+                    :class="inputClass"
+                    :style="inputStyle"
+                    class="flex-1"
+                  />
+                  <button
+                    @click="addInternalRoute"
+                    class="px-3 py-1.5 rounded-lg text-xs font-medium shrink-0"
+                    :style="{ backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }"
+                  >Add</button>
+                </div>
+              </div>
+            </div>
+
             <div>
               <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Contact Form Webhook URL</label>
               <input
@@ -552,6 +667,10 @@ const inputStyle = {
             </div>
             <input :value="link.url" @input="updateLink(link.id, { url: ($event.target as HTMLInputElement).value })" placeholder="URL" :class="inputClass" :style="inputStyle" />
             <input :value="link.description" @input="updateLink(link.id, { description: ($event.target as HTMLInputElement).value })" placeholder="Description" :class="inputClass" :style="inputStyle" />
+          </div>
+          <div v-if="linksWereSeeded" class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-xs" :style="{ backgroundColor: 'var(--theme-bg-secondary)', color: 'var(--theme-text-muted)' }">
+            <span>Links auto-populated from your project config. Edit or remove as needed.</span>
+            <button @click="linksWereSeeded = false" class="shrink-0 font-medium hover:underline" :style="{ color: 'var(--theme-primary)' }">Dismiss</button>
           </div>
           <div v-if="config.helpfulLinks.length === 0" class="text-xs text-center py-4" :style="{ color: 'var(--theme-text-muted)' }">No links yet. Add your first resource below.</div>
           <button @click="addLink" class="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed text-sm transition-colors" :style="{ borderColor: 'var(--theme-border)', color: 'var(--theme-text-muted)' }">
