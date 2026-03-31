@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ArrowRight, Palette, Type, Globe, Loader2, X, Upload, Link, ExternalLink, Server, Shield, HardDrive, Mail, Database, Zap, BarChart2, Box, ActivitySquare, RefreshCw } from 'lucide-vue-next'
+import { Search, ArrowRight, Palette, Type, Globe, Loader2, X, Upload, Link, ExternalLink, Server, Shield, HardDrive, Mail, Database, Zap, BarChart2, Box, ActivitySquare, RefreshCw, FileUp } from 'lucide-vue-next'
 import { useWorkflowStore } from '../stores/workflow'
+import { useCompositionStore } from '../stores/composition'
 import { useClientApi } from '../composables/useClientApi'
 import WorkflowProgress from '../components/WorkflowProgress.vue'
 import { SOCIAL_PLATFORM_LABELS } from '../types/registry'
@@ -10,6 +11,7 @@ import type { ClientInfo, BrandKit, ConnectedWebsite, ManagedService, ClientHeal
 
 const router = useRouter()
 const workflow = useWorkflowStore()
+const composition = useCompositionStore()
 const clientApi = useClientApi()
 
 // ─── Client Search ────────────────────────────────────────────────────────────
@@ -230,6 +232,52 @@ function loadClient(client: ClientInfo) {
   workflow.saveClient(client)
   showSearch.value = false
   searchQuery.value = ''
+}
+
+// ─── Import from Build Config JSON ────────────────────────────────────────────
+const fileInput = ref<HTMLInputElement | null>(null)
+const importError = ref('')
+
+function triggerImport() {
+  fileInput.value?.click()
+}
+
+async function importFromJson(event: Event) {
+  importError.value = ''
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+
+  try {
+    const text = await file.text()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const config: any = JSON.parse(text)
+
+    // Validate minimum expected structure
+    if (!config.client?.name && !config.project?.name) {
+      importError.value = 'Invalid config file — missing client or project name.'
+      return
+    }
+
+    // 1. Restore client info to form refs and workflow store
+    if (config.client) {
+      loadClient(config.client)
+    }
+
+    // 2. Restore composition, sitemap, dashboard, env, legal via existing function
+    composition.loadFromBuildConfig(config)
+
+    // 3. Restore enabledLegalPages from legal.enabledPages if present
+    if (config.legal?.enabledPages) {
+      composition.setEnabledLegalPages(config.legal.enabledPages)
+    }
+
+    showSearch.value = false
+  } catch {
+    importError.value = 'Failed to parse JSON file. Ensure it matches the exported build config format.'
+  } finally {
+    // Reset file input so the same file can be re-imported
+    if (fileInput.value) fileInput.value.value = ''
+  }
 }
 
 // ─── Build & Continue ─────────────────────────────────────────────────────────
@@ -562,6 +610,28 @@ onMounted(() => {
           :style="{ color: 'var(--theme-text-muted)' }"
         >{{ searchQuery.trim() ? `No clients found for "${searchQuery}"` : 'Loading clients…' }}</p>
       </template>
+    </div>
+
+    <!-- ── Import from Build Config ──────────────────────────────────────── -->
+    <div
+      class="p-4 rounded-xl border border-dashed mb-6 flex items-center justify-between gap-4"
+      :style="{ borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-bg-secondary)' }"
+    >
+      <div>
+        <p class="text-sm font-medium" :style="{ color: 'var(--theme-text-secondary)' }">
+          <FileUp class="inline w-4 h-4 mr-1 -mt-0.5" />Import from build config
+        </p>
+        <p class="text-xs mt-0.5" :style="{ color: 'var(--theme-text-muted)' }">
+          Load a previously exported <code class="text-xs">*-build-config.json</code> file to populate all steps.
+        </p>
+        <p v-if="importError" class="text-xs mt-1" :style="{ color: 'var(--theme-status-error, #dc2626)' }">{{ importError }}</p>
+      </div>
+      <button
+        @click="triggerImport"
+        class="shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-secondary)' }"
+      >Choose File</button>
+      <input ref="fileInput" type="file" accept=".json" class="hidden" @change="importFromJson" />
     </div>
 
     <!-- ── Client Details Form (shown once a client is named) ──────────────── -->
