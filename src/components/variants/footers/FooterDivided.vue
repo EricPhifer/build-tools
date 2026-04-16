@@ -4,6 +4,16 @@ defineProps<{
   socialLinks?: string[]
   navLinks?: string[]
   copyrightText?: string
+  craftedBy?: string
+  businessContact?: {
+    businessName?: string
+    streetAddress?: string
+    city?: string
+    region?: string
+    postalCode?: string
+    phone?: string
+    email?: string
+  }
 }>()
 </script>
 
@@ -38,9 +48,23 @@ defineProps<{
 
       <div class="border-t border-gray-100" />
 
-      <!-- Row 3: Copyright centered -->
+      <!-- Row 3: NAP -->
+      <div v-if="businessContact && (businessContact.streetAddress || businessContact.phone || businessContact.city)"
+        class="py-4 text-center text-xs text-gray-500 flex flex-wrap justify-center gap-x-3 gap-y-1">
+        <span v-if="businessContact.streetAddress">{{ businessContact.streetAddress }}</span>
+        <span v-if="businessContact.city || businessContact.region || businessContact.postalCode">
+          <span v-if="businessContact.city">{{ businessContact.city }}</span><span v-if="businessContact.city && businessContact.region">, </span><span v-if="businessContact.region">{{ businessContact.region }}</span><span v-if="businessContact.postalCode"> {{ businessContact.postalCode }}</span>
+        </span>
+        <a v-if="businessContact.phone" :href="`tel:${businessContact.phone}`" class="hover:text-gray-800">{{ businessContact.phone }}</a>
+        <a v-if="businessContact.email" :href="`mailto:${businessContact.email}`" class="hover:text-gray-800">{{ businessContact.email }}</a>
+      </div>
+
+      <div v-if="businessContact && (businessContact.streetAddress || businessContact.phone || businessContact.city)" class="border-t border-gray-100" />
+
+      <!-- Row 4: Copyright centered -->
       <div class="py-4 text-center">
         <p class="text-xs text-gray-400">&copy; {{ copyrightText || '2026 Company Name. All rights reserved.' }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ craftedBy || 'Crafted by Phifer Web Solutions' }}</p>
       </div>
     </div>
   </footer>

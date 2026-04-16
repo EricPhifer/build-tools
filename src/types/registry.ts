@@ -246,6 +246,22 @@ export interface ClientHealthCheck {
   trustCompliance?: HealthCheckAreaScore
 }
 
+/**
+ * NAP (Name, Address, Phone) — core local SEO data used in footers and JSON-LD.
+ * All fields optional: location-anchored businesses (local_service, nonprofit, church, hoa)
+ * should populate for local SEO benefit; pure-digital businesses can leave blank.
+ */
+export interface BusinessContact {
+  businessName?: string   // formal business name (falls back to ClientInfo.name)
+  streetAddress?: string
+  city?: string
+  region?: string         // state/province
+  postalCode?: string
+  country?: string        // defaults to 'US' when empty
+  phone?: string          // display format, e.g. "(555) 123-4567"
+  email?: string          // falls back to ClientInfo.contactEmail
+}
+
 export interface ClientInfo {
   id: string
   name: string
@@ -255,6 +271,7 @@ export interface ClientInfo {
   idealCustomer: string
   createdAt: string
   updatedAt: string
+  businessContact?: BusinessContact
   // Imported read-only data from Client Dashboard
   connectedWebsites?: ConnectedWebsite[]
   managedServices?: ManagedService[]

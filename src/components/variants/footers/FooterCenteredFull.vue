@@ -5,6 +5,16 @@ defineProps<{
   navLinks?: string[]
   socialLinks?: string[]
   copyrightText?: string
+  craftedBy?: string
+  businessContact?: {
+    businessName?: string
+    streetAddress?: string
+    city?: string
+    region?: string
+    postalCode?: string
+    phone?: string
+    email?: string
+  }
 }>()
 
 const socialIcons: Record<string, string[]> = {
@@ -69,8 +79,25 @@ function getSocialPaths(platform: string): string[] {
         </a>
       </div>
 
+      <!-- NAP block -->
+      <address v-if="businessContact && (businessContact.streetAddress || businessContact.phone || businessContact.city)"
+        class="not-italic text-sm text-gray-500 leading-relaxed">
+        <div v-if="businessContact.streetAddress">{{ businessContact.streetAddress }}</div>
+        <div v-if="businessContact.city || businessContact.region || businessContact.postalCode">
+          <span v-if="businessContact.city">{{ businessContact.city }}</span><span v-if="businessContact.city && businessContact.region">, </span><span v-if="businessContact.region">{{ businessContact.region }}</span><span v-if="businessContact.postalCode"> {{ businessContact.postalCode }}</span>
+        </div>
+        <div v-if="businessContact.phone || businessContact.email" class="mt-1">
+          <a v-if="businessContact.phone" :href="`tel:${businessContact.phone}`" class="hover:text-gray-800">{{ businessContact.phone }}</a>
+          <span v-if="businessContact.phone && businessContact.email" class="text-gray-300 mx-2">·</span>
+          <a v-if="businessContact.email" :href="`mailto:${businessContact.email}`" class="hover:text-gray-800">{{ businessContact.email }}</a>
+        </div>
+      </address>
+
       <!-- Copyright -->
-      <p class="text-gray-400 text-xs">&copy; {{ copyrightText || '2026 Company Name. All rights reserved.' }}</p>
+      <div class="text-center">
+        <p class="text-gray-400 text-xs">&copy; {{ copyrightText || '2026 Company Name. All rights reserved.' }}</p>
+        <p class="text-gray-400 text-xs mt-1">{{ craftedBy || 'Crafted by Phifer Web Solutions' }}</p>
+      </div>
     </div>
   </footer>
 </template>

@@ -50,10 +50,12 @@ const iframeSrc = computed(() => {
   if (!selectedVariant.value) return ''
   const activeSocialLinks = socialLinks.value.length > 0 ? socialLinks.value : ['Facebook', 'Instagram']
   const brandColors = client.value?.brandKit?.colors
+  const bc = client.value?.businessContact
   const params = new URLSearchParams({
     id: selectedVariant.value.id,
     siteName: siteName.value,
     copyrightText: copyrightText.value,
+    craftedBy: 'Crafted by Phifer Web Solutions',
     navLinks: footerNavLinks.value.join(','),
     socialLinks: activeSocialLinks.join(','),
     columns: JSON.stringify([
@@ -62,6 +64,7 @@ const iframeSrc = computed(() => {
     ]),
     headingFont: client.value?.brandKit?.fonts?.find(f => f.category === 'heading')?.name ?? '',
     bodyFont: client.value?.brandKit?.fonts?.find(f => f.category === 'body')?.name ?? '',
+    ...(bc ? { businessContact: JSON.stringify(bc) } : {}),
     ...(brandColors?.light ? { colorsLight: JSON.stringify(brandColors.light) } : {}),
     ...(brandColors?.dark  ? { colorsDark:  JSON.stringify(brandColors.dark)  } : {}),
     ...(client.value?.brandKit?.borderRadius ? { borderRadius: client.value.brandKit.borderRadius } : {})

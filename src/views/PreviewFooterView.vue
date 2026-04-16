@@ -11,11 +11,18 @@ const PreviewComponent = shallowRef<Component | null>(null)
 const id = route.query.id as string
 const siteName = (route.query.siteName as string) || 'Your Business'
 const copyrightText = (route.query.copyrightText as string) || `${new Date().getFullYear()} Your Business. All rights reserved.`
+const craftedBy = (route.query.craftedBy as string) || 'Crafted by Phifer Web Solutions'
 const navLinks = ((route.query.navLinks as string) || 'Privacy Policy,Terms & Conditions,Accessibility').split(',')
 const socialLinks = ((route.query.socialLinks as string) || '').split(',').filter(Boolean)
 const columns = (() => {
   try { return JSON.parse((route.query.columns as string) || '[]') }
   catch { return [] }
+})()
+const businessContact = (() => {
+  try {
+    const parsed = JSON.parse((route.query.businessContact as string) || 'null')
+    return parsed && typeof parsed === 'object' ? parsed : null
+  } catch { return null }
 })()
 const headingFont = (route.query.headingFont as string) || 'serif'
 const bodyFont    = (route.query.bodyFont    as string) || 'sans-serif'
@@ -90,9 +97,11 @@ onMounted(async () => {
         v-if="PreviewComponent"
         :site-name="siteName"
         :copyright-text="copyrightText"
+        :crafted-by="craftedBy"
         :nav-links="navLinks"
         :social-links="socialLinks.length > 0 ? socialLinks : undefined"
         :columns="columns.length > 0 ? columns : undefined"
+        :business-contact="businessContact ?? undefined"
       />
       <template #fallback>
         <div class="p-8 text-center text-sm text-gray-400">Loading...</div>

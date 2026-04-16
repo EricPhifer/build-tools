@@ -12,7 +12,7 @@ import { useWorkflowStore } from '../stores/workflow'
 import { useCompositionStore } from '../stores/composition'
 import { useRegistryStore } from '../stores/registry'
 import { BUSINESS_TYPES } from '../data/siteBuilderData'
-import type { PortfolioEntry } from '../types/registry'
+import type { PortfolioEntry, SchemaRequirement, ClientInfo } from '../types/registry'
 import WorkflowProgress from '../components/WorkflowProgress.vue'
 
 const route  = useRoute()
@@ -118,17 +118,18 @@ const PHASES: Phase[] = [
       { id: 'p1-3',  label: 'Run `pnpm install` in dashboard project' },
       { id: 'p1-4',  label: 'Website runs locally (`pnpm dev`) — all pages load' },
       { id: 'p1-5',  label: 'Sanity studio runs locally (`pnpm dev`) — schemas load correctly' },
-      { id: 'p1-6',  label: 'Dashboard runs locally (`pnpm dev`, or `netlify dev` to test functions) — all widgets render' },
-      { id: 'p1-7',  label: 'All page routes verified in local website' },
-      { id: 'p1-8',  label: 'Header and footer display correctly' },
-      { id: 'p1-9',  label: 'Content blocks render correctly on each page' },
-      { id: 'p1-10', label: 'Mobile responsiveness tested (Firefox Developer Edition)' },
-      { id: 'p1-11', label: 'Seed content added in local Sanity studio' },
-      { id: 'p1-12', label: 'Sanity content appears in local website' },
-      { id: 'p1-13', label: 'Auth0 flow tested locally (if enabled)' },
-      { id: 'p1-14', label: '`pnpm build` succeeds — no type errors' },
-      { id: 'p1-15', label: 'Lighthouse score checked — no critical issues' },
-      { id: 'p1-16', label: 'Billing page loads — subscription card and portal button render' },
+      { id: 'p1-6',  label: 'Verify Sanity project ID is set in studio `.env` (must match your Sanity project)' },
+      { id: 'p1-7',  label: 'Run seed script from studio directory: `npx sanity exec seed.ts --with-user-token`' },
+      { id: 'p1-8',  label: 'Dashboard runs locally (`pnpm dev`, or `netlify dev` to test functions) — all widgets render' },
+      { id: 'p1-9',  label: 'All page routes verified in local website' },
+      { id: 'p1-10', label: 'Header and footer display correctly' },
+      { id: 'p1-11', label: 'Content blocks render correctly on each page' },
+      { id: 'p1-12', label: 'Mobile responsiveness tested (Firefox Developer Edition)' },
+      { id: 'p1-13', label: 'Sanity content appears in local website' },
+      { id: 'p1-14', label: 'Auth0 flow tested locally (if enabled)' },
+      { id: 'p1-15', label: '`pnpm build` succeeds — no type errors' },
+      { id: 'p1-16', label: 'Lighthouse score checked — no critical issues' },
+      { id: 'p1-17', label: 'Billing page loads — subscription card and portal button render' },
     ]
   },
   {
@@ -154,10 +155,9 @@ const PHASES: Phase[] = [
       { id: 'p3-5', label: 'Website staging deploy succeeds — no build errors' },
       { id: 'p3-6', label: 'Dashboard staging deploy succeeds — no build errors' },
       { id: 'p3-7', label: 'Sanity studio deployed (`pnpm deploy`)' },
-      { id: 'p3-8', label: 'Run seed script from studio directory: `npx sanity exec seed.ts --with-user-token`' },
-      { id: 'p3-9', label: 'Sanity CORS origins include all staging URLs' },
-      { id: 'p3-10', label: 'Create build hook in Netlify: Site Settings → Build & Deploy → Build Hooks → Add build hook → Copy URL → paste into Client Dashboard → Managed Services → Netlify → Build Hook URL → Add as VITE_NETLIFY_BUILD_HOOK_URL in Netlify env vars for the dashboard site' },
-      { id: 'p3-11', label: 'Smoke test: all three staging URLs load correctly' },
+      { id: 'p3-8', label: 'Sanity CORS origins include all staging URLs' },
+      { id: 'p3-9', label: 'Create build hook in Netlify: Site Settings → Build & Deploy → Build Hooks → Add build hook → Copy URL → paste into Client Dashboard → Managed Services → Netlify → Build Hook URL → Add as VITE_NETLIFY_BUILD_HOOK_URL in Netlify env vars for the dashboard site' },
+      { id: 'p3-10', label: 'Smoke test: all three staging URLs load correctly' },
     ]
   },
   {
@@ -186,7 +186,7 @@ const PHASES: Phase[] = [
 
 const TOTAL_ITEMS = 49
 
-// ─── Deployment checklist state ─────────────────────────────────────────────
+// ─── Deployment checklist state ─────────��───────────────────────────────────
 const checkedItems = computed(() =>
   isPortfolioMode.value
     ? (activeEntry.value?.finalizeProgress ?? {})
@@ -238,6 +238,35 @@ function downloadFile(content: string, filename: string) {
   a.click()
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
+}
+
+/**
+ * Injects siteSettings defaults (craftedBy attribution + businessContact NAP) into
+ * the merged schemas so the build-script seeds them into the siteSettings singleton.
+ * Never overwrites existing defaultValues — only fills in siteSettings entries.
+ */
+function injectSiteSettingsDefaults(schemas: SchemaRequirement[], c: ClientInfo | null): SchemaRequirement[] {
+  const bc = c?.businessContact
+  const siteSettingsDefaults: Record<string, unknown> = {
+    craftedBy: 'Crafted by Phifer Web Solutions'
+  }
+  if (bc && (bc.streetAddress || bc.phone || bc.city || bc.email)) {
+    siteSettingsDefaults.businessContact = {
+      ...(bc.businessName  ? { businessName:  bc.businessName  } : { businessName: c?.name }),
+      ...(bc.streetAddress ? { streetAddress: bc.streetAddress } : {}),
+      ...(bc.city          ? { city:          bc.city          } : {}),
+      ...(bc.region        ? { region:        bc.region        } : {}),
+      ...(bc.postalCode    ? { postalCode:    bc.postalCode    } : {}),
+      ...(bc.country       ? { country:       bc.country       } : {}),
+      ...(bc.phone         ? { phone:         bc.phone         } : {}),
+      ...(bc.email         ? { email:         bc.email         } : { email: c?.contactEmail })
+    }
+  }
+
+  return schemas.map(s => {
+    if (s.documentType !== 'siteSettings') return s
+    return { ...s, defaultValues: { ...siteSettingsDefaults, ...(s.defaultValues ?? {}) } }
+  })
 }
 
 function buildExportConfig() {
@@ -296,13 +325,30 @@ function buildExportConfig() {
     'siteSettings', 'navigation', 'page', 'legalPage',
     ...composition.mergedSchemaRequirements.map(r => r.documentType)
   ])]
+  // Upgrade @type to LocalBusiness when full NAP is present (better local SEO than Organization)
+  const bc = c?.businessContact
+  const hasFullAddress = !!(bc?.streetAddress && bc?.city)
+  const jsonLdType = hasFullAddress && (!businessTypeInfo?.schemaType || businessTypeInfo.schemaType === 'Organization')
+    ? 'LocalBusiness'
+    : (businessTypeInfo?.schemaType ?? 'Organization')
   const schemaJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type':    businessTypeInfo?.schemaType ?? 'Organization',
-    name:       c?.name ?? 'Your Business',
+    '@type':    jsonLdType,
+    name:       bc?.businessName || c?.name || 'Your Business',
     url:        `https://${c?.domain ?? 'example.com'}`
   }
-  if (c?.contactEmail) schemaJsonLd['email'] = c.contactEmail
+  if (bc?.email || c?.contactEmail) schemaJsonLd['email'] = bc?.email || c?.contactEmail
+  if (bc?.phone) schemaJsonLd['telephone'] = bc.phone
+  if (hasFullAddress) {
+    schemaJsonLd['address'] = {
+      '@type':           'PostalAddress',
+      streetAddress:     bc!.streetAddress,
+      addressLocality:   bc!.city,
+      ...(bc!.region     ? { addressRegion: bc!.region } : {}),
+      ...(bc!.postalCode ? { postalCode: bc!.postalCode } : {}),
+      addressCountry:    bc!.country || 'US'
+    }
+  }
 
   const siteUrl = sb.envConfig.siteUrl || (c?.domain ? `https://${c.domain}` : '')
   const env: Record<string, string> = {
@@ -375,7 +421,7 @@ function buildExportConfig() {
         footer:  sb.sitemapPages.filter(p => (p.nav === 'footer'  || p.nav === 'both') && isLegalPageEnabled(p)).map(p => ({ name: p.name, slug: p.slug }))
       }
     },
-    cms: { sanityDocumentTypes, schemas: composition.mergedSchemaRequirements, schemaJsonLd },
+    cms: { sanityDocumentTypes, schemas: injectSiteSettingsDefaults(composition.mergedSchemaRequirements, c), schemaJsonLd },
     legal: {
       enabledPages: sb.enabledLegalPages,
       ...(sb.enabledLegalPages.privacyPolicy          ? { privacyPolicy:          sb.legalContent.privacyPolicy ?? '' } : {}),

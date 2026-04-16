@@ -7,6 +7,16 @@ defineProps<{
   socialLinks?: string[]
   navLinks?: string[]
   copyrightText?: string
+  craftedBy?: string
+  businessContact?: {
+    businessName?: string
+    streetAddress?: string
+    city?: string
+    region?: string
+    postalCode?: string
+    phone?: string
+    email?: string
+  }
 }>()
 </script>
 
@@ -27,6 +37,15 @@ defineProps<{
     <!-- Bottom bar -->
     <div class="bg-black px-6 py-5">
       <div class="max-w-6xl mx-auto">
+        <!-- NAP block -->
+        <div v-if="businessContact && (businessContact.streetAddress || businessContact.phone || businessContact.city)"
+          class="text-center text-xs text-gray-500 mb-3 leading-relaxed">
+          <span v-if="businessContact.streetAddress">{{ businessContact.streetAddress }}</span>
+          <span v-if="businessContact.streetAddress && (businessContact.city || businessContact.region)"> · </span>
+          <span v-if="businessContact.city">{{ businessContact.city }}</span><span v-if="businessContact.city && businessContact.region">, </span><span v-if="businessContact.region">{{ businessContact.region }}</span><span v-if="businessContact.postalCode"> {{ businessContact.postalCode }}</span>
+          <span v-if="businessContact.phone && (businessContact.streetAddress || businessContact.city)"> · </span>
+          <a v-if="businessContact.phone" :href="`tel:${businessContact.phone}`" class="hover:text-gray-300">{{ businessContact.phone }}</a>
+        </div>
         <!-- Legal nav links -->
         <div class="flex justify-center gap-5 flex-wrap mb-3">
           <a
@@ -38,7 +57,10 @@ defineProps<{
         </div>
         <!-- Copyright + social -->
         <div class="flex items-center justify-between gap-4 flex-wrap">
-          <p class="text-gray-500 text-sm">&copy; {{ copyrightText || '2026 Company Name. All rights reserved.' }}</p>
+          <div>
+            <p class="text-gray-500 text-sm">&copy; {{ copyrightText || '2026 Company Name. All rights reserved.' }}</p>
+            <p class="text-gray-600 text-xs mt-1">{{ craftedBy || 'Crafted by Phifer Web Solutions' }}</p>
+          </div>
           <div v-if="socialLinks?.length" class="flex gap-5">
             <a
               v-for="link in socialLinks"

@@ -50,6 +50,15 @@ const tld = ref(_initTld)       // everything after first dot, e.g. "com" or "co
 const whatTheyOffer = ref(workflow.clientInfo?.brandKit.whatTheyOffer ?? '')
 const idealCustomer = ref(workflow.clientInfo?.idealCustomer ?? '')
 
+// Business Contact (NAP — Name, Address, Phone) — core local SEO data for footers + JSON-LD
+const _bc = workflow.clientInfo?.businessContact
+const bcStreetAddress = ref(_bc?.streetAddress ?? '')
+const bcCity          = ref(_bc?.city          ?? '')
+const bcRegion        = ref(_bc?.region        ?? '')
+const bcPostalCode    = ref(_bc?.postalCode    ?? '')
+const bcCountry       = ref(_bc?.country       ?? '')
+const bcPhone         = ref(_bc?.phone         ?? '')
+
 // Brand colors
 const _c = workflow.clientInfo?.brandKit.colors
 
@@ -224,6 +233,14 @@ function loadClient(client: ClientInfo) {
   logoFavicon.value = client.brandKit.logos?.favicon ?? ''
   borderRadiusValue.value = client.brandKit.borderRadius ?? ''
 
+  const bc = client.businessContact
+  bcStreetAddress.value = bc?.streetAddress ?? ''
+  bcCity.value          = bc?.city          ?? ''
+  bcRegion.value        = bc?.region        ?? ''
+  bcPostalCode.value    = bc?.postalCode    ?? ''
+  bcCountry.value       = bc?.country       ?? ''
+  bcPhone.value         = bc?.phone         ?? ''
+
   connectedWebsites.value = client.connectedWebsites ?? []
   managedServices.value = client.managedServices ?? []
   healthCheck.value = client.healthCheck ?? null
@@ -340,6 +357,10 @@ function buildClientInfo(): ClientInfo {
     industry: industry.value
   }
 
+  const hasBusinessContact =
+    bcStreetAddress.value || bcCity.value || bcRegion.value ||
+    bcPostalCode.value || bcCountry.value || bcPhone.value
+
   return {
     id: workflow.clientInfo?.id ?? crypto.randomUUID(),
     name: clientName.value,
@@ -349,6 +370,16 @@ function buildClientInfo(): ClientInfo {
     idealCustomer: idealCustomer.value,
     createdAt: workflow.clientInfo?.createdAt ?? now,
     updatedAt: now,
+    businessContact: hasBusinessContact ? {
+      businessName:  clientName.value || undefined,
+      streetAddress: bcStreetAddress.value || undefined,
+      city:          bcCity.value          || undefined,
+      region:        bcRegion.value        || undefined,
+      postalCode:    bcPostalCode.value    || undefined,
+      country:       bcCountry.value       || undefined,
+      phone:         bcPhone.value         || undefined,
+      email:         contactEmail.value    || undefined
+    } : undefined,
     connectedWebsites: connectedWebsites.value.length > 0 ? connectedWebsites.value : undefined,
     managedServices: managedServices.value.length > 0 ? managedServices.value : undefined,
     healthCheck: healthCheck.value ?? undefined
@@ -767,6 +798,56 @@ onMounted(() => {
                 '--tw-ring-color': 'var(--theme-primary)'
               }"
             />
+          </div>
+
+          <!-- Business Contact (NAP) — optional, for local SEO -->
+          <div class="md:col-span-2 pt-4 mt-2 border-t" :style="{ borderColor: 'var(--theme-border)' }">
+            <div class="mb-3">
+              <h3 class="text-sm font-semibold" :style="{ color: 'var(--theme-text-primary)' }">Business Contact (NAP)</h3>
+              <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">
+                Optional. Populates the footer and schema.org LocalBusiness JSON-LD. Strongly recommended for local businesses, nonprofits, churches, and HOAs — top local SEO ranking signal.
+              </p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="md:col-span-2">
+                <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Street Address</label>
+                <input v-model="bcStreetAddress" type="text" placeholder="123 Main Street"
+                  class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
+                  :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)', '--tw-ring-color': 'var(--theme-primary)' }" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">City</label>
+                <input v-model="bcCity" type="text" placeholder="Springfield"
+                  class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
+                  :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)', '--tw-ring-color': 'var(--theme-primary)' }" />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">State/Region</label>
+                  <input v-model="bcRegion" type="text" placeholder="CO"
+                    class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
+                    :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)', '--tw-ring-color': 'var(--theme-primary)' }" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Postal Code</label>
+                  <input v-model="bcPostalCode" type="text" placeholder="80301"
+                    class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
+                    :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)', '--tw-ring-color': 'var(--theme-primary)' }" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Country</label>
+                <input v-model="bcCountry" type="text" placeholder="US"
+                  class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
+                  :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)', '--tw-ring-color': 'var(--theme-primary)' }" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Phone</label>
+                <input v-model="bcPhone" type="tel" placeholder="(555) 123-4567"
+                  class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
+                  :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)', '--tw-ring-color': 'var(--theme-primary)' }" />
+              </div>
+            </div>
           </div>
         </div>
 

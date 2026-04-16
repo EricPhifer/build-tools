@@ -5,6 +5,16 @@ defineProps<{
   socialLinks?: string[]
   columns?: Array<{ title: string; links: string[] }>
   copyrightText?: string
+  craftedBy?: string
+  businessContact?: {
+    businessName?: string
+    streetAddress?: string
+    city?: string
+    region?: string
+    postalCode?: string
+    phone?: string
+    email?: string
+  }
 }>()
 
 const socialIcons: Record<string, string[]> = {
@@ -49,6 +59,16 @@ const defaultColumns = [
           <p class="text-sm text-gray-400 leading-relaxed mb-6">
             {{ description || 'Building better digital experiences for businesses of all sizes.' }}
           </p>
+          <!-- NAP block -->
+          <address v-if="businessContact && (businessContact.streetAddress || businessContact.phone || businessContact.city)"
+            class="not-italic text-sm text-gray-400 mb-6 leading-relaxed space-y-0.5">
+            <div v-if="businessContact.streetAddress">{{ businessContact.streetAddress }}</div>
+            <div v-if="businessContact.city || businessContact.region || businessContact.postalCode">
+              <span v-if="businessContact.city">{{ businessContact.city }}</span><span v-if="businessContact.city && businessContact.region">, </span><span v-if="businessContact.region">{{ businessContact.region }}</span><span v-if="businessContact.postalCode"> {{ businessContact.postalCode }}</span>
+            </div>
+            <div v-if="businessContact.phone" class="pt-1"><a :href="`tel:${businessContact.phone}`" class="hover:text-white">{{ businessContact.phone }}</a></div>
+            <div v-if="businessContact.email"><a :href="`mailto:${businessContact.email}`" class="hover:text-white">{{ businessContact.email }}</a></div>
+          </address>
           <div v-if="socialLinks?.length" class="flex gap-2 flex-wrap">
             <a
               v-for="platform in socialLinks"
@@ -76,8 +96,9 @@ const defaultColumns = [
         </div>
       </div>
 
-      <div class="border-t border-gray-800 pt-6">
+      <div class="border-t border-gray-800 pt-6 flex flex-wrap justify-between gap-2">
         <p class="text-sm text-gray-500">&copy; {{ copyrightText || '2026 Company Name. All rights reserved.' }}</p>
+        <p class="text-sm text-gray-500">{{ craftedBy || 'Crafted by Phifer Web Solutions' }}</p>
       </div>
     </div>
   </footer>

@@ -398,7 +398,18 @@ const footerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' },
+          { name: 'craftedBy', type: 'string', title: 'Crafted By Attribution', description: 'Attribution line shown beneath copyright (e.g. "Crafted by Phifer Web Solutions")' },
+          { name: 'businessContact', type: 'object', title: 'Business Contact (NAP)', description: 'Name, address, phone — rendered in footer for local SEO. All fields optional.', ofFields: [
+            { name: 'businessName', type: 'string', title: 'Business Name', description: 'Formal business name (falls back to siteName)' },
+            { name: 'streetAddress', type: 'string', title: 'Street Address' },
+            { name: 'city', type: 'string', title: 'City' },
+            { name: 'region', type: 'string', title: 'State / Region' },
+            { name: 'postalCode', type: 'string', title: 'Postal Code' },
+            { name: 'country', type: 'string', title: 'Country', description: 'Defaults to US when empty' },
+            { name: 'phone', type: 'string', title: 'Phone', description: 'Display format, e.g. "(555) 123-4567"' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ] }
         ]
       },
       {
@@ -423,7 +434,18 @@ const footerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' },
+          { name: 'craftedBy', type: 'string', title: 'Crafted By Attribution', description: 'Attribution line shown beneath copyright (e.g. "Crafted by Phifer Web Solutions")' },
+          { name: 'businessContact', type: 'object', title: 'Business Contact (NAP)', description: 'Name, address, phone — rendered in footer for local SEO. All fields optional.', ofFields: [
+            { name: 'businessName', type: 'string', title: 'Business Name', description: 'Formal business name (falls back to siteName)' },
+            { name: 'streetAddress', type: 'string', title: 'Street Address' },
+            { name: 'city', type: 'string', title: 'City' },
+            { name: 'region', type: 'string', title: 'State / Region' },
+            { name: 'postalCode', type: 'string', title: 'Postal Code' },
+            { name: 'country', type: 'string', title: 'Country', description: 'Defaults to US when empty' },
+            { name: 'phone', type: 'string', title: 'Phone', description: 'Display format, e.g. "(555) 123-4567"' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ] }
         ]
       },
       {
@@ -448,7 +470,18 @@ const footerVariants: ComponentVariant[] = [
         documentType: 'siteSettings',
         title: 'Site Settings',
         fields: [
-          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' },
+          { name: 'craftedBy', type: 'string', title: 'Crafted By Attribution', description: 'Attribution line shown beneath copyright (e.g. "Crafted by Phifer Web Solutions")' },
+          { name: 'businessContact', type: 'object', title: 'Business Contact (NAP)', description: 'Name, address, phone — rendered in footer for local SEO. All fields optional.', ofFields: [
+            { name: 'businessName', type: 'string', title: 'Business Name', description: 'Formal business name (falls back to siteName)' },
+            { name: 'streetAddress', type: 'string', title: 'Street Address' },
+            { name: 'city', type: 'string', title: 'City' },
+            { name: 'region', type: 'string', title: 'State / Region' },
+            { name: 'postalCode', type: 'string', title: 'Postal Code' },
+            { name: 'country', type: 'string', title: 'Country', description: 'Defaults to US when empty' },
+            { name: 'phone', type: 'string', title: 'Phone', description: 'Display format, e.g. "(555) 123-4567"' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ] }
         ]
       }
     ]
@@ -468,7 +501,18 @@ const footerVariants: ComponentVariant[] = [
         fields: [
           { name: 'siteName', type: 'string', description: 'Brand name displayed in footer' },
           { name: 'tagline', type: 'string', description: 'Short tagline beneath brand name' },
-          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' },
+          { name: 'craftedBy', type: 'string', title: 'Crafted By Attribution', description: 'Attribution line shown beneath copyright (e.g. "Crafted by Phifer Web Solutions")' },
+          { name: 'businessContact', type: 'object', title: 'Business Contact (NAP)', description: 'Name, address, phone — rendered in footer for local SEO. All fields optional.', ofFields: [
+            { name: 'businessName', type: 'string', title: 'Business Name', description: 'Formal business name (falls back to siteName)' },
+            { name: 'streetAddress', type: 'string', title: 'Street Address' },
+            { name: 'city', type: 'string', title: 'City' },
+            { name: 'region', type: 'string', title: 'State / Region' },
+            { name: 'postalCode', type: 'string', title: 'Postal Code' },
+            { name: 'country', type: 'string', title: 'Country', description: 'Defaults to US when empty' },
+            { name: 'phone', type: 'string', title: 'Phone', description: 'Display format, e.g. "(555) 123-4567"' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ] }
         ]
       },
       {
@@ -497,7 +541,18 @@ const footerVariants: ComponentVariant[] = [
           { name: 'ctaSubtext', type: 'string', description: 'Supporting text beneath CTA headline' },
           { name: 'ctaLabel', type: 'string', description: 'CTA button label' },
           { name: 'ctaUrl', type: 'url', description: 'CTA button destination URL' },
-          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' },
+          { name: 'craftedBy', type: 'string', title: 'Crafted By Attribution', description: 'Attribution line shown beneath copyright (e.g. "Crafted by Phifer Web Solutions")' },
+          { name: 'businessContact', type: 'object', title: 'Business Contact (NAP)', description: 'Name, address, phone — rendered in footer for local SEO. All fields optional.', ofFields: [
+            { name: 'businessName', type: 'string', title: 'Business Name', description: 'Formal business name (falls back to siteName)' },
+            { name: 'streetAddress', type: 'string', title: 'Street Address' },
+            { name: 'city', type: 'string', title: 'City' },
+            { name: 'region', type: 'string', title: 'State / Region' },
+            { name: 'postalCode', type: 'string', title: 'Postal Code' },
+            { name: 'country', type: 'string', title: 'Country', description: 'Defaults to US when empty' },
+            { name: 'phone', type: 'string', title: 'Phone', description: 'Display format, e.g. "(555) 123-4567"' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ] }
         ]
       },
       {
@@ -524,7 +579,18 @@ const footerVariants: ComponentVariant[] = [
         fields: [
           { name: 'newsletterHeadline', type: 'string', description: 'Newsletter section headline' },
           { name: 'newsletterSubtext', type: 'string', description: 'Supporting text for newsletter signup' },
-          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' },
+          { name: 'craftedBy', type: 'string', title: 'Crafted By Attribution', description: 'Attribution line shown beneath copyright (e.g. "Crafted by Phifer Web Solutions")' },
+          { name: 'businessContact', type: 'object', title: 'Business Contact (NAP)', description: 'Name, address, phone — rendered in footer for local SEO. All fields optional.', ofFields: [
+            { name: 'businessName', type: 'string', title: 'Business Name', description: 'Formal business name (falls back to siteName)' },
+            { name: 'streetAddress', type: 'string', title: 'Street Address' },
+            { name: 'city', type: 'string', title: 'City' },
+            { name: 'region', type: 'string', title: 'State / Region' },
+            { name: 'postalCode', type: 'string', title: 'Postal Code' },
+            { name: 'country', type: 'string', title: 'Country', description: 'Defaults to US when empty' },
+            { name: 'phone', type: 'string', title: 'Phone', description: 'Display format, e.g. "(555) 123-4567"' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ] }
         ]
       },
       {
@@ -558,7 +624,18 @@ const footerVariants: ComponentVariant[] = [
         fields: [
           { name: 'siteName', type: 'string', description: 'Brand name in footer' },
           { name: 'description', type: 'text', description: 'Short brand description' },
-          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' },
+          { name: 'craftedBy', type: 'string', title: 'Crafted By Attribution', description: 'Attribution line shown beneath copyright (e.g. "Crafted by Phifer Web Solutions")' },
+          { name: 'businessContact', type: 'object', title: 'Business Contact (NAP)', description: 'Name, address, phone — rendered in footer for local SEO. All fields optional.', ofFields: [
+            { name: 'businessName', type: 'string', title: 'Business Name', description: 'Formal business name (falls back to siteName)' },
+            { name: 'streetAddress', type: 'string', title: 'Street Address' },
+            { name: 'city', type: 'string', title: 'City' },
+            { name: 'region', type: 'string', title: 'State / Region' },
+            { name: 'postalCode', type: 'string', title: 'Postal Code' },
+            { name: 'country', type: 'string', title: 'Country', description: 'Defaults to US when empty' },
+            { name: 'phone', type: 'string', title: 'Phone', description: 'Display format, e.g. "(555) 123-4567"' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ] }
         ]
       },
       {
@@ -592,7 +669,18 @@ const footerVariants: ComponentVariant[] = [
         fields: [
           { name: 'siteName', type: 'string', description: 'Brand name in footer' },
           { name: 'description', type: 'text', description: 'Short brand description' },
-          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' },
+          { name: 'craftedBy', type: 'string', title: 'Crafted By Attribution', description: 'Attribution line shown beneath copyright (e.g. "Crafted by Phifer Web Solutions")' },
+          { name: 'businessContact', type: 'object', title: 'Business Contact (NAP)', description: 'Name, address, phone — rendered in footer for local SEO. All fields optional.', ofFields: [
+            { name: 'businessName', type: 'string', title: 'Business Name', description: 'Formal business name (falls back to siteName)' },
+            { name: 'streetAddress', type: 'string', title: 'Street Address' },
+            { name: 'city', type: 'string', title: 'City' },
+            { name: 'region', type: 'string', title: 'State / Region' },
+            { name: 'postalCode', type: 'string', title: 'Postal Code' },
+            { name: 'country', type: 'string', title: 'Country', description: 'Defaults to US when empty' },
+            { name: 'phone', type: 'string', title: 'Phone', description: 'Display format, e.g. "(555) 123-4567"' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ] }
         ]
       },
       {
@@ -625,7 +713,18 @@ const footerVariants: ComponentVariant[] = [
         title: 'Site Settings',
         fields: [
           { name: 'siteName', type: 'string', description: 'Brand name in footer' },
-          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' },
+          { name: 'craftedBy', type: 'string', title: 'Crafted By Attribution', description: 'Attribution line shown beneath copyright (e.g. "Crafted by Phifer Web Solutions")' },
+          { name: 'businessContact', type: 'object', title: 'Business Contact (NAP)', description: 'Name, address, phone — rendered in footer for local SEO. All fields optional.', ofFields: [
+            { name: 'businessName', type: 'string', title: 'Business Name', description: 'Formal business name (falls back to siteName)' },
+            { name: 'streetAddress', type: 'string', title: 'Street Address' },
+            { name: 'city', type: 'string', title: 'City' },
+            { name: 'region', type: 'string', title: 'State / Region' },
+            { name: 'postalCode', type: 'string', title: 'Postal Code' },
+            { name: 'country', type: 'string', title: 'Country', description: 'Defaults to US when empty' },
+            { name: 'phone', type: 'string', title: 'Phone', description: 'Display format, e.g. "(555) 123-4567"' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ] }
         ]
       },
       {
@@ -659,7 +758,18 @@ const footerVariants: ComponentVariant[] = [
         fields: [
           { name: 'siteName', type: 'string', description: 'Brand name in footer' },
           { name: 'tagline', type: 'string', description: 'Short tagline beneath brand name' },
-          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' }
+          { name: 'copyrightText', type: 'string', title: 'Copyright Text', description: 'Copyright text in footer' },
+          { name: 'craftedBy', type: 'string', title: 'Crafted By Attribution', description: 'Attribution line shown beneath copyright (e.g. "Crafted by Phifer Web Solutions")' },
+          { name: 'businessContact', type: 'object', title: 'Business Contact (NAP)', description: 'Name, address, phone — rendered in footer for local SEO. All fields optional.', ofFields: [
+            { name: 'businessName', type: 'string', title: 'Business Name', description: 'Formal business name (falls back to siteName)' },
+            { name: 'streetAddress', type: 'string', title: 'Street Address' },
+            { name: 'city', type: 'string', title: 'City' },
+            { name: 'region', type: 'string', title: 'State / Region' },
+            { name: 'postalCode', type: 'string', title: 'Postal Code' },
+            { name: 'country', type: 'string', title: 'Country', description: 'Defaults to US when empty' },
+            { name: 'phone', type: 'string', title: 'Phone', description: 'Display format, e.g. "(555) 123-4567"' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ] }
         ]
       },
       {

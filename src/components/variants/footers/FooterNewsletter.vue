@@ -7,6 +7,16 @@ defineProps<{
   columns?: Array<{ title: string; links: string[] }>
   socialLinks?: string[]
   copyrightText?: string
+  craftedBy?: string
+  businessContact?: {
+    businessName?: string
+    streetAddress?: string
+    city?: string
+    region?: string
+    postalCode?: string
+    phone?: string
+    email?: string
+  }
 }>()
 
 const email = ref('')
@@ -61,9 +71,23 @@ function subscribe() {
         </div>
       </div>
 
+      <!-- NAP block -->
+      <div v-if="businessContact && (businessContact.streetAddress || businessContact.phone || businessContact.city)"
+        class="border-t border-gray-100 pt-6 pb-4 text-sm text-gray-500 flex flex-wrap gap-x-4 gap-y-1 leading-relaxed">
+        <span v-if="businessContact.streetAddress">{{ businessContact.streetAddress }}</span>
+        <span v-if="businessContact.city || businessContact.region || businessContact.postalCode">
+          <span v-if="businessContact.city">{{ businessContact.city }}</span><span v-if="businessContact.city && businessContact.region">, </span><span v-if="businessContact.region">{{ businessContact.region }}</span><span v-if="businessContact.postalCode"> {{ businessContact.postalCode }}</span>
+        </span>
+        <a v-if="businessContact.phone" :href="`tel:${businessContact.phone}`" class="hover:text-gray-800">{{ businessContact.phone }}</a>
+        <a v-if="businessContact.email" :href="`mailto:${businessContact.email}`" class="hover:text-gray-800">{{ businessContact.email }}</a>
+      </div>
+
       <!-- Bottom bar -->
       <div class="border-t border-gray-100 pt-6 flex items-center justify-between flex-wrap gap-3">
-        <p class="text-gray-400 text-sm">&copy; {{ copyrightText || '2026 Company Name. All rights reserved.' }}</p>
+        <div>
+          <p class="text-gray-400 text-sm">&copy; {{ copyrightText || '2026 Company Name. All rights reserved.' }}</p>
+          <p class="text-gray-400 text-xs mt-1">{{ craftedBy || 'Crafted by Phifer Web Solutions' }}</p>
+        </div>
         <div v-if="socialLinks?.length" class="flex gap-5">
           <a
             v-for="link in socialLinks"
