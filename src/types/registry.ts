@@ -314,6 +314,7 @@ export interface SitemapPage {
   isCore: boolean
   isLegal: boolean
   isEnrichOnly: boolean
+  authRequired?: boolean    // page requires Auth0 login (Members Only)
   notes?: string
   template?: string | null
   blocks?: string[]

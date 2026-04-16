@@ -127,9 +127,12 @@ const PHASES: Phase[] = [
       { id: 'p1-12', label: 'Mobile responsiveness tested (Firefox Developer Edition)' },
       { id: 'p1-13', label: 'Sanity content appears in local website' },
       { id: 'p1-14', label: 'Auth0 flow tested locally (if enabled)' },
-      { id: 'p1-15', label: '`pnpm build` succeeds — no type errors' },
-      { id: 'p1-16', label: 'Lighthouse score checked — no critical issues' },
-      { id: 'p1-17', label: 'Billing page loads — subscription card and portal button render' },
+      { id: 'p1-15', label: 'Auth0: verify VITE_AUTH0_DOMAIN + CLIENT_ID match SPA app (if gated pages)' },
+      { id: 'p1-16', label: 'Auth0: log in with test account — non-member redirected to /unauthorized (if gated pages)' },
+      { id: 'p1-17', label: 'Auth0: assign role to test account — gated pages now accessible (if gated pages)' },
+      { id: 'p1-18', label: '`pnpm build` succeeds — no type errors' },
+      { id: 'p1-19', label: 'Lighthouse score checked — no critical issues' },
+      { id: 'p1-20', label: 'Billing page loads — subscription card and portal button render' },
     ]
   },
   {
@@ -158,6 +161,9 @@ const PHASES: Phase[] = [
       { id: 'p3-8', label: 'Sanity CORS origins include all staging URLs' },
       { id: 'p3-9', label: 'Create build hook in Netlify: Site Settings → Build & Deploy → Build Hooks → Add build hook → Copy URL → paste into Client Dashboard → Managed Services → Netlify → Build Hook URL → Add as VITE_NETLIFY_BUILD_HOOK_URL in Netlify env vars for the dashboard site' },
       { id: 'p3-10', label: 'Smoke test: all three staging URLs load correctly' },
+      { id: 'p3-11', label: 'Auth0: add VITE_AUTH0_* env vars to Netlify website site settings (if gated pages)' },
+      { id: 'p3-12', label: 'Auth0: add staging callback/logout/web origins to Auth0 SPA app (if gated pages)' },
+      { id: 'p3-13', label: 'Auth0: create role (e.g. "Resident") and install Post-Login Action for roles claim (if gated pages)' },
     ]
   },
   {
@@ -180,11 +186,14 @@ const PHASES: Phase[] = [
       { id: 'p4-14', label: 'Client access credentials and all links delivered' },
       { id: 'p4-15', label: 'Stripe Customer Portal settings reviewed (Settings → Customer Portal in Stripe Dashboard)' },
       { id: 'p4-16', label: 'Billing page tested — portal redirect works, subscription + payment data displays correctly' },
+      { id: 'p4-17', label: 'Auth0: add production callback/logout/web origins to Auth0 SPA app (if gated pages)' },
+      { id: 'p4-18', label: 'Auth0: seed initial members — assign role to authorized users (if gated pages)' },
+      { id: 'p4-19', label: 'Auth0: test login flow on production domain — gated pages accessible to members only (if gated pages)' },
     ]
   }
 ]
 
-const TOTAL_ITEMS = 49
+const TOTAL_ITEMS = 58
 
 // ─── Deployment checklist state ─────────��───────────────────────────────────
 const checkedItems = computed(() =>
@@ -313,6 +322,7 @@ function buildExportConfig() {
     return {
       id: page.id, name: page.name, slug: page.slug, nav: page.nav,
       isCore: page.isCore, isLegal: page.isLegal, isEnrichOnly: page.isEnrichOnly,
+      ...(page.authRequired && !page.isLegal ? { authRequired: true } : {}),
       notes: page.notes ?? null, metaDescription: page.metaDescription ?? null,
       template: pageTemplate
         ? { id: pageTemplate.id, componentName: toComponentName(pageTemplate.id), name: pageTemplate.name }
@@ -429,6 +439,19 @@ function buildExportConfig() {
       ...(sb.enabledLegalPages.accessibilityStatement  ? { accessibilityStatement: sb.legalContent.accessibilityStatement ?? '' } : {}),
       ...(sb.enabledLegalPages.cookiePolicy            ? { cookiePolicy:           sb.legalContent.cookiePolicy ?? '' } : {})
     },
+    ...(composition.composition.headerAuthEnabled ? {
+      auth: {
+        enabled: true,
+        strategy:       sb.envConfig.auth0WhitelistStrategy,
+        roleName:       sb.envConfig.auth0RoleName,
+        rolesClaim:     sb.envConfig.auth0RolesClaim,
+        whitelistClaim: sb.envConfig.auth0WhitelistClaim,
+        audience:       sb.envConfig.auth0Audience || undefined,
+        loginRoute:     '/login',
+        callbackRoute:  '/callback',
+        unauthorizedRoute: '/unauthorized'
+      }
+    } : {}),
     dashboard: sb.dashboardConfig,
     ...(sb.appScreens.length > 0 || sb.dataModel.length > 0
       ? { app: { screens: sb.appScreens, dataModel: sb.dataModel } }
@@ -512,6 +535,7 @@ function buildDeltaConfig() {
     return {
       id: page.id, name: page.name, slug: page.slug, nav: page.nav,
       isCore: page.isCore, isLegal: page.isLegal, isEnrichOnly: page.isEnrichOnly,
+      ...(page.authRequired && !page.isLegal ? { authRequired: true } : {}),
       notes: page.notes ?? null, metaDescription: page.metaDescription ?? null,
       template: pageTemplate
         ? { id: pageTemplate.id, componentName: toComponentName(pageTemplate.id), name: pageTemplate.name }

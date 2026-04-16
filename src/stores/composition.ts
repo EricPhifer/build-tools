@@ -11,12 +11,20 @@ import { DEFAULT_CONTENT_KIT_SECTIONS } from '../types/dashboard'
 
 const STORAGE_KEY = 'build-tools-composition'
 
+export type Auth0WhitelistStrategy = 'role' | 'appMetadata'
+
 export interface EnvConfig {
   sanityProjectId: string
   sanityDataset: string
   siteUrl: string
   auth0Domain: string
   auth0ClientId: string
+  // Auth0 gated-page config (only relevant when headerAuthEnabled is true)
+  auth0Audience: string
+  auth0WhitelistStrategy: Auth0WhitelistStrategy
+  auth0RoleName: string               // e.g. 'Resident', 'Member'
+  auth0RolesClaim: string             // e.g. 'https://pws.app/roles'
+  auth0WhitelistClaim: string         // e.g. 'https://pws.app/whitelisted'
 }
 
 export interface EnabledLegalPages {
@@ -52,7 +60,12 @@ function createDefaultEnvConfig(): EnvConfig {
     sanityDataset: 'production',
     siteUrl: '',
     auth0Domain: '',
-    auth0ClientId: ''
+    auth0ClientId: '',
+    auth0Audience: '',
+    auth0WhitelistStrategy: 'role',
+    auth0RoleName: 'Resident',
+    auth0RolesClaim: 'https://pws.app/roles',
+    auth0WhitelistClaim: 'https://pws.app/whitelisted'
   }
 }
 
@@ -521,12 +534,18 @@ export const useCompositionStore = defineStore('composition', () => {
     }
 
     const env = config.env ?? {}
+    const auth = config.auth ?? {}
     siteBuilder.value.envConfig = {
-      sanityProjectId: env['VITE_SANITY_PROJECT_ID'] ?? '',
-      sanityDataset:   env['VITE_SANITY_DATASET']    ?? 'production',
-      siteUrl:         env['VITE_SITE_URL']           ?? '',
-      auth0Domain:     env['VITE_AUTH0_DOMAIN']       ?? '',
-      auth0ClientId:   env['VITE_AUTH0_CLIENT_ID']    ?? ''
+      sanityProjectId:        env['VITE_SANITY_PROJECT_ID'] ?? '',
+      sanityDataset:          env['VITE_SANITY_DATASET']    ?? 'production',
+      siteUrl:                env['VITE_SITE_URL']           ?? '',
+      auth0Domain:            env['VITE_AUTH0_DOMAIN']       ?? '',
+      auth0ClientId:          env['VITE_AUTH0_CLIENT_ID']    ?? '',
+      auth0Audience:          auth.audience          ?? '',
+      auth0WhitelistStrategy: auth.strategy          ?? 'role',
+      auth0RoleName:          auth.roleName          ?? 'Resident',
+      auth0RolesClaim:        auth.rolesClaim        ?? 'https://pws.app/roles',
+      auth0WhitelistClaim:    auth.whitelistClaim    ?? 'https://pws.app/whitelisted'
     }
 
     if (config.legal) {

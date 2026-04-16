@@ -216,6 +216,27 @@ const widthPresets = [
               />
             </button>
           </div>
+          <!-- Auth config (shown when Login enabled) -->
+          <div v-if="composition.composition.headerAuthEnabled" class="flex items-center gap-3">
+            <select
+              :value="composition.siteBuilder.envConfig.auth0WhitelistStrategy"
+              @change="composition.setEnvConfig({ auth0WhitelistStrategy: ($event.target as HTMLSelectElement).value as 'role' | 'appMetadata' })"
+              class="text-xs px-2 py-1 rounded border"
+              :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)' }"
+            >
+              <option value="role">Role-based</option>
+              <option value="appMetadata">App metadata</option>
+            </select>
+            <input
+              :value="composition.siteBuilder.envConfig.auth0RoleName"
+              @input="composition.setEnvConfig({ auth0RoleName: ($event.target as HTMLInputElement).value })"
+              placeholder="Resident"
+              class="text-xs px-2 py-1 rounded border w-24"
+              :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)' }"
+              :title="'Role name — e.g. Resident, Member'"
+            />
+          </div>
+
           <!-- Dark mode toggle -->
           <div class="flex items-center gap-2">
             <span class="text-xs font-medium" :style="{ color: 'var(--theme-text-secondary)' }">Dark Mode</span>

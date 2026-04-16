@@ -48,6 +48,11 @@ function setNav(id: string, nav: NavAssignment) {
   if (page) page.nav = nav
 }
 
+function toggleAuthRequired(id: string) {
+  const page = pages.value.find(p => p.id === id)
+  if (page) page.authRequired = !page.authRequired
+}
+
 function removePage(id: string) {
   pages.value = pages.value.filter(p => p.id !== id)
 }
@@ -175,6 +180,24 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
             </div>
             <span class="text-xs font-mono" :style="{ color: 'var(--theme-text-muted)' }">{{ page.slug }}</span>
           </div>
+          <!-- Auth lock toggle (only when Login enabled, never on legal/home pages) -->
+          <button
+            v-if="composition.composition.headerAuthEnabled && !page.isLegal && page.slug !== '/'"
+            @click="toggleAuthRequired(page.id)"
+            class="shrink-0 p-1.5 rounded transition-colors"
+            :style="{
+              color: page.authRequired ? 'var(--theme-warning)' : 'var(--theme-text-muted)',
+              backgroundColor: page.authRequired ? 'var(--theme-warning-light)' : 'transparent'
+            }"
+            :title="page.authRequired ? 'Members Only — click to make public' : 'Click to require login'"
+          >
+            <Lock class="w-3.5 h-3.5" />
+          </button>
+          <span
+            v-if="page.authRequired && composition.composition.headerAuthEnabled"
+            class="text-xs px-1.5 py-0.5 rounded shrink-0"
+            :style="{ backgroundColor: 'var(--theme-warning-light)', color: 'var(--theme-warning)' }"
+          >members only</span>
           <select
             :value="page.nav"
             :disabled="isSnapshotPage(page.id)"
