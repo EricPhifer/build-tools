@@ -182,7 +182,7 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
           </div>
           <!-- Auth lock toggle (only when Login enabled, never on legal/home pages) -->
           <button
-            v-if="composition.composition.headerAuthEnabled && !page.isLegal && page.slug !== '/'"
+            v-if="!page.isLegal && page.slug !== '/'"
             @click="toggleAuthRequired(page.id)"
             class="shrink-0 p-1.5 rounded transition-colors"
             :style="{
@@ -194,7 +194,7 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
             <Lock class="w-3.5 h-3.5" />
           </button>
           <span
-            v-if="page.authRequired && composition.composition.headerAuthEnabled"
+            v-if="page.authRequired"
             class="text-xs px-1.5 py-0.5 rounded shrink-0"
             :style="{ backgroundColor: 'var(--theme-warning-light)', color: 'var(--theme-warning)' }"
           >members only</span>

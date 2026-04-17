@@ -439,9 +439,10 @@ function buildExportConfig() {
       ...(sb.enabledLegalPages.accessibilityStatement  ? { accessibilityStatement: sb.legalContent.accessibilityStatement ?? '' } : {}),
       ...(sb.enabledLegalPages.cookiePolicy            ? { cookiePolicy:           sb.legalContent.cookiePolicy ?? '' } : {})
     },
-    ...(composition.composition.headerAuthEnabled ? {
+    ...((composition.composition.headerAuthEnabled || sb.sitemapPages.some(p => p.authRequired)) ? {
       auth: {
         enabled: true,
+        showHeaderLogin: composition.composition.headerAuthEnabled,
         strategy:       sb.envConfig.auth0WhitelistStrategy,
         roleName:       sb.envConfig.auth0RoleName,
         rolesClaim:     sb.envConfig.auth0RolesClaim,
