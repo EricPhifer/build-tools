@@ -125,10 +125,26 @@ const EXTRA_PAGES: Record<BusinessType, SitemapPage[]> = {
     { id: 'case-studies', name: 'Case Studies', slug: '/case-studies', nav: 'primary', isCore: false, isLegal: false, isEnrichOnly: false }
   ],
   nonprofit: [
-    { id: 'mission', name: 'Mission', slug: '/mission', nav: 'primary', isCore: false, isLegal: false, isEnrichOnly: false },
-    { id: 'get-involved', name: 'Get Involved', slug: '/get-involved', nav: 'primary', isCore: false, isLegal: false, isEnrichOnly: false },
-    { id: 'donate', name: 'Donate', slug: '/donate', nav: 'primary', isCore: false, isLegal: false, isEnrichOnly: false },
-    { id: 'board', name: 'Board', slug: '/board', nav: 'footer', isCore: false, isLegal: false, isEnrichOnly: false }
+    // ── Available at all tiers ─────────────────────────────────────────────
+    { id: 'donate',        name: 'Donate',          slug: '/donate',          nav: 'primary', isCore: false, isLegal: false, isEnrichOnly: false },
+    { id: 'board',         name: 'Our Board',       slug: '/board',           nav: 'footer',  isCore: false, isLegal: false, isEnrichOnly: false },
+
+    // ── Enrich+ ────────────────────────────────────────────────────────────
+    { id: 'staff',         name: 'Our Staff',       slug: '/staff',           nav: 'footer',  isCore: false, isLegal: false, isEnrichOnly: true },
+    { id: 'testimonies',   name: 'Testimonies',     slug: '/testimonies',     nav: 'footer',  isCore: false, isLegal: false, isEnrichOnly: true },
+    { id: 'events',        name: 'Events',          slug: '/events',          nav: 'primary', isCore: false, isLegal: false, isEnrichOnly: true },
+    { id: 'volunteer',     name: 'Volunteer Form',  slug: '/forms/volunteer', nav: 'footer',  isCore: false, isLegal: false, isEnrichOnly: true },
+    { id: 'referral',      name: 'Referral Form',   slug: '/forms/referral',  nav: 'footer',  isCore: false, isLegal: false, isEnrichOnly: true },
+
+    // ── Growth only ────────────────────────────────────────────────────────
+    { id: 'transparency',  name: 'Transparency',    slug: '/transparency',    nav: 'footer',  isCore: false, isLegal: false, isEnrichOnly: false, isGrowthOnly: true },
+    { id: 'media',         name: 'Media',           slug: '/media',           nav: 'primary', isCore: false, isLegal: false, isEnrichOnly: false, isGrowthOnly: true },
+    { id: 'programs',      name: 'Programs',        slug: '/programs',        nav: 'primary', isCore: false, isLegal: false, isEnrichOnly: false, isGrowthOnly: true },
+    { id: 'event-detail',  name: 'Event Detail',    slug: '/events/:slug',    nav: 'none',    isCore: false, isLegal: false, isEnrichOnly: false, isGrowthOnly: true, isDynamic: true },
+
+    // ── Nonprofit-specific repeatable pages (Growth) ──────────────────────
+    { id: 'program-page',      name: 'Program Page',      slug: '/programs/:slug',           nav: 'none', isCore: false, isLegal: false, isEnrichOnly: false, isGrowthOnly: true, isRepeatable: true },
+    { id: 'program-donations', name: 'Program Donations', slug: '/programs/:slug/donations', nav: 'none', isCore: false, isLegal: false, isEnrichOnly: false, isGrowthOnly: true, isRepeatable: true }
   ],
   church: [
     { id: 'beliefs', name: 'Beliefs', slug: '/beliefs', nav: 'primary', isCore: false, isLegal: false, isEnrichOnly: false },

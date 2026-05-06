@@ -314,6 +314,9 @@ export interface SitemapPage {
   isCore: boolean
   isLegal: boolean
   isEnrichOnly: boolean
+  isGrowthOnly?: boolean    // page only available on Growth bundle
+  isDynamic?: boolean       // page renders from a dynamic slug param (e.g. /events/:slug)
+  isRepeatable?: boolean    // page is one-of-many from a Sanity collection
   authRequired?: boolean    // page requires Auth0 login (Members Only)
   notes?: string
   template?: string | null

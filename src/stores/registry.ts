@@ -1471,6 +1471,143 @@ const contentBlocks: ContentBlock[] = [
         defaultValues: { mapEmail: '##CLIENT_EMAIL##' }
       }
     ]
+  },
+  // ── Growth-tier blocks (Joseph Center reference build) ──────────────────
+  {
+    id: 'block-video-grid',
+    name: 'Video Grid',
+    description: 'Grid of video thumbnails with play button overlays and name banners. Used for testimonial video collections.',
+    component: () => import('../components/variants/blocks/BlockVideoGrid.vue'),
+    category: 'media',
+    tags: ['video', 'testimonials', 'grid'],
+    styleNotes: '2-column grid of video cards on @md, 1-column on mobile. Each card: 16:9 aspect-ratio thumbnail with centered red play button circle overlay (w-16 h-16 rounded-full bg-red-600 with white triangle). Gold name banner at bottom (bg-[var(--color-secondary)] text-white p-3). Hover: play button scales 1.1.',
+    schemaRequirements: [
+      {
+        documentType: 'testimonialVideo',
+        title: 'Testimonial Video',
+        fields: [
+          { name: 'name', type: 'string', title: 'Person Name', required: true },
+          { name: 'youtubeId', type: 'string', title: 'YouTube Video ID', required: true },
+          { name: 'thumbnailUrl', type: 'url', title: 'Thumbnail Image URL' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'block-podcast-episodes',
+    name: 'Podcast Episodes',
+    description: 'Episode grid for a YouTube/podcast series. Shows thumbnail, title, publish date, and platform links. Featured episode gets hero treatment at top.',
+    component: () => import('../components/variants/blocks/BlockPodcastEpisodes.vue'),
+    category: 'media',
+    tags: ['podcast', 'video', 'youtube', 'episodes'],
+    styleNotes: 'Featured episode banner at top: full-width, 16:9 thumbnail, title overlay (bottom-left, text-white text-3xl), platform pill buttons (Spotify green, Apple gray, Amazon orange) below. Below: 3-column episode grid (@md grid-cols-3 gap-6), each card has thumbnail, ep number badge top-right, title h3 text-lg font-semibold mt-3, date text-gray-500 text-xs, platform icons row.',
+    schemaRequirements: [
+      {
+        documentType: 'coffeeEpisode',
+        title: 'Coffee Chat Episode',
+        fields: [
+          { name: 'videoId', type: 'string', title: 'YouTube Video ID', required: true },
+          { name: 'title', type: 'string', title: 'Title' },
+          { name: 'description', type: 'text', title: 'Description' },
+          { name: 'publishedAt', type: 'date', title: 'Published At' },
+          { name: 'thumbnailUrl', type: 'url', title: 'Thumbnail URL' },
+          { name: 'episodeNumber', type: 'number', title: 'Episode Number' },
+          { name: 'platforms', type: 'array', title: 'Podcast Platforms', of: 'platform', ofFields: [
+            { name: 'name', type: 'string', title: 'Platform Name' },
+            { name: 'url', type: 'url', title: 'URL' }
+          ] },
+          { name: 'featured', type: 'boolean', title: 'Featured Episode' },
+          { name: 'syncedFields', type: 'array', title: 'Auto-synced Fields', of: 'string', description: 'Fields overwritten by sync-coffee-chat. Remove a field name here to keep manual edits.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'block-transparency',
+    name: 'Transparency / Annual Reports',
+    description: 'Sorted list of downloadable annual reports and 990 PDFs. Staff uploads PDFs in Sanity Studio; frontend renders as year-grouped download links.',
+    component: () => import('../components/variants/blocks/BlockTransparency.vue'),
+    category: 'content',
+    tags: ['transparency', 'reports', '990', 'nonprofit'],
+    styleNotes: 'Light cream background section (bg-[var(--color-bg-secondary)]) py-16 px-6. max-w-3xl mx-auto. Each row: flex justify-between items-center py-4 border-b border-gray-200. Year: text-2xl font-bold text-[var(--color-primary)]. Right side: title + download link with download icon. Grouped by year descending.',
+    schemaRequirements: [
+      {
+        documentType: 'annualReport',
+        title: 'Annual Report',
+        fields: [
+          { name: 'year', type: 'number', title: 'Year', required: true },
+          { name: 'title', type: 'string', title: 'Title', required: true },
+          { name: 'file', type: 'image', title: 'PDF File', description: 'Upload PDF file (use file type in Sanity)', required: true },
+          { name: 'description', type: 'text', title: 'Description' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'block-dynamic-form',
+    name: 'Dynamic Form',
+    description: 'Renders a form defined by a Sanity dynamicForm document. Fetched by slug at runtime. Handles text, email, phone, select, checkbox, checkbox-group, date, number, and textarea field types. Submits to submit-dynamic-form Netlify function.',
+    component: () => import('../components/variants/blocks/BlockDynamicForm.vue'),
+    category: 'contact',
+    tags: ['form', 'dynamic', 'volunteer', 'referral'],
+    styleNotes: 'Green header bar (bg-[var(--color-primary)] text-white p-4 rounded-t-lg) with form title. Body: bg-white p-6 rounded-b-lg border border-gray-200 single-column space-y-4. Inputs: w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-[var(--color-primary)]. Submit button: w-full py-3 rounded-full bg-[var(--color-primary)] text-white font-semibold hover:bg-[var(--color-primary-hover)]. Inactive state: opacity-60 with overlay "Form is currently closed".',
+    schemaRequirements: [
+      {
+        documentType: 'dynamicForm',
+        title: 'Dynamic Form',
+        fields: [
+          { name: 'title', type: 'string', title: 'Form Title', required: true },
+          { name: 'slug', type: 'string', title: 'Slug', required: true },
+          { name: 'active', type: 'boolean', title: 'Active' },
+          { name: 'activeDates', type: 'object', title: 'Active Date Range', ofFields: [
+            { name: 'start', type: 'date', title: 'Start Date' },
+            { name: 'end', type: 'date', title: 'End Date' }
+          ] },
+          { name: 'description', type: 'text', title: 'Description' },
+          { name: 'fields', type: 'array', title: 'Form Fields', of: 'formField', required: true, ofFields: [
+            { name: 'label', type: 'string', title: 'Label', required: true },
+            { name: 'name', type: 'string', title: 'Field Name (no spaces)', required: true },
+            { name: 'type', type: 'string', title: 'Field Type', description: 'text|email|phone|number|date|select|checkbox|checkbox-group|textarea' },
+            { name: 'required', type: 'boolean', title: 'Required' },
+            { name: 'options', type: 'array', title: 'Options', of: 'string' }
+          ] },
+          { name: 'successMessage', type: 'text', title: 'Success Message' },
+          { name: 'notifyEmail', type: 'string', title: 'Notify Email (staff recipient)' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'block-event-registration',
+    name: 'Event Registration',
+    description: 'RSVP form for a single event. Reads registration config (enabled, capacity, closingDate) from the event Sanity document. Shows capacity progress bar. Auto-disables after closing date. Submits to submit-event-registration Netlify function.',
+    component: () => import('../components/variants/blocks/BlockEventRegistration.vue'),
+    category: 'contact',
+    tags: ['event', 'registration', 'rsvp', 'form'],
+    styleNotes: 'Top: event detail summary card (title h2 text-2xl font-bold, date + location text-gray-600 text-sm). Capacity bar: bg-gray-200 rounded-full h-3 with inner div bg-[var(--color-secondary)] (gold) percentage width. Caption "X of Y spots filled" text-sm text-gray-600. Form below: grid grid-cols-2 gap-4 (first/last name), then full-width email/phone/party-size/notes. Submit: green pill bg-[var(--color-primary)].',
+    schemaRequirements: [
+      {
+        documentType: 'event',
+        title: 'Event',
+        fields: [
+          { name: 'registration', type: 'object', title: 'Event Registration', ofFields: [
+            { name: 'enabled', type: 'boolean', title: 'Registration Open' },
+            { name: 'capacity', type: 'number', title: 'Capacity' },
+            { name: 'closingDate', type: 'date', title: 'Registration Closes' }
+          ] }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'block-divider-diagonal',
+    name: 'Diagonal Section Divider',
+    description: 'Angled section divider using CSS clip-path. Accepts a color (gold, green, cream) and an optional centered title. Signature visual element for The Joseph Center — reusable for any client.',
+    component: () => import('../components/variants/blocks/BlockDividerDiagonal.vue'),
+    category: 'content',
+    tags: ['divider', 'layout', 'visual'],
+    styleNotes: 'clip-path: polygon(0 15%, 100% 0, 100% 85%, 0 100%) on a full-width div. Height ~80px without title, ~120px with title. Title: text-white uppercase text-center font-semibold tracking-wide. Color options map to CSS vars: gold = var(--color-secondary), green = var(--color-primary), cream = var(--color-bg-secondary).',
+    schemaRequirements: []
   }
 ]
 

@@ -93,7 +93,7 @@ const flowSteps = computed<FlowStep[]>(() => {
     ]
   }
 
-  return [
+  const steps: FlowStep[] = [
     bundleStep,
     typeStep,
     {
@@ -111,9 +111,24 @@ const flowSteps = computed<FlowStep[]>(() => {
       route: '/site/sitemap',
       icon: Map,
       done: sb.sitemapPages.length > 0
-    },
-    checklistStep
+    }
   ]
+
+  // Growth-only step: Integrations
+  if (sb.bundle === 'growth') {
+    const integrationsDone = !!(sb.envConfig.resendApiKey || sb.envConfig.tursoDatabaseUrl || sb.envConfig.aweberClientId)
+    steps.push({
+      id: 'integrations',
+      label: 'Integrations',
+      description: integrationsDone ? 'Integration credentials saved' : 'Configure third-party services',
+      route: '/site/integrations',
+      icon: Database,
+      done: integrationsDone
+    })
+  }
+
+  steps.push(checklistStep)
+  return steps
 })
 
 // First incomplete step to resume from

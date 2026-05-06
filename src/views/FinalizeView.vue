@@ -107,7 +107,7 @@ const allChecksPassed = computed(() => checklist.value.every(c => c.done))
 interface ChecklistItem { id: string; label: string }
 interface Phase { id: string; label: string; items: ChecklistItem[] }
 
-const PHASES: Phase[] = [
+const BASE_PHASES: Phase[] = [
   {
     id: 'p1',
     label: 'Local Setup & Testing',
@@ -192,7 +192,39 @@ const PHASES: Phase[] = [
   }
 ]
 
-const TOTAL_ITEMS = 58
+// Growth-tier env vars (added to Phase 3 when bundle === 'growth')
+const GROWTH_ENV_ITEMS: ChecklistItem[] = [
+  { id: 'p3-growth-1', label: 'TURSO_DATABASE_URL added to Netlify env vars (website + functions scope)' },
+  { id: 'p3-growth-2', label: 'TURSO_AUTH_TOKEN added to Netlify env vars' },
+  { id: 'p3-growth-3', label: 'AWEBER_CLIENT_ID + AWEBER_CLIENT_SECRET + AWEBER_ACCOUNT_ID + AWEBER_LIST_ID added to Netlify env vars' },
+  { id: 'p3-growth-4', label: 'RESEND_API_KEY confirmed in Netlify (Foundation has this; verify Growth functions can access it)' },
+  { id: 'p3-growth-5', label: 'STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET scaffolded (activate at Phase 2 cutover)' },
+  { id: 'p3-growth-6', label: 'VITE_DONATION_PROVIDER set (start with "harness", switch to "stripe" at cutover)' },
+  { id: 'p3-growth-7', label: 'SANITY_WRITE_TOKEN added (editor-role token for sync functions)' },
+]
+
+// Nonprofit-only sub-items (added under Growth env vars when businessType === 'nonprofit')
+const NONPROFIT_ENV_ITEMS: ChecklistItem[] = [
+  { id: 'p3-np-1', label: 'YOUTUBE_API_KEY added to Netlify env vars (functions scope)' },
+  { id: 'p3-np-2', label: 'COFFEE_CHAT_PLAYLIST_ID added to Netlify env vars' },
+  { id: 'p3-np-3', label: 'VITE_HARNESS_GIVING_URL set to current Harness Giving page (Phase 1)' },
+]
+
+const PHASES = computed<Phase[]>(() => {
+  const phases = BASE_PHASES.map(p => ({ ...p, items: [...p.items] }))
+  const isGrowth = composition.siteBuilder.bundle === 'growth'
+  const isNonprofit = composition.siteBuilder.businessType === 'nonprofit'
+  if (isGrowth) {
+    const phase3 = phases.find(p => p.id === 'p3')
+    if (phase3) {
+      phase3.items.push(...GROWTH_ENV_ITEMS)
+      if (isNonprofit) phase3.items.push(...NONPROFIT_ENV_ITEMS)
+    }
+  }
+  return phases
+})
+
+const TOTAL_ITEMS = computed(() => PHASES.value.reduce((sum, p) => sum + p.items.length, 0))
 
 // ─── Deployment checklist state ─────────��───────────────────────────────────
 const checkedItems = computed(() =>
@@ -212,7 +244,7 @@ function toggleItem(itemId: string) {
 }
 
 const totalChecked      = computed(() => Object.values(checkedItems.value).filter(Boolean).length)
-const allPhasesComplete = computed(() => totalChecked.value === TOTAL_ITEMS)
+const allPhasesComplete = computed(() => totalChecked.value === TOTAL_ITEMS.value)
 
 function phaseChecked(phase: Phase): number {
   return phase.items.filter(item => checkedItems.value[item.id]).length
@@ -321,6 +353,9 @@ function buildExportConfig() {
     return {
       id: page.id, name: page.name, slug: page.slug, nav: page.nav,
       isCore: page.isCore, isLegal: page.isLegal, isEnrichOnly: page.isEnrichOnly,
+      ...(page.isGrowthOnly ? { isGrowthOnly: true } : {}),
+      ...(page.isDynamic    ? { isDynamic: true } : {}),
+      ...(page.isRepeatable ? { isRepeatable: true } : {}),
       ...(page.authRequired && !page.isLegal ? { authRequired: true } : {}),
       notes: page.notes ?? null, metaDescription: page.metaDescription ?? null,
       template: pageTemplate
@@ -368,6 +403,27 @@ function buildExportConfig() {
   }
   if (sb.envConfig.auth0Domain)   env['VITE_AUTH0_DOMAIN']    = sb.envConfig.auth0Domain
   if (sb.envConfig.auth0ClientId) env['VITE_AUTH0_CLIENT_ID'] = sb.envConfig.auth0ClientId
+
+  // Growth-tier integration env vars (only emitted when bundle === 'growth')
+  if (sb.bundle === 'growth') {
+    if (sb.envConfig.resendApiKey)        env['RESEND_API_KEY']         = sb.envConfig.resendApiKey
+    if (sb.envConfig.contactToEmail)      env['CONTACT_TO_EMAIL']       = sb.envConfig.contactToEmail
+    if (sb.envConfig.sanityWriteToken)    env['SANITY_WRITE_TOKEN']     = sb.envConfig.sanityWriteToken
+    if (sb.envConfig.tursoDatabaseUrl)    env['TURSO_DATABASE_URL']     = sb.envConfig.tursoDatabaseUrl
+    if (sb.envConfig.tursoAuthToken)      env['TURSO_AUTH_TOKEN']       = sb.envConfig.tursoAuthToken
+    if (sb.envConfig.aweberClientId)      env['AWEBER_CLIENT_ID']       = sb.envConfig.aweberClientId
+    if (sb.envConfig.aweberClientSecret)  env['AWEBER_CLIENT_SECRET']   = sb.envConfig.aweberClientSecret
+    if (sb.envConfig.aweberAccountId)     env['AWEBER_ACCOUNT_ID']      = sb.envConfig.aweberAccountId
+    if (sb.envConfig.aweberListId)        env['AWEBER_LIST_ID']         = sb.envConfig.aweberListId
+    if (sb.envConfig.stripeSecretKey)     env['STRIPE_SECRET_KEY']      = sb.envConfig.stripeSecretKey
+    if (sb.envConfig.stripeWebhookSecret) env['STRIPE_WEBHOOK_SECRET']  = sb.envConfig.stripeWebhookSecret
+    if (sb.envConfig.harnessGivingUrl)    env['VITE_HARNESS_GIVING_URL'] = sb.envConfig.harnessGivingUrl
+    env['VITE_DONATION_PROVIDER']         = sb.envConfig.donationProvider
+    if (sb.businessType === 'nonprofit') {
+      if (sb.envConfig.youtubeApiKey)        env['YOUTUBE_API_KEY']        = sb.envConfig.youtubeApiKey
+      if (sb.envConfig.coffeeChatPlaylistId) env['COFFEE_CHAT_PLAYLIST_ID'] = sb.envConfig.coffeeChatPlaylistId
+    }
+  }
 
   const colors = c?.brandKit?.colors
   const fonts  = c?.brandKit?.fonts ?? []
@@ -450,6 +506,14 @@ function buildExportConfig() {
         loginRoute:     '/login',
         callbackRoute:  '/callback',
         unauthorizedRoute: '/unauthorized'
+      }
+    } : {}),
+    ...(sb.bundle === 'growth' ? {
+      donation: {
+        provider: sb.envConfig.donationProvider,
+        ...(sb.envConfig.donationProvider === 'harness' && sb.envConfig.harnessGivingUrl
+          ? { harnessGivingUrl: sb.envConfig.harnessGivingUrl }
+          : {})
       }
     } : {}),
     dashboard: sb.dashboardConfig,
@@ -535,6 +599,9 @@ function buildDeltaConfig() {
     return {
       id: page.id, name: page.name, slug: page.slug, nav: page.nav,
       isCore: page.isCore, isLegal: page.isLegal, isEnrichOnly: page.isEnrichOnly,
+      ...(page.isGrowthOnly ? { isGrowthOnly: true } : {}),
+      ...(page.isDynamic    ? { isDynamic: true } : {}),
+      ...(page.isRepeatable ? { isRepeatable: true } : {}),
       ...(page.authRequired && !page.isLegal ? { authRequired: true } : {}),
       notes: page.notes ?? null, metaDescription: page.metaDescription ?? null,
       template: pageTemplate

@@ -35,9 +35,11 @@ const newPageName = ref('')
 const newPageSlug = ref('')
 const addingPage = ref(false)
 
-const regularPagesList = computed(() => pages.value.filter(p => !p.isLegal && !p.isEnrichOnly))
+const bundle = computed(() => composition.siteBuilder.bundle)
+const regularPagesList = computed(() => pages.value.filter(p => !p.isLegal && !p.isEnrichOnly && !p.isGrowthOnly))
 const legalPagesList = computed(() => pages.value.filter(p => p.isLegal))
-const enrichPagesList = computed(() => pages.value.filter(p => p.isEnrichOnly))
+const enrichPagesList = computed(() => pages.value.filter(p => p.isEnrichOnly && !p.isGrowthOnly))
+const growthPagesList = computed(() => pages.value.filter(p => p.isGrowthOnly))
 
 const primaryPages = computed(() => pages.value.filter(p => p.nav === 'primary' || p.nav === 'both'))
 const footerPages = computed(() => pages.value.filter(p => p.nav === 'footer' || p.nav === 'both'))
@@ -409,6 +411,84 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ── Section: Growth-Only Pages ─────────────────────────────────────── -->
+    <div v-if="growthPagesList.length" class="mb-8">
+      <div class="flex items-center gap-2 mb-3">
+        <FlaskConical class="w-4 h-4" :style="{ color: 'var(--theme-primary)' }" />
+        <p class="text-xs font-semibold uppercase tracking-widest" :style="{ color: 'var(--theme-primary)' }">Growth-Only</p>
+        <span class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">— requires Growth bundle (forms, scheduled syncs, etc.)</span>
+      </div>
+      <div class="space-y-2">
+        <div
+          v-for="page in growthPagesList"
+          :key="page.id"
+          class="rounded-lg border overflow-hidden"
+          :style="{
+            backgroundColor: bundle === 'growth' ? 'var(--theme-bg-card)' : 'var(--theme-bg-secondary)',
+            borderColor: 'var(--theme-primary)',
+            opacity: bundle === 'growth' ? 1 : 0.5
+          }"
+        >
+          <div class="flex items-center gap-3 px-4 py-3">
+            <button
+              v-if="!page.isCore && bundle === 'growth'"
+              @click="removePage(page.id)"
+              class="shrink-0 p-1 rounded transition-colors"
+              :style="{ color: 'var(--theme-text-muted)' }"
+              title="Remove page"
+            ><Trash2 class="w-4 h-4" /></button>
+            <div v-else class="w-6 shrink-0" />
+            <div class="shrink-0" :style="{ color: 'var(--theme-primary)' }">
+              <Layers class="w-4 h-4" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-medium text-sm" :style="{ color: 'var(--theme-text-primary)' }">{{ page.name }}</span>
+                <span v-if="page.isDynamic"
+                  class="text-xs px-1.5 py-0.5 rounded"
+                  :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
+                >dynamic</span>
+                <span v-if="page.isRepeatable"
+                  class="text-xs px-1.5 py-0.5 rounded"
+                  :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
+                >repeatable</span>
+                <span
+                  v-if="page.blocks?.length"
+                  class="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded"
+                  :style="{ backgroundColor: 'var(--theme-primary-light)', color: 'var(--theme-primary)' }"
+                ><Layers class="w-3 h-3" />{{ page.blocks.length }} block{{ page.blocks.length === 1 ? '' : 's' }}</span>
+              </div>
+              <span class="text-xs font-mono" :style="{ color: 'var(--theme-text-muted)' }">{{ page.slug }}</span>
+            </div>
+            <select
+              :value="page.nav"
+              :disabled="bundle !== 'growth'"
+              @change="setNav(page.id, ($event.target as HTMLSelectElement).value as NavAssignment)"
+              class="text-xs rounded-lg px-2 py-1.5 border shrink-0 focus:outline-none focus:ring-1 disabled:opacity-40 disabled:cursor-not-allowed"
+              :style="{
+                backgroundColor: 'var(--theme-bg-secondary)',
+                borderColor: 'var(--theme-border)',
+                color: 'var(--theme-text-primary)',
+                '--tw-ring-color': 'var(--theme-primary)'
+              }"
+            >
+              <option v-for="opt in NAV_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+            </select>
+            <button
+              v-if="bundle === 'growth'"
+              @click="router.push('/site/page/' + page.id)"
+              class="shrink-0 p-1 rounded transition-colors"
+              :style="{ color: 'var(--theme-primary)' }"
+              title="Open Page Builder"
+            ><ChevronRight class="w-4 h-4" /></button>
+          </div>
+        </div>
+      </div>
+      <p v-if="bundle !== 'growth'" class="text-xs mt-2" :style="{ color: 'var(--theme-text-muted)' }">
+        These pages require the Growth bundle. Upgrade in the Bundle step to enable them.
+      </p>
     </div>
 
     <!-- Nav summary -->

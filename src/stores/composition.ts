@@ -12,6 +12,7 @@ import { DEFAULT_CONTENT_KIT_SECTIONS } from '../types/dashboard'
 const STORAGE_KEY = 'build-tools-composition'
 
 export type Auth0WhitelistStrategy = 'role' | 'appMetadata'
+export type DonationProvider = 'harness' | 'stripe'
 
 export interface EnvConfig {
   sanityProjectId: string
@@ -25,6 +26,27 @@ export interface EnvConfig {
   auth0RoleName: string               // e.g. 'Resident', 'Member'
   auth0RolesClaim: string             // e.g. 'https://pws.app/roles'
   auth0WhitelistClaim: string         // e.g. 'https://pws.app/whitelisted'
+  // ── Growth-tier (only relevant when bundle === 'growth') ────────────────
+  resendApiKey: string                // form notification emails
+  contactToEmail: string              // staff inbox for contact form submissions
+  sanityWriteToken: string            // for sync-coffee-chat and other write functions
+  // Turso (form submissions, event registrations, donations)
+  tursoDatabaseUrl: string
+  tursoAuthToken: string
+  // AWeber
+  aweberClientId: string
+  aweberClientSecret: string
+  aweberAccountId: string
+  aweberListId: string
+  // Stripe (Phase 2 — donations)
+  stripeSecretKey: string
+  stripeWebhookSecret: string
+  // Donation provider toggle
+  donationProvider: DonationProvider
+  harnessGivingUrl: string             // outbound donate link when provider === 'harness'
+  // Nonprofit-only (only relevant when businessType === 'nonprofit')
+  youtubeApiKey: string
+  coffeeChatPlaylistId: string
 }
 
 export interface EnabledLegalPages {
@@ -65,7 +87,22 @@ function createDefaultEnvConfig(): EnvConfig {
     auth0WhitelistStrategy: 'role',
     auth0RoleName: 'Resident',
     auth0RolesClaim: 'https://pws.app/roles',
-    auth0WhitelistClaim: 'https://pws.app/whitelisted'
+    auth0WhitelistClaim: 'https://pws.app/whitelisted',
+    resendApiKey: '',
+    contactToEmail: '',
+    sanityWriteToken: '',
+    tursoDatabaseUrl: '',
+    tursoAuthToken: '',
+    aweberClientId: '',
+    aweberClientSecret: '',
+    aweberAccountId: '',
+    aweberListId: '',
+    stripeSecretKey: '',
+    stripeWebhookSecret: '',
+    donationProvider: 'harness',
+    harnessGivingUrl: '',
+    youtubeApiKey: '',
+    coffeeChatPlaylistId: ''
   }
 }
 
@@ -534,6 +571,7 @@ export const useCompositionStore = defineStore('composition', () => {
 
     const env = config.env ?? {}
     const auth = config.auth ?? {}
+    const donation = config.donation ?? {}
     siteBuilder.value.envConfig = {
       sanityProjectId:        env['VITE_SANITY_PROJECT_ID'] ?? '',
       sanityDataset:          env['VITE_SANITY_DATASET']    ?? 'production',
@@ -544,7 +582,22 @@ export const useCompositionStore = defineStore('composition', () => {
       auth0WhitelistStrategy: auth.strategy          ?? 'role',
       auth0RoleName:          auth.roleName          ?? 'Resident',
       auth0RolesClaim:        auth.rolesClaim        ?? 'https://pws.app/roles',
-      auth0WhitelistClaim:    auth.whitelistClaim    ?? 'https://pws.app/whitelisted'
+      auth0WhitelistClaim:    auth.whitelistClaim    ?? 'https://pws.app/whitelisted',
+      resendApiKey:           env['RESEND_API_KEY']         ?? '',
+      contactToEmail:         env['CONTACT_TO_EMAIL']       ?? '',
+      sanityWriteToken:       env['SANITY_WRITE_TOKEN']     ?? '',
+      tursoDatabaseUrl:       env['TURSO_DATABASE_URL']     ?? '',
+      tursoAuthToken:         env['TURSO_AUTH_TOKEN']       ?? '',
+      aweberClientId:         env['AWEBER_CLIENT_ID']       ?? '',
+      aweberClientSecret:     env['AWEBER_CLIENT_SECRET']   ?? '',
+      aweberAccountId:        env['AWEBER_ACCOUNT_ID']      ?? '',
+      aweberListId:           env['AWEBER_LIST_ID']         ?? '',
+      stripeSecretKey:        env['STRIPE_SECRET_KEY']      ?? '',
+      stripeWebhookSecret:    env['STRIPE_WEBHOOK_SECRET']  ?? '',
+      donationProvider:       donation.provider             ?? 'harness',
+      harnessGivingUrl:       env['VITE_HARNESS_GIVING_URL'] ?? donation.harnessGivingUrl ?? '',
+      youtubeApiKey:          env['YOUTUBE_API_KEY']        ?? '',
+      coffeeChatPlaylistId:   env['COFFEE_CHAT_PLAYLIST_ID'] ?? ''
     }
 
     if (config.legal) {

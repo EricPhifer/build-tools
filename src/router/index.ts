@@ -113,6 +113,13 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/site/integrations',
+      name: 'site-integrations',
+      component: () => import('../views/SiteIntegrationsView.vue'),
+      beforeEnter: authGuard,
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/site/header',
       name: 'site-header',
       component: () => import('../views/SiteHeaderView.vue'),

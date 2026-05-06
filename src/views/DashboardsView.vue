@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import {
   LayoutDashboard, BarChart3, BookOpen, Link2, FileEdit,
   ArrowRight, Plus, Trash2, Lock, ExternalLink, Monitor, Tablet, Smartphone, CreditCard,
-  ClipboardList, GripVertical
+  ClipboardList, GripVertical, Inbox, CalendarCheck, Mail, Mic, FileText
 } from 'lucide-vue-next'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
@@ -130,12 +130,38 @@ watch(config, () => {
   if (iframeRef.value) iframeRef.value.src = iframeSrc.value
 }, { deep: true })
 
-const ALL_WIDGETS: { id: DashboardWidgetType; label: string; description: string }[] = [
+interface WidgetMeta {
+  id: DashboardWidgetType
+  label: string
+  description: string
+  requires?: 'growth' | 'growth+nonprofit'
+}
+
+const ALL_WIDGETS: WidgetMeta[] = [
+  // Available at all tiers
   { id: 'links', label: 'Links', description: 'Quick action pills and resource cards — compact without a description, detailed with one.' },
   { id: 'analytics', label: 'Site Analytics', description: 'Traffic overview widget — Simple Analytics by default, GA4 override available.' },
   { id: 'tutorials', label: 'Tutorial Videos', description: 'Embedded video library grouped by category.' },
   { id: 'contentEditor', label: 'Content Editors', description: 'Simple forms for clients to update Sanity content and trigger rebuilds.' },
+  // Growth tier
+  { id: 'submissions', label: 'Form Submissions', description: 'View volunteer, referral, and dynamic form submissions from Turso.', requires: 'growth' },
+  { id: 'eventRegistrations', label: 'Event Registrations', description: 'Per-event RSVP lists with capacity tracking and export.', requires: 'growth' },
+  { id: 'subscribers', label: 'Newsletter Subscribers', description: 'AWeber list size and recent signup count.', requires: 'growth' },
+  // Growth + nonprofit only
+  { id: 'coffeeChat', label: 'Coffee Chat Episodes', description: 'Manage podcast episodes — featured flag, platform links.', requires: 'growth+nonprofit' },
+  { id: 'annualReports', label: 'Annual Reports', description: 'View and manage uploaded 990s and annual report PDFs.', requires: 'growth+nonprofit' },
 ]
+
+const visibleWidgets = computed<WidgetMeta[]>(() => {
+  const bundle = composition.siteBuilder.bundle
+  const businessType = composition.siteBuilder.businessType
+  return ALL_WIDGETS.filter(w => {
+    if (!w.requires) return true
+    if (w.requires === 'growth') return bundle === 'growth'
+    if (w.requires === 'growth+nonprofit') return bundle === 'growth' && businessType === 'nonprofit'
+    return false
+  })
+})
 
 function isEnabled(id: DashboardWidgetType) {
   return config.value.enabledWidgets.includes(id)
@@ -285,7 +311,7 @@ const inputStyle = {
           Widgets
         </button>
         <button
-          v-for="w in ALL_WIDGETS"
+          v-for="w in visibleWidgets"
           :key="w.id"
           @click="activeTab = w.id"
           class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-left transition-colors"
@@ -294,7 +320,7 @@ const inputStyle = {
             : { color: isEnabled(w.id) ? 'var(--theme-text-secondary)' : 'var(--theme-text-muted)' }"
         >
           <component
-            :is="{ links: Link2, analytics: BarChart3, tutorials: BookOpen, contentEditor: FileEdit }[w.id]"
+            :is="{ links: Link2, analytics: BarChart3, tutorials: BookOpen, contentEditor: FileEdit, submissions: Inbox, eventRegistrations: CalendarCheck, subscribers: Mail, coffeeChat: Mic, annualReports: FileText }[w.id]"
             class="w-4 h-4 shrink-0"
           />
           {{ w.label }}
@@ -336,13 +362,13 @@ const inputStyle = {
         <template v-if="activeTab === 'widgets'">
           <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">Toggle which sections appear on the client dashboard.</p>
           <div
-            v-for="w in ALL_WIDGETS"
+            v-for="w in visibleWidgets"
             :key="w.id"
             class="p-3 rounded-xl border flex items-start gap-3"
             :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
           >
             <component
-              :is="{ links: Link2, analytics: BarChart3, tutorials: BookOpen, contentEditor: FileEdit }[w.id]"
+              :is="{ links: Link2, analytics: BarChart3, tutorials: BookOpen, contentEditor: FileEdit, submissions: Inbox, eventRegistrations: CalendarCheck, subscribers: Mail, coffeeChat: Mic, annualReports: FileText }[w.id]"
               class="w-4 h-4 mt-0.5 shrink-0"
               :style="{ color: isEnabled(w.id) ? 'var(--theme-primary)' : 'var(--theme-text-muted)' }"
             />
