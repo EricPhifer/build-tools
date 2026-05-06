@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, ArrowRight, ExternalLink, Database, Mail, Send, Lock, Youtube, CreditCard, HeartHandshake } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, Database, Mail, Send, Lock, Youtube, CreditCard, HeartHandshake } from 'lucide-vue-next'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
 
