@@ -380,6 +380,41 @@ const headerVariants: ComponentVariant[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'header-transparent-jc',
+    name: 'Transparent + Full-Screen Menu',
+    section: 'header',
+    description: 'Transparent header with circular coin logo, gold "Volunteer" outline button, and a full-screen green overlay menu with accordion sections. Donate sticky button in the corner. Ideal for nonprofits and mission-driven organizations.',
+    component: () => import('../components/variants/headers/HeaderTransparentJCPreview.vue'),
+    tags: ['transparent', 'fullscreen-menu', 'accordion', 'nonprofit', 'mission-driven', 'growth'],
+    styleNotes: 'Transparent over hero, white on scroll. Logo: circular coin (~80px) floating with margin-top:20px overlap. CTAs: gold-outlined Volunteer pill button + gold hamburger. Full-screen menu: bg green (#60B567), uppercase white nav items separated by 1px white/35 dividers, accordion sections (+/✕ icons), sub-items lighter weight indented. Sticky bottom-right Donate (♡ + text white). Body scroll locks when menu open. All nav lives in the menu — no inline desktop nav links.',
+    schemaRequirements: [
+      {
+        documentType: 'siteSettings',
+        title: 'Site Settings',
+        fields: [
+          { name: 'siteName', type: 'string', title: 'Site Name', description: 'Organization name', required: true },
+          { name: 'logo', type: 'image', title: 'Logo (circular)', description: 'Square/circular logo crop (recommended 200×200)', options: { hotspot: true }, required: true },
+          { name: 'volunteerUrl', type: 'url', title: 'Volunteer URL', description: 'Destination for the Volunteer header button', required: true },
+          { name: 'donateUrl', type: 'url', title: 'Donate URL', description: 'Destination for the sticky Donate button in the menu', required: true }
+        ]
+      },
+      {
+        documentType: 'navigation',
+        title: 'Navigation',
+        fields: [
+          { name: 'items', type: 'array', title: 'Menu Items', description: 'Top-level menu items. Items with children render as accordion sections; items without render as direct links.', of: 'menuItem', required: true, ofFields: [
+            { name: 'label', type: 'string', title: 'Label', required: true },
+            { name: 'url', type: 'url', title: 'URL' },
+            { name: 'children', type: 'array', title: 'Submenu Items', of: 'menuItem', ofFields: [
+              { name: 'label', type: 'string', title: 'Label', required: true },
+              { name: 'url', type: 'url', title: 'URL', required: true }
+            ] }
+          ] }
+        ]
+      }
+    ]
   }
 ]
 

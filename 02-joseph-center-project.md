@@ -20,6 +20,14 @@ No new bundle type is added to the codebase. JC-specific configuration that does
 
 ---
 
+## Site Composition Notes
+
+JC-specific selections to make in Build Tools (anything not listed uses the standard Build Tools workflow):
+
+- **Header variant:** `header-transparent-jc` — Transparent + Full-Screen Menu. Circular coin logo, gold-outline Volunteer pill button, full-screen green accordion menu, sticky Donate. Already implemented in the existing `vue-josephcentergj` repo. After scaffolding, replace the generated `SiteHeader.vue` with the polished existing component if its scroll/animation tuning is more refined than the scaffolded baseline.
+- **Login button in header:** Off. JC's "Volunteer" button is the primary affordance, not Auth0 login. Only flip it on if a board portal or donor-only section is added later.
+- **Sitemap parent/child grouping:** The scaffolder auto-derives the menu's accordion structure from sitemap slug paths (e.g. `/programs/day-shelter` becomes a child of `/programs`). When configuring the JC sitemap, lay programs and forms out as nested slugs so the menu builds itself.
+
 ## Launch Phasing — Harness → Stripe Cutover
 
 JC ships in two phases:
