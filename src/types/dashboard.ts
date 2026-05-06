@@ -1,4 +1,4 @@
-export type DashboardWidgetType = 'analytics' | 'tutorials' | 'links' | 'quickActions' | 'contentEditor'
+export type DashboardWidgetType = 'analytics' | 'tutorials' | 'links' | 'contentEditor'
 
 export interface TutorialVideo {
   id: string
@@ -10,21 +10,23 @@ export interface TutorialVideo {
   description?: string
 }
 
-export interface HelpfulLink {
+/**
+ * Unified link type — replaces the former QuickAction + HelpfulLink split.
+ * Without a description, renders as a compact pill; with a description, renders as a card.
+ */
+export interface DashboardLink {
   id: string
   title: string
   url: string
-  description?: string
-  emoji?: string
+  description?: string  // when present, renders as a card; when absent, renders as a pill
+  emoji?: string        // leading emoji/icon for visual identification
+  isBuiltIn?: boolean   // built-in links cannot be deleted by the client
 }
 
-export interface QuickAction {
-  id: string
-  label: string
-  url: string
-  icon: string        // lucide icon name e.g. 'Globe', 'Zap', 'ExternalLink'
-  isBuiltIn?: boolean // built-in actions cannot be deleted
-}
+/** @deprecated Use DashboardLink instead */
+export type HelpfulLink = DashboardLink
+/** @deprecated Use DashboardLink instead */
+export type QuickAction = DashboardLink
 
 export interface ContentEditorField {
   id: string
@@ -108,9 +110,8 @@ export interface DashboardConfig {
   contactWebhookUrl: string     // POST endpoint for client contact form submissions
   auth0Domain: string           // Auth0 tenant domain (e.g. dev-abc.us.auth0.com)
   auth0ClientId: string         // Auth0 Application Client ID for this dashboard
-  quickActions: QuickAction[]
+  links: DashboardLink[]        // unified links (pills without description, cards with description)
   tutorialVideos: TutorialVideo[]
-  helpfulLinks: HelpfulLink[]
   contentEditors: ContentEditorWidget[]
   billing: BillingConfig
   contentKit: ContentKitConfig

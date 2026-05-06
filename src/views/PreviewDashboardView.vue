@@ -111,7 +111,7 @@ const navItems = computed((): NavItem[] => {
     items.push({ id: 'content', label: 'Content', icon: FileEdit })
   const hasResources =
     (config.value?.enabledWidgets.includes('tutorials') && config.value.tutorialVideos.some(v => v.title && hasVideoContent(v))) ||
-    (config.value?.enabledWidgets.includes('links') && config.value.helpfulLinks.some(l => l.title && l.url))
+    (config.value?.enabledWidgets.includes('links') && config.value.links.some(l => l.title && l.url))
   if (hasResources)
     items.push({ id: 'resources', label: 'Resources', icon: BookOpen })
   items.push({ id: 'billing', label: 'Billing', icon: CreditCard })
@@ -128,8 +128,8 @@ const currentPageLabel = computed(() => {
 
 // ─── Overview helpers ─────────────────────────────────────────────────────────
 const quickActions = computed(() =>
-  config.value?.enabledWidgets.includes('quickActions')
-    ? config.value.quickActions.filter(a => a.label && a.url)
+  config.value?.enabledWidgets.includes('links')
+    ? config.value.links.filter(l => !l.description && l.title && l.url)
     : []
 )
 
@@ -145,7 +145,7 @@ const summaryCards = computed(() => {
       sub: `${n} editor${n === 1 ? '' : 's'} available` })
   }
   const videoCount = config.value.tutorialVideos.filter(v => v.title && hasVideoContent(v)).length
-  const linkCount  = config.value.helpfulLinks.filter(l => l.title && l.url).length
+  const linkCount  = config.value.links.filter(l => !!l.description && l.title && l.url).length
   if ((config.value.enabledWidgets.includes('tutorials') && videoCount > 0) ||
       (config.value.enabledWidgets.includes('links') && linkCount > 0)) {
     const parts = []
@@ -418,7 +418,7 @@ onMounted(() => {
                 :style="{ backgroundColor: primaryColor }"
               >
                 <ExternalLink class="w-3.5 h-3.5 shrink-0" />
-                {{ action.label }}
+                {{ action.title }}
               </a>
             </div>
           </div>
@@ -654,13 +654,13 @@ onMounted(() => {
           </div>
 
           <!-- Helpful Links -->
-          <div v-if="config?.enabledWidgets.includes('links') && config.helpfulLinks.filter(l => l.title && l.url).length > 0">
+          <div v-if="config?.enabledWidgets.includes('links') && config.links.filter(l => !!l.description && l.title && l.url).length > 0">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-4 flex items-center gap-1.5">
               <Link2 class="w-3.5 h-3.5" /> Helpful Links
             </h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <a
-                v-for="link in config!.helpfulLinks.filter(l => l.title && l.url)"
+                v-for="link in config!.links.filter(l => !!l.description && l.title && l.url)"
                 :key="link.id"
                 :href="link.url"
                 target="_blank" rel="noopener"
@@ -677,7 +677,7 @@ onMounted(() => {
           </div>
 
           <!-- Empty -->
-          <div v-if="Object.keys(videosByCategory).length === 0 && (!config?.helpfulLinks || config.helpfulLinks.filter(l => l.title && l.url).length === 0)" class="text-center py-16 text-gray-400">
+          <div v-if="Object.keys(videosByCategory).length === 0 && (!config?.links || config.links.filter(l => !!l.description && l.title && l.url).length === 0)" class="text-center py-16 text-gray-400">
             <BookOpen class="w-8 h-8 mx-auto mb-3 opacity-30" />
             <p class="text-sm">No resources configured yet.</p>
           </div>

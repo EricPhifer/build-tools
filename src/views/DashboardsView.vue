@@ -2,14 +2,14 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  LayoutDashboard, Zap, BarChart3, BookOpen, Link2, FileEdit,
+  LayoutDashboard, BarChart3, BookOpen, Link2, FileEdit,
   ArrowRight, Plus, Trash2, Lock, ExternalLink, Monitor, Tablet, Smartphone, CreditCard,
   ClipboardList, GripVertical
 } from 'lucide-vue-next'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
 import WorkflowProgress from '../components/WorkflowProgress.vue'
-import type { DashboardWidgetType, TutorialVideo, HelpfulLink, QuickAction, ContentEditorWidget, ContentEditorField, ContentKitSectionConfig } from '../types/dashboard'
+import type { DashboardWidgetType, TutorialVideo, DashboardLink, ContentEditorWidget, ContentEditorField, ContentKitSectionConfig } from '../types/dashboard'
 import { BRAND_PERSONALITY_OPTIONS } from '../types/dashboard'
 
 const router = useRouter()
@@ -86,41 +86,25 @@ function removeInternalRoute(route: string) {
 }
 
 onMounted(() => {
-  if (config.value.quickActions.length === 0) {
+  // Seed links from known project config if empty
+  if (config.value.links.length === 0) {
+    const seeds: DashboardLink[] = []
     const siteUrl = composition.siteBuilder.envConfig.siteUrl || `https://${domain.value}.com`
-    composition.setDashboardConfig({
-      quickActions: [
-        { id: 'live-site', label: 'View Live Site', url: siteUrl, icon: 'Globe', isBuiltIn: true },
-        { id: 'studio', label: 'Open Studio', url: `https://studio.${domain.value}.com`, icon: 'PencilLine', isBuiltIn: true },
-      ]
-    })
-  }
-
-  // Seed helpful links from known project config if empty
-  if (config.value.helpfulLinks.length === 0) {
-    const seeds: HelpfulLink[] = []
-    const siteUrl = composition.siteBuilder.envConfig.siteUrl
     const studioUrl = `https://studio.${domain.value}.com`
     const useGA = config.value.useGoogleAnalytics
     const saId = config.value.simpleAnalyticsId
     const gaId = config.value.analyticsId
 
-    if (siteUrl) {
-      seeds.push({ id: 'live-site', title: 'Live Site', url: siteUrl, description: 'View your published website', emoji: '🌐' })
-    }
-    if (studioUrl) {
-      seeds.push({ id: 'studio', title: 'Sanity Studio', url: studioUrl, description: 'Edit your content', emoji: '✏️' })
-    }
+    seeds.push({ id: 'live-site', title: 'Live Site', url: siteUrl, emoji: '🌐', isBuiltIn: true })
+    seeds.push({ id: 'studio', title: 'Sanity Studio', url: studioUrl, description: 'Edit your content', emoji: '✏️', isBuiltIn: true })
     if (!useGA && saId) {
       seeds.push({ id: 'analytics', title: 'Simple Analytics', url: `https://dashboard.simpleanalytics.com/${saId}`, description: 'View site traffic', emoji: '📊' })
     } else if (useGA && gaId) {
       seeds.push({ id: 'analytics', title: 'Google Analytics', url: `https://analytics.google.com/analytics/web/#/p${gaId}`, description: 'View site traffic', emoji: '📊' })
     }
 
-    if (seeds.length > 0) {
-      composition.setDashboardConfig({ helpfulLinks: seeds })
-      linksWereSeeded.value = true
-    }
+    composition.setDashboardConfig({ links: seeds })
+    linksWereSeeded.value = true
   }
 
   // Seed internal routes for analytics filtering
@@ -147,10 +131,9 @@ watch(config, () => {
 }, { deep: true })
 
 const ALL_WIDGETS: { id: DashboardWidgetType; label: string; description: string }[] = [
-  { id: 'quickActions', label: 'Quick Actions', description: 'Shortcut buttons to live site, Studio, and other key URLs.' },
+  { id: 'links', label: 'Links', description: 'Quick action pills and resource cards — compact without a description, detailed with one.' },
   { id: 'analytics', label: 'Site Analytics', description: 'Traffic overview widget — Simple Analytics by default, GA4 override available.' },
   { id: 'tutorials', label: 'Tutorial Videos', description: 'Embedded video library grouped by category.' },
-  { id: 'links', label: 'Helpful Links', description: 'Curated resource cards with emoji, title, and description.' },
   { id: 'contentEditor', label: 'Content Editors', description: 'Simple forms for clients to update Sanity content and trigger rebuilds.' },
 ]
 
@@ -166,21 +149,21 @@ function toggleWidget(id: DashboardWidgetType) {
   composition.setDashboardConfig({ enabledWidgets: enabled })
 }
 
-// --- Quick Actions ---
-function addAction() {
+// --- Links (unified: pills without description, cards with description) ---
+function addLink() {
   composition.setDashboardConfig({
-    quickActions: [...config.value.quickActions, { id: crypto.randomUUID(), label: '', url: '', icon: 'ExternalLink' }]
+    links: [...config.value.links, { id: crypto.randomUUID(), title: '', url: '', description: '', emoji: '🔗' }]
   })
 }
-function updateAction(id: string, partial: Partial<QuickAction>) {
+function updateLink(id: string, partial: Partial<DashboardLink>) {
   composition.setDashboardConfig({
-    quickActions: config.value.quickActions.map(a => a.id === id ? { ...a, ...partial } : a)
+    links: config.value.links.map(l => l.id === id ? { ...l, ...partial } : l)
   })
 }
-function removeAction(id: string) {
-  const action = config.value.quickActions.find(a => a.id === id)
-  if (action?.isBuiltIn) return
-  composition.setDashboardConfig({ quickActions: config.value.quickActions.filter(a => a.id !== id) })
+function removeLink(id: string) {
+  const link = config.value.links.find(l => l.id === id)
+  if (link?.isBuiltIn) return
+  composition.setDashboardConfig({ links: config.value.links.filter(l => l.id !== id) })
 }
 
 // --- Tutorial Videos ---
@@ -196,21 +179,6 @@ function updateVideo(id: string, partial: Partial<TutorialVideo>) {
 }
 function removeVideo(id: string) {
   composition.setDashboardConfig({ tutorialVideos: config.value.tutorialVideos.filter(v => v.id !== id) })
-}
-
-// --- Helpful Links ---
-function addLink() {
-  composition.setDashboardConfig({
-    helpfulLinks: [...config.value.helpfulLinks, { id: crypto.randomUUID(), title: '', url: '', description: '', emoji: '🔗' }]
-  })
-}
-function updateLink(id: string, partial: Partial<HelpfulLink>) {
-  composition.setDashboardConfig({
-    helpfulLinks: config.value.helpfulLinks.map(l => l.id === id ? { ...l, ...partial } : l)
-  })
-}
-function removeLink(id: string) {
-  composition.setDashboardConfig({ helpfulLinks: config.value.helpfulLinks.filter(l => l.id !== id) })
 }
 
 // --- Content Editors ---
@@ -326,7 +294,7 @@ const inputStyle = {
             : { color: isEnabled(w.id) ? 'var(--theme-text-secondary)' : 'var(--theme-text-muted)' }"
         >
           <component
-            :is="{ quickActions: Zap, analytics: BarChart3, tutorials: BookOpen, links: Link2, contentEditor: FileEdit }[w.id]"
+            :is="{ links: Link2, analytics: BarChart3, tutorials: BookOpen, contentEditor: FileEdit }[w.id]"
             class="w-4 h-4 shrink-0"
           />
           {{ w.label }}
@@ -374,7 +342,7 @@ const inputStyle = {
             :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
           >
             <component
-              :is="{ quickActions: Zap, analytics: BarChart3, tutorials: BookOpen, links: Link2, contentEditor: FileEdit }[w.id]"
+              :is="{ links: Link2, analytics: BarChart3, tutorials: BookOpen, contentEditor: FileEdit }[w.id]"
               class="w-4 h-4 mt-0.5 shrink-0"
               :style="{ color: isEnabled(w.id) ? 'var(--theme-primary)' : 'var(--theme-text-muted)' }"
             />
@@ -392,45 +360,60 @@ const inputStyle = {
           </div>
         </template>
 
-        <!-- QUICK ACTIONS TAB -->
-        <template v-else-if="activeTab === 'quickActions'">
-          <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">Shortcut buttons shown at the top of the dashboard. Built-in actions are auto-seeded from your env config.</p>
+        <!-- LINKS TAB (unified: pills without description, cards with description) -->
+        <template v-else-if="activeTab === 'links'">
+          <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">Links for the dashboard — compact pills without a description, resource cards with one.</p>
           <div
-            v-for="action in config.quickActions"
-            :key="action.id"
-            class="p-3 rounded-xl border space-y-2"
+            v-for="link in config.links"
+            :key="link.id"
+            class="p-3 rounded-xl border space-y-2 overflow-hidden"
             :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
           >
             <div class="flex items-center gap-2">
-              <Lock v-if="action.isBuiltIn" class="w-3.5 h-3.5 shrink-0" :style="{ color: 'var(--theme-text-muted)' }" />
-              <span v-if="action.isBuiltIn" class="text-xs px-1.5 py-0.5 rounded" :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }">Built-in</span>
+              <Lock v-if="link.isBuiltIn" class="w-3.5 h-3.5 shrink-0" :style="{ color: 'var(--theme-text-muted)' }" />
+              <span v-if="link.isBuiltIn" class="text-xs px-1.5 py-0.5 rounded" :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }">Built-in</span>
               <button
-                v-else
-                @click="removeAction(action.id)"
+                v-if="!link.isBuiltIn"
+                @click="removeLink(link.id)"
                 class="ml-auto p-1 rounded transition-colors hover:text-red-500"
                 :style="{ color: 'var(--theme-text-muted)' }"
               ><Trash2 class="w-3.5 h-3.5" /></button>
             </div>
-            <input
-              :value="action.label"
-              @input="updateAction(action.id, { label: ($event.target as HTMLInputElement).value })"
-              placeholder="Label (e.g. View Live Site)"
-              :class="inputClass"
-              :style="inputStyle"
-            />
-            <input
-              :value="action.url"
-              @input="updateAction(action.id, { url: ($event.target as HTMLInputElement).value })"
-              placeholder="URL"
-              :class="inputClass"
-              :style="inputStyle"
-            />
+            <!-- Emoji picker + title -->
+            <div class="flex gap-2 items-start">
+              <div class="relative shrink-0" @click.stop>
+                <button
+                  @click="activeEmojiPicker = activeEmojiPicker === link.id ? null : link.id"
+                  class="w-10 h-10 rounded-lg border flex items-center justify-center text-xl leading-none transition-colors"
+                  :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: activeEmojiPicker === link.id ? 'var(--theme-primary)' : 'var(--theme-border)' }"
+                >{{ link.emoji || '🔗' }}</button>
+                <div
+                  v-if="activeEmojiPicker === link.id"
+                  class="absolute top-full left-0 mt-1 z-50 rounded-xl border shadow-xl p-2 grid grid-cols-6 gap-0.5 w-52"
+                  :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
+                >
+                  <button
+                    v-for="emoji in COMMON_EMOJIS"
+                    :key="emoji"
+                    @click="selectEmoji(link.id, emoji)"
+                    class="w-7 h-7 flex items-center justify-center rounded text-base transition-colors"
+                    :style="{ backgroundColor: 'transparent' }"
+                  >{{ emoji }}</button>
+                </div>
+              </div>
+              <input :value="link.title" @input="updateLink(link.id, { title: ($event.target as HTMLInputElement).value })" placeholder="Title" :class="inputClass" :style="inputStyle" />
+            </div>
+            <input :value="link.url" @input="updateLink(link.id, { url: ($event.target as HTMLInputElement).value })" placeholder="URL" :class="inputClass" :style="inputStyle" />
+            <input :value="link.description" @input="updateLink(link.id, { description: ($event.target as HTMLInputElement).value })" placeholder="Description (optional — leave blank for compact pill)" :class="inputClass" :style="inputStyle" />
           </div>
-          <button
-            @click="addAction"
-            class="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed text-sm transition-colors"
-            :style="{ borderColor: 'var(--theme-border)', color: 'var(--theme-text-muted)' }"
-          ><Plus class="w-3.5 h-3.5" /> Add Action</button>
+          <div v-if="linksWereSeeded" class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-xs" :style="{ backgroundColor: 'var(--theme-bg-secondary)', color: 'var(--theme-text-muted)' }">
+            <span>Links auto-populated from your project config. Edit or remove as needed.</span>
+            <button @click="linksWereSeeded = false" class="shrink-0 font-medium hover:underline" :style="{ color: 'var(--theme-primary)' }">Dismiss</button>
+          </div>
+          <div v-if="config.links.length === 0" class="text-xs text-center py-4" :style="{ color: 'var(--theme-text-muted)' }">No links yet. Add your first resource below.</div>
+          <button @click="addLink" class="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed text-sm transition-colors" :style="{ borderColor: 'var(--theme-border)', color: 'var(--theme-text-muted)' }">
+            <Plus class="w-3.5 h-3.5" /> Add Link
+          </button>
         </template>
 
         <!-- ANALYTICS TAB -->
@@ -628,55 +611,7 @@ const inputStyle = {
           </button>
         </template>
 
-        <!-- HELPFUL LINKS TAB -->
-        <template v-else-if="activeTab === 'links'">
-          <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">Curated resource cards shown on the dashboard.</p>
-          <div
-            v-for="link in config.helpfulLinks"
-            :key="link.id"
-            class="p-3 rounded-xl border space-y-2 overflow-hidden"
-            :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
-          >
-            <div class="flex justify-end">
-              <button @click="removeLink(link.id)" class="p-1 rounded transition-colors hover:text-red-500" :style="{ color: 'var(--theme-text-muted)' }"><Trash2 class="w-3.5 h-3.5" /></button>
-            </div>
-            <!-- Emoji picker + title -->
-            <div class="flex gap-2 items-start">
-              <div class="relative shrink-0" @click.stop>
-                <button
-                  @click="activeEmojiPicker = activeEmojiPicker === link.id ? null : link.id"
-                  class="w-10 h-10 rounded-lg border flex items-center justify-center text-xl leading-none transition-colors"
-                  :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: activeEmojiPicker === link.id ? 'var(--theme-primary)' : 'var(--theme-border)' }"
-                >{{ link.emoji || '🔗' }}</button>
-                <!-- Emoji grid panel -->
-                <div
-                  v-if="activeEmojiPicker === link.id"
-                  class="absolute top-full left-0 mt-1 z-50 rounded-xl border shadow-xl p-2 grid grid-cols-6 gap-0.5 w-52"
-                  :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
-                >
-                  <button
-                    v-for="emoji in COMMON_EMOJIS"
-                    :key="emoji"
-                    @click="selectEmoji(link.id, emoji)"
-                    class="w-7 h-7 flex items-center justify-center rounded text-base transition-colors"
-                    :style="{ backgroundColor: 'transparent' }"
-                  >{{ emoji }}</button>
-                </div>
-              </div>
-              <input :value="link.title" @input="updateLink(link.id, { title: ($event.target as HTMLInputElement).value })" placeholder="Title" :class="inputClass" :style="inputStyle" />
-            </div>
-            <input :value="link.url" @input="updateLink(link.id, { url: ($event.target as HTMLInputElement).value })" placeholder="URL" :class="inputClass" :style="inputStyle" />
-            <input :value="link.description" @input="updateLink(link.id, { description: ($event.target as HTMLInputElement).value })" placeholder="Description" :class="inputClass" :style="inputStyle" />
-          </div>
-          <div v-if="linksWereSeeded" class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-xs" :style="{ backgroundColor: 'var(--theme-bg-secondary)', color: 'var(--theme-text-muted)' }">
-            <span>Links auto-populated from your project config. Edit or remove as needed.</span>
-            <button @click="linksWereSeeded = false" class="shrink-0 font-medium hover:underline" :style="{ color: 'var(--theme-primary)' }">Dismiss</button>
-          </div>
-          <div v-if="config.helpfulLinks.length === 0" class="text-xs text-center py-4" :style="{ color: 'var(--theme-text-muted)' }">No links yet. Add your first resource below.</div>
-          <button @click="addLink" class="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed text-sm transition-colors" :style="{ borderColor: 'var(--theme-border)', color: 'var(--theme-text-muted)' }">
-            <Plus class="w-3.5 h-3.5" /> Add Link
-          </button>
-        </template>
+        <!-- (Links tab is above — quickActions + helpfulLinks merged into single 'links' tab) -->
 
         <!-- CONTENT EDITORS TAB -->
         <template v-else-if="activeTab === 'contentEditor'">

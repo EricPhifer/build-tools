@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import {
   Check, ChevronDown, ChevronRight, Globe, Palette, Type,
   PanelTop, PanelBottom, LayoutTemplate, Blocks, Database,
-  LayoutDashboard, PartyPopper, FileText, Zap, BarChart3,
+  LayoutDashboard, PartyPopper, FileText, BarChart3,
   BookOpen, Link2, FileEdit, Download, ArrowLeft, Rocket,
   RefreshCw, PackagePlus
 } from 'lucide-vue-next'
@@ -75,17 +75,16 @@ const pageCount = computed(() => composition.siteBuilder.sitemapPages.length)
 
 const dashboardConfig    = computed(() => composition.siteBuilder.dashboardConfig)
 const enabledWidgetCount = computed(() => dashboardConfig.value.enabledWidgets.length)
-const quickActionCount   = computed(() => dashboardConfig.value.quickActions.filter(a => a.label && a.url).length)
 const tutorialCount      = computed(() => dashboardConfig.value.tutorialVideos.filter(v => v.title).length)
-const linkCount          = computed(() => dashboardConfig.value.helpfulLinks.filter(l => l.title && l.url).length)
+const linkCount          = computed(() => dashboardConfig.value.links.filter(l => l.title && l.url).length)
 const contentEditorCount = computed(() => dashboardConfig.value.contentEditors.filter(e => e.label).length)
 
 const WIDGET_ICONS: Record<string, unknown>  = {
-  quickActions: Zap, analytics: BarChart3, tutorials: BookOpen, links: Link2, contentEditor: FileEdit
+  analytics: BarChart3, tutorials: BookOpen, links: Link2, contentEditor: FileEdit
 }
 const WIDGET_LABELS: Record<string, string> = {
-  quickActions: 'Quick Actions', analytics: 'Analytics', tutorials: 'Tutorial Videos',
-  links: 'Helpful Links', contentEditor: 'Content Editors'
+  analytics: 'Analytics', tutorials: 'Tutorial Videos',
+  links: 'Links', contentEditor: 'Content Editors'
 }
 
 // ─── Build config checklist ──────────────────────────────────────────────────
@@ -918,8 +917,7 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
               <component :is="WIDGET_ICONS[widgetId]" class="w-3.5 h-3.5 shrink-0" :style="{ color: 'var(--theme-primary)' }" />
               <span :style="{ color: 'var(--theme-text-primary)' }">{{ WIDGET_LABELS[widgetId] }}</span>
               <span class="ml-auto" :style="{ color: 'var(--theme-text-muted)' }">
-                <template v-if="widgetId === 'quickActions'">{{ quickActionCount }} action{{ quickActionCount === 1 ? '' : 's' }}</template>
-                <template v-else-if="widgetId === 'analytics'">{{ dashboardConfig.analyticsId || 'No ID set' }}</template>
+                <template v-if="widgetId === 'analytics'">{{ dashboardConfig.analyticsId || 'No ID set' }}</template>
                 <template v-else-if="widgetId === 'tutorials'">{{ tutorialCount }} video{{ tutorialCount === 1 ? '' : 's' }}</template>
                 <template v-else-if="widgetId === 'links'">{{ linkCount }} link{{ linkCount === 1 ? '' : 's' }}</template>
                 <template v-else-if="widgetId === 'contentEditor'">{{ contentEditorCount }} editor{{ contentEditorCount === 1 ? '' : 's' }}</template>

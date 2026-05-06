@@ -71,7 +71,7 @@ function createDefaultEnvConfig(): EnvConfig {
 
 function createDefaultDashboardConfig(): DashboardConfig {
   return {
-    enabledWidgets: ['quickActions', 'analytics', 'tutorials', 'links'],
+    enabledWidgets: ['links', 'analytics', 'tutorials'],
     simpleAnalyticsId: '',
     useGoogleAnalytics: false,
     analyticsId: '',
@@ -80,9 +80,8 @@ function createDefaultDashboardConfig(): DashboardConfig {
     contactWebhookUrl: '',
     auth0Domain: '',
     auth0ClientId: '',
-    quickActions: [],
+    links: [],
     tutorialVideos: [],
-    helpfulLinks: [],
     contentEditors: [],
     billing: {
       stripeCustomerId: '',
