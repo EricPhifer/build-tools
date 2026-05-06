@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, ArrowRight, Check, Lock, FlaskConical, Loader2 } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, Check, FlaskConical, Loader2 } from 'lucide-vue-next'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
 import { useClientApi } from '../composables/useClientApi'
@@ -17,6 +17,18 @@ const projectModeError = ref<string | null>(null)
 function selectFoundation() {
   composition.setProjectMode(false)
   composition.setBundle('foundation')
+  router.push('/site/type')
+}
+
+function selectEnrich() {
+  composition.setProjectMode(false)
+  composition.setBundle('enrich')
+  router.push('/site/type')
+}
+
+function selectGrowth() {
+  composition.setProjectMode(false)
+  composition.setBundle('growth')
   router.push('/site/type')
 }
 
@@ -142,30 +154,83 @@ async function selectProjectMode() {
         </div>
       </div>
 
-      <!-- Locked bundles -->
+      <!-- Enrich -->
       <div
-        v-for="bundle in [
-          { name: 'Enrich', description: 'Adds content marketing, blog architecture, advanced SEO, and CMS-driven dynamic content.' },
-          { name: 'Growth', description: 'Full digital presence management: social media, email campaigns, analytics dashboards, and reporting.' }
-        ]"
-        :key="bundle.name"
-        class="p-5 rounded-xl border opacity-50"
-        :style="{ borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-bg-card)' }"
+        class="p-5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-sm"
+        :style="{ borderColor: 'var(--theme-secondary)', backgroundColor: 'var(--theme-bg-card)' }"
+        @click="selectEnrich"
       >
         <div class="flex items-start justify-between">
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-1">
-              <span class="font-bold text-lg" :style="{ color: 'var(--theme-text-primary)' }">{{ bundle.name }}</span>
+              <span class="font-bold text-lg" :style="{ color: 'var(--theme-text-primary)' }">Enrich</span>
               <span
-                class="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
-                :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
-              >
-                <Lock class="w-3 h-3" />
-                Coming Soon
-              </span>
+                class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                :style="{ backgroundColor: 'var(--theme-secondary)', color: 'var(--theme-text-inverse)' }"
+              >Active</span>
             </div>
-            <p class="text-sm" :style="{ color: 'var(--theme-text-secondary)' }">{{ bundle.description }}</p>
+            <p class="text-sm" :style="{ color: 'var(--theme-text-secondary)' }">
+              Foundation plus dynamic content — staff/board pages, testimonies, events, blog architecture, and a client-facing dashboard.
+            </p>
+            <ul class="mt-3 space-y-1">
+              <li
+                v-for="item in [
+                  'Everything in Foundation',
+                  'Staff, testimonies, and events pages',
+                  'Volunteer + referral form scaffolds',
+                  'Client dashboard with content editors'
+                ]"
+                :key="item"
+                class="flex items-center gap-2 text-sm"
+                :style="{ color: 'var(--theme-text-secondary)' }"
+              >
+                <Check class="w-3.5 h-3.5 shrink-0" :style="{ color: 'var(--theme-secondary)' }" />
+                {{ item }}
+              </li>
+            </ul>
           </div>
+          <ArrowRight class="w-5 h-5 shrink-0 ml-4 mt-1" :style="{ color: 'var(--theme-secondary)' }" />
+        </div>
+      </div>
+
+      <!-- Growth -->
+      <div
+        class="p-5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-sm"
+        :style="{ borderColor: 'var(--theme-accent, var(--theme-primary))', backgroundColor: 'var(--theme-bg-card)' }"
+        @click="selectGrowth"
+      >
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-bold text-lg" :style="{ color: 'var(--theme-text-primary)' }">Growth</span>
+              <span
+                class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                :style="{ backgroundColor: 'var(--theme-accent, var(--theme-primary))', color: 'var(--theme-text-inverse)' }"
+              >Active</span>
+            </div>
+            <p class="text-sm" :style="{ color: 'var(--theme-text-secondary)' }">
+              Full digital presence: Netlify Functions for forms and donations, Turso DB, AWeber newsletter, scheduled YouTube sync (nonprofit), and Stripe-ready donation flow.
+            </p>
+            <ul class="mt-3 space-y-1">
+              <li
+                v-for="item in [
+                  'Everything in Enrich',
+                  'Netlify functions: contact, forms, event registrations, newsletter, donations',
+                  'Turso DB for submissions + registrations + donations',
+                  'Donation provider toggle: Harness (Phase 1) → Stripe (Phase 2)',
+                  'Nonprofit add-on: Coffee Chat YouTube sync + transparency / 990 reports',
+                  'Integrations sub-step in Site Builder for credentials'
+                ]"
+                :key="item"
+                class="flex items-center gap-2 text-sm"
+                :style="{ color: 'var(--theme-text-secondary)' }"
+              >
+                <Check class="w-3.5 h-3.5 shrink-0" :style="{ color: 'var(--theme-accent, var(--theme-primary))' }" />
+                {{ item }}
+              </li>
+            </ul>
+          </div>
+          <ArrowRight class="w-5 h-5 shrink-0 ml-4 mt-1" :style="{ color: 'var(--theme-accent, var(--theme-primary))' }" />
         </div>
       </div>
     </div>
