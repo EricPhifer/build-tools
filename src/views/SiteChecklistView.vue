@@ -1001,12 +1001,11 @@ function complete() {
         Back
       </button>
       <button
-        :disabled="!allConfirmed"
         @click="complete"
-        class="flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        class="flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-colors"
         :style="{ backgroundColor: isAppMode ? 'var(--theme-warning)' : 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }"
       >
-        Complete {{ isAppMode ? 'App' : 'Site' }} Setup
+        {{ allConfirmed ? `Complete ${isAppMode ? 'App' : 'Site'} Setup` : `Continue (${confirmedCount}/${totalPanels} confirmed)` }}
         <ArrowRight class="w-4 h-4" />
       </button>
     </div>
