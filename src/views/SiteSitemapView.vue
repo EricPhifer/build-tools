@@ -93,7 +93,9 @@ function isEnrichPattern(name: string): boolean {
 
 function save() {
   composition.setSitemapPages(pages.value)
-  router.push('/site/checklist')
+  // Growth tier has an Integrations sub-step between Sitemap and Checklist
+  const next = composition.siteBuilder.bundle === 'growth' ? '/site/integrations' : '/site/checklist'
+  router.push(next)
 }
 
 const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
