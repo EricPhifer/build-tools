@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Heart, Menu, X, Plus } from 'lucide-vue-next'
+import { Heart, Plus } from 'lucide-vue-next'
 
 withDefaults(defineProps<{
   siteName?: string
@@ -18,77 +18,116 @@ const navItems = [
   { label: 'PARTNER WITH US', children: ['DONATE', 'EVENTS'] }
 ]
 
-// In the preview, ABOUT is shown expanded to demonstrate accordion state
 const expandedLabel = 'ABOUT'
 
-const greenBg = 'var(--color-primary, #60B567)'
-const goldText = 'var(--color-secondary, #CAA230)'
+const green = 'var(--color-primary, #60B567)'
+const darkGreen = 'var(--color-primary-hover, #2D6A4F)'
+const gold = 'var(--color-secondary, #CAA230)'
+const white = '#ffffff'
 </script>
 
 <template>
   <div class="rounded-xl overflow-hidden border" style="border-color: rgba(0,0,0,0.08)">
-    <!-- Mocked hero strip with transparent header overlay -->
-    <div class="relative" style="background: linear-gradient(135deg, #4a6e3a 0%, #6b8a52 100%); height: 64px;">
-      <div class="absolute inset-0 px-4 flex items-center justify-between">
-        <!-- Circular coin logo (with floating overlap) -->
-        <div class="relative" style="margin-top: 20px;">
+    <!-- Hero strip with absolute transparent header overlay + concentric coin overflowing top-left -->
+    <div class="relative" style="background: linear-gradient(135deg, #4a6e3a 0%, #6b8a52 100%); height: 110px;">
+      <!-- Coin (3 concentric rings) overflowing top-left -->
+      <div class="absolute" style="top: -22px; left: -22px;">
+        <div
+          class="rounded-full flex items-center justify-center"
+          :style="{ width: '78px', height: '78px', backgroundColor: gold }"
+        >
           <div
-            class="rounded-full flex items-center justify-center shadow-md"
-            :style="{ width: '52px', height: '52px', backgroundColor: greenBg, border: `3px solid ${goldText}` }"
+            class="rounded-full flex items-center justify-center"
+            :style="{ width: '64px', height: '64px', backgroundColor: darkGreen }"
           >
-            <Heart class="w-5 h-5 text-white" fill="currentColor" />
+            <div
+              class="rounded-full flex items-center justify-center"
+              :style="{ width: '50px', height: '50px', backgroundColor: green }"
+            >
+              <Heart class="w-5 h-5 text-white" fill="currentColor" />
+            </div>
           </div>
         </div>
-        <div class="flex items-center gap-2.5">
-          <a
-            class="text-xs font-medium px-3 py-1 rounded-full"
-            :style="{ border: `1.5px solid ${goldText}`, color: goldText, backgroundColor: 'transparent' }"
-          >Volunteer</a>
-          <Menu class="w-5 h-5" :style="{ color: goldText }" />
+      </div>
+
+      <!-- Right-side actions -->
+      <div class="absolute top-0 right-3 h-full flex items-center gap-2.5">
+        <!-- Volunteer button (gold bg + white border + gold outline + white text) -->
+        <span
+          class="text-xs font-medium"
+          :style="{
+            backgroundColor: gold,
+            color: white,
+            border: `2px solid ${white}`,
+            outline: `1px solid ${gold}`,
+            padding: '4px 10px',
+          }"
+        >Volunteer</span>
+        <!-- Hamburger (3 white bars) -->
+        <div class="flex flex-col gap-1.5" style="width: 22px;">
+          <span class="block h-0.5" :style="{ backgroundColor: white }"></span>
+          <span class="block h-0.5" :style="{ backgroundColor: white }"></span>
+          <span class="block h-0.5" :style="{ backgroundColor: white }"></span>
         </div>
       </div>
     </div>
 
     <!-- Compressed full-screen menu preview -->
-    <div class="px-4 pt-3 pb-12 relative" :style="{ backgroundColor: greenBg }">
-      <!-- Menu top bar (mirrors header) -->
+    <div class="px-5 pt-4 pb-12 relative" :style="{ backgroundColor: green }">
+      <!-- Menu top bar -->
       <div class="flex items-center justify-between mb-3">
         <div
           class="rounded-full flex items-center justify-center"
-          :style="{ width: '36px', height: '36px', backgroundColor: greenBg, border: `2px solid ${goldText}` }"
+          :style="{ width: '40px', height: '40px', backgroundColor: gold }"
         >
-          <Heart class="w-3.5 h-3.5 text-white" fill="currentColor" />
+          <div
+            class="rounded-full flex items-center justify-center"
+            :style="{ width: '32px', height: '32px', backgroundColor: darkGreen }"
+          >
+            <div
+              class="rounded-full flex items-center justify-center"
+              :style="{ width: '24px', height: '24px', backgroundColor: green }"
+            >
+              <Heart class="w-3 h-3 text-white" fill="currentColor" />
+            </div>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-medium px-2.5 py-0.5 rounded-full" :style="{ border: `1.5px solid ${goldText}`, color: goldText }">Volunteer</span>
-          <X class="w-4 h-4 text-white" />
-        </div>
+        <span
+          class="text-xs font-medium"
+          :style="{
+            backgroundColor: gold,
+            color: white,
+            border: `2px solid ${white}`,
+            outline: `1px solid ${gold}`,
+            padding: '3px 9px',
+          }"
+        >Volunteer</span>
       </div>
 
       <!-- Nav items -->
-      <nav class="space-y-0">
+      <div>
         <template v-for="item in navItems" :key="item.label">
-          <div class="py-2 flex items-center justify-between" style="border-top: 1px solid rgba(255,255,255,0.35);">
+          <div class="py-2 flex items-center justify-between">
             <span class="text-xs font-medium tracking-widest text-white">{{ item.label }}</span>
-            <template v-if="item.children">
-              <X v-if="expandedLabel === item.label" class="w-3.5 h-3.5 text-white" />
-              <Plus v-else class="w-3.5 h-3.5 text-white" />
-            </template>
+            <Plus
+              v-if="item.children"
+              class="w-3.5 h-3.5 text-white transition-transform"
+              :class="{ 'rotate-45': expandedLabel === item.label }"
+            />
           </div>
-          <!-- Sub-items shown for the expanded section -->
-          <div v-if="item.children && expandedLabel === item.label" class="pl-3 pb-2 space-y-1">
+          <hr style="border: none; border-top: 2px solid #ffffff; margin: 0;" />
+          <div v-if="item.children && expandedLabel === item.label" class="pl-3 py-1">
             <p
               v-for="child in item.children"
               :key="child"
-              class="text-[10px] font-normal tracking-widest"
-              style="color: rgba(255,255,255,0.85);"
+              class="text-[10px] font-normal tracking-widest py-1"
+              style="color: rgba(255,255,255,0.92);"
             >{{ child }}</p>
           </div>
         </template>
-        <div style="border-top: 1px solid rgba(255,255,255,0.35);"></div>
-      </nav>
+      </div>
 
-      <!-- Sticky donate (preview position) -->
+      <!-- Sticky donate -->
       <div class="absolute right-3 bottom-3 flex items-center gap-1 text-white text-xs font-medium">
         <Heart class="w-3.5 h-3.5" />
         Donate
