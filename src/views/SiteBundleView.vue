@@ -14,6 +14,12 @@ const clientApi = useClientApi()
 const projectModeLoading = ref(false)
 const projectModeError = ref<string | null>(null)
 
+function selectStarter() {
+  composition.setProjectMode(false)
+  composition.setBundle('starter')
+  router.push('/site/type')
+}
+
 function selectFoundation() {
   composition.setProjectMode(false)
   composition.setBundle('foundation')
@@ -118,6 +124,45 @@ async function selectProjectMode() {
           >
             <Check class="w-4 h-4" />
           </div>
+        </div>
+      </div>
+
+      <!-- Starter -->
+      <div
+        class="p-5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-sm"
+        :style="{ borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-bg-card)' }"
+        @click="selectStarter"
+      >
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-bold text-lg" :style="{ color: 'var(--theme-text-primary)' }">Starter</span>
+              <span
+                class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-secondary)' }"
+              >12-month bridge</span>
+            </div>
+            <p class="text-sm" :style="{ color: 'var(--theme-text-secondary)' }">
+              Minimal launch package for mission-fit clients under $2k. Contract commits the client to upgrading to Foundation or higher within 12 months.
+            </p>
+            <ul class="mt-3 space-y-1">
+              <li
+                v-for="item in [
+                  '3 content pages: Home + 2 inner pages (legal pages not counted)',
+                  'Privacy Policy, Terms & Conditions, Accessibility Statement',
+                  'Schema.org JSON-LD block and page meta tags',
+                  'Same dashboard as Foundation, with annual reports'
+                ]"
+                :key="item"
+                class="flex items-center gap-2 text-sm"
+                :style="{ color: 'var(--theme-text-secondary)' }"
+              >
+                <Check class="w-3.5 h-3.5 shrink-0" :style="{ color: 'var(--theme-text-muted)' }" />
+                {{ item }}
+              </li>
+            </ul>
+          </div>
+          <ArrowRight class="w-5 h-5 shrink-0 ml-4 mt-1" :style="{ color: 'var(--theme-text-muted)' }" />
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import type {
-  BusinessType, BusinessTypeInfo, SitemapPage,
+  BundleType, BusinessType, BusinessTypeInfo, SitemapPage,
   LegalPageContent, ChecklistItem, ChecklistCategory,
   AppScreen, AppViewType, DataEntity, DataFieldType
 } from '../types/registry'
@@ -203,10 +203,11 @@ const EXTRA_PAGES: Record<BusinessType, SitemapPage[]> = {
   ]
 }
 
-export function getDefaultSitemapPages(type: BusinessType): SitemapPage[] {
+// Starter gets the core pages only (Home, About, Contact + legal); extras are added by hand
+export function getDefaultSitemapPages(type: BusinessType, bundle?: BundleType | null): SitemapPage[] {
   return [
     ...CORE_PAGES.map(p => ({ ...p })),
-    ...EXTRA_PAGES[type].map(p => ({ ...p }))
+    ...(bundle === 'starter' ? [] : EXTRA_PAGES[type].map(p => ({ ...p })))
   ]
 }
 

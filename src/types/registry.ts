@@ -392,7 +392,10 @@ export type ChecklistCategory =
   | 'trustCompliance'
 
 // === Bundle ===
-export type BundleType = 'foundation' | 'enrich' | 'growth'
+export type BundleType = 'starter' | 'foundation' | 'enrich' | 'growth'
+
+// Starter (v50): 3 content pages (Home + 2 inner), legal pages not counted
+export const STARTER_PAGE_LIMIT = 3
 
 // === Project Mode ===
 export type ProjectType = 'personal_website' | 'dashboard' | 'database_catalog' | 'custom_tool' | 'other'

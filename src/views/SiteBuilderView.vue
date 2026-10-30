@@ -39,7 +39,7 @@ const flowSteps = computed<FlowStep[]>(() => {
   const bundleStep: FlowStep = {
     id: 'bundle',
     label: 'Bundle',
-    description: sb.bundle ? 'Foundation selected' : 'Select service tier',
+    description: sb.bundle ? `${sb.bundle.charAt(0).toUpperCase()}${sb.bundle.slice(1)} selected` : 'Select service tier',
     route: '/site/bundle',
     icon: Package,
     done: !!sb.bundle

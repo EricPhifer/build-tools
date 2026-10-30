@@ -57,7 +57,7 @@ const newRouteInput = ref('')
 
 function seedInternalRoutes() {
   if (config.value.analyticsInternalRoutes.length > 0) return
-  const defaults = ['/analytics', '/billing', '/content-kit', '/support']
+  const defaults = ['/reports', '/analytics', '/billing', '/content-kit', '/support', '/help']
   const sitemap = composition.siteBuilder.sitemapPages
   if (sitemap.some(p => p.slug === '/about-us')) {
     defaults.push('/about-us')

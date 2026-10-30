@@ -8,6 +8,7 @@ import {
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
 import { getDefaultSitemapPages } from '../data/siteBuilderData'
+import { STARTER_PAGE_LIMIT } from '../types/registry'
 import type { SitemapPage, NavAssignment } from '../types/registry'
 
 const router      = useRouter()
@@ -22,7 +23,7 @@ onMounted(() => {
   if (composition.siteBuilder.sitemapPages.length > 0) {
     pages.value = composition.siteBuilder.sitemapPages.map(p => ({ ...p }))
   } else if (composition.siteBuilder.businessType) {
-    pages.value = getDefaultSitemapPages(composition.siteBuilder.businessType)
+    pages.value = getDefaultSitemapPages(composition.siteBuilder.businessType, composition.siteBuilder.bundle)
   }
 })
 
@@ -40,6 +41,10 @@ const regularPagesList = computed(() => pages.value.filter(p => !p.isLegal && !p
 const legalPagesList = computed(() => pages.value.filter(p => p.isLegal))
 const enrichPagesList = computed(() => pages.value.filter(p => p.isEnrichOnly && !p.isGrowthOnly))
 const growthPagesList = computed(() => pages.value.filter(p => p.isGrowthOnly))
+
+// Starter scope is advisory: warn past the limit, never block
+const contentPageCount = computed(() => pages.value.filter(p => !p.isLegal).length)
+const overStarterLimit = computed(() => bundle.value === 'starter' && contentPageCount.value > STARTER_PAGE_LIMIT)
 
 const primaryPages = computed(() => pages.value.filter(p => p.nav === 'primary' || p.nav === 'both'))
 const footerPages = computed(() => pages.value.filter(p => p.nav === 'footer' || p.nav === 'both'))
@@ -135,6 +140,16 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
         Review and adjust the pages for this site. Click the arrow on any row to open the Page Builder.
       </p>
     </div>
+
+    <p
+      v-if="overStarterLimit"
+      class="text-sm mb-4 flex items-start gap-2 p-3 rounded-lg"
+      :style="{ backgroundColor: 'var(--theme-warning-light)', color: 'var(--theme-warning)' }"
+    >
+      <TriangleAlert class="w-4 h-4 mt-0.5 shrink-0" />
+      Starter covers {{ STARTER_PAGE_LIMIT }} content pages (Home + 2 inner); this sitemap has {{ contentPageCount }}.
+      Remove pages or confirm the extra scope with the client before continuing.
+    </p>
 
     <!-- ── Section: Content Pages ────────────────────────────────────────── -->
     <div class="space-y-2 mb-4">
