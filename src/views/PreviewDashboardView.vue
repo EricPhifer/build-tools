@@ -6,7 +6,7 @@ import {
   ExternalLink, MessageSquare, Send, CheckCircle2, LogIn,
   Menu, X, ChevronLeft, ChevronRight,
   UserCircle, LogOut, Sun, Moon, CreditCard, ClipboardList,
-  Upload, ChevronDown
+  HelpCircle, Upload, ChevronDown
 } from 'lucide-vue-next'
 import type { DashboardConfig, TutorialVideo } from '../types/dashboard'
 import { BRAND_PERSONALITY_OPTIONS } from '../types/dashboard'
@@ -118,6 +118,7 @@ const navItems = computed((): NavItem[] => {
   if (config.value?.contentKit?.enabled)
     items.push({ id: 'contentKit', label: 'Content Kit', icon: ClipboardList })
   items.push({ id: 'contact', label: 'Contact & Support', icon: MessageSquare })
+  items.push({ id: 'help', label: 'Help', icon: HelpCircle })
   return items
 })
 
@@ -1074,6 +1075,32 @@ onMounted(() => {
                 Preview mode — submissions will be active on your live dashboard.
               </p>
             </form>
+          </div>
+        </template>
+
+        <template v-else-if="activePage === 'help'">
+          <div class="max-w-2xl">
+            <div class="mb-6">
+              <h2 class="text-xl font-bold text-gray-900">Help &amp; How-To</h2>
+              <p class="text-gray-500 text-sm mt-1">
+                In your live dashboard this page explains what each section does and how to use it —
+                Overview, Analytics (if enabled), Content Kit (if enabled), Billing, Contact &amp; Support,
+                and a troubleshooting FAQ. Content auto-adapts to the sections you have enabled.
+              </p>
+            </div>
+            <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-4 text-sm text-gray-700">
+              <div class="flex items-start gap-3">
+                <HelpCircle class="w-5 h-5 shrink-0 mt-0.5 text-gray-400" />
+                <div>
+                  <p class="font-medium text-gray-900 mb-1">What your client sees here</p>
+                  <ul class="list-disc list-inside space-y-1 text-gray-600">
+                    <li>A plain-language explainer for each dashboard section they have access to.</li>
+                    <li>A troubleshooting FAQ covering login, content changes, invoices, and brand updates.</li>
+                    <li>Links to tutorial videos (when configured).</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </template>
 
