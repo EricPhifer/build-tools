@@ -4,13 +4,13 @@ import { useRouter } from 'vue-router'
 import {
   LayoutDashboard, BarChart3, BookOpen, Link2, FileEdit,
   ArrowRight, Plus, Trash2, Lock, ExternalLink, Monitor, Tablet, Smartphone, CreditCard,
-  ClipboardList, GripVertical, Inbox, CalendarCheck, Mail, Mic, FileText
+  ClipboardList, GripVertical, Inbox, CalendarCheck, Mail, Mic, FileText, FileBarChart
 } from 'lucide-vue-next'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
 import WorkflowProgress from '../components/WorkflowProgress.vue'
-import type { DashboardWidgetType, TutorialVideo, DashboardLink, ContentEditorWidget, ContentEditorField, ContentKitSectionConfig } from '../types/dashboard'
-import { BRAND_PERSONALITY_OPTIONS } from '../types/dashboard'
+import type { DashboardWidgetType, TutorialVideo, DashboardLink, ContentEditorWidget, ContentEditorField, ContentKitSectionConfig, DashboardProfile, ReviewCadence } from '../types/dashboard'
+import { BRAND_PERSONALITY_OPTIONS, defaultReviewCadence } from '../types/dashboard'
 
 const router = useRouter()
 const composition = useCompositionStore()
@@ -152,9 +152,43 @@ const ALL_WIDGETS: WidgetMeta[] = [
   { id: 'annualReports', label: 'Annual Reports', description: 'View and manage uploaded 990s and annual report PDFs.', requires: 'growth+nonprofit' },
 ]
 
+const isMinimal = computed(() => config.value.profile === 'minimal')
+
+// Minimal (Sustain) keeps only links on the overview and drops the Content Kit
+function setProfile(profile: DashboardProfile) {
+  if (profile === config.value.profile) return
+  if (profile === 'minimal') {
+    composition.setDashboardConfig({
+      profile,
+      enabledWidgets: ['links'],
+      contentKit: { ...config.value.contentKit, enabled: false }
+    })
+    if (activeTab.value !== 'widgets' && activeTab.value !== 'links' && activeTab.value !== 'reports' && activeTab.value !== 'billing') {
+      activeTab.value = 'widgets'
+    }
+  } else {
+    composition.setDashboardConfig({
+      profile,
+      enabledWidgets: ['links', 'analytics', 'tutorials'],
+      contentKit: { ...config.value.contentKit, enabled: true }
+    })
+  }
+}
+
+// --- Reports (always on; only the web team's review cadence is configurable) ---
+const bundleReviewCadence = computed(() => defaultReviewCadence(composition.siteBuilder.bundle))
+const reviewCadence = computed(() => config.value.reports?.reviewCadence ?? bundleReviewCadence.value)
+function setReviewCadence(cadence: ReviewCadence) {
+  // Store null when it matches the bundle default so a later bundle change still applies
+  composition.setDashboardConfig({
+    reports: { reviewCadence: cadence === bundleReviewCadence.value ? null : cadence }
+  })
+}
+
 const visibleWidgets = computed<WidgetMeta[]>(() => {
   const bundle = composition.siteBuilder.bundle
   const businessType = composition.siteBuilder.businessType
+  if (isMinimal.value) return ALL_WIDGETS.filter(w => w.id === 'links')
   return ALL_WIDGETS.filter(w => {
     if (!w.requires) return true
     if (w.requires === 'growth') return bundle === 'growth'
@@ -334,6 +368,16 @@ const inputStyle = {
         <!-- Standard Pages separator -->
         <p class="text-[10px] font-semibold uppercase tracking-wider pt-3 pb-1 px-3" :style="{ color: 'var(--theme-text-muted)' }">Standard Pages</p>
         <button
+          @click="activeTab = 'reports'"
+          class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-left transition-colors"
+          :style="activeTab === 'reports'
+            ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+            : { color: 'var(--theme-text-secondary)' }"
+        >
+          <FileBarChart class="w-4 h-4 shrink-0" />
+          Monthly Reports
+        </button>
+        <button
           @click="activeTab = 'billing'"
           class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-left transition-colors"
           :style="activeTab === 'billing'
@@ -344,6 +388,7 @@ const inputStyle = {
           Billing
         </button>
         <button
+          v-if="!isMinimal"
           @click="activeTab = 'contentKit'"
           class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-left transition-colors"
           :style="activeTab === 'contentKit'
@@ -360,6 +405,29 @@ const inputStyle = {
 
         <!-- WIDGETS TAB -->
         <template v-if="activeTab === 'widgets'">
+          <div>
+            <p class="text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Dashboard profile</p>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button
+                v-for="opt in ([
+                  { id: 'standard', label: 'Standard', hint: 'Starter · Foundation · Enrich · Growth' },
+                  { id: 'minimal', label: 'Minimal', hint: 'Sustain' }
+                ] as const)"
+                :key="opt.id"
+                @click="setProfile(opt.id)"
+                class="p-2 rounded-lg border text-left transition-colors"
+                :style="config.profile === opt.id
+                  ? { borderColor: 'var(--theme-primary)', backgroundColor: 'var(--theme-primary-light)' }
+                  : { borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-bg-card)' }"
+              >
+                <p class="text-sm font-medium" :style="{ color: 'var(--theme-text-primary)' }">{{ opt.label }}</p>
+                <p class="text-[11px]" :style="{ color: 'var(--theme-text-muted)' }">{{ opt.hint }}</p>
+              </button>
+            </div>
+            <p v-if="isMinimal" class="text-xs mt-2" :style="{ color: 'var(--theme-text-muted)' }">
+              Overview with links, Monthly Reports, Contact &amp; Support, Billing and Help only.
+            </p>
+          </div>
           <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">Toggle which sections appear on the client dashboard.</p>
           <div
             v-for="w in visibleWidgets"
@@ -753,6 +821,32 @@ const inputStyle = {
           <button @click="addEditor" class="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed text-sm transition-colors" :style="{ borderColor: 'var(--theme-border)', color: 'var(--theme-text-muted)' }">
             <Plus class="w-3.5 h-3.5" /> Add Content Editor
           </button>
+        </template>
+
+        <!-- REPORTS TAB -->
+        <template v-else-if="activeTab === 'reports'">
+          <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">
+            Standard on every tier and always present. The dashboard tests the homepage with Lighthouse on the 2nd of each month
+            and writes a fixed snapshot of the month on the 3rd. The client can open any month on demand.
+          </p>
+          <div>
+            <p class="text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Web team full review + check-in email</p>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button
+                v-for="c in (['monthly', 'annual'] as const)"
+                :key="c"
+                @click="setReviewCadence(c)"
+                class="px-2.5 py-1.5 rounded-md text-xs font-medium capitalize transition-colors"
+                :style="reviewCadence === c
+                  ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+                  : { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
+              >{{ c }}</button>
+            </div>
+            <p class="text-xs mt-1.5" :style="{ color: 'var(--theme-text-muted)' }">
+              Bundle default: {{ bundleReviewCadence }}<template v-if="config.reports?.reviewCadence"> (overridden)</template>.
+              Published notes appear on that month's report as "From your web team".
+            </p>
+          </div>
         </template>
 
         <!-- BILLING TAB -->

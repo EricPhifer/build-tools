@@ -112,7 +112,26 @@ export interface BillingConfig {
   showOfflineInvoices: boolean  // include offline (Zelle/Check) invoices alongside Stripe
 }
 
+// ─── Reports ─────────────────────────────────────────────────────────────────
+
+// Every tier gets the automatic monthly report (Lighthouse on the 2nd, snapshot on the 3rd).
+// reviewCadence is how often the web team writes the full review + check-in email.
+export type ReviewCadence = 'monthly' | 'annual'
+
+export interface ReportsConfig {
+  reviewCadence: ReviewCadence | null   // null = follow the bundle default
+}
+
+export function defaultReviewCadence(bundle: string | null): ReviewCadence {
+  return bundle === 'enrich' || bundle === 'growth' ? 'monthly' : 'annual'
+}
+
+// 'minimal' (Sustain): Overview with links, Reports, Support, Billing, Help — nothing else
+export type DashboardProfile = 'standard' | 'minimal'
+
 export interface DashboardConfig {
+  profile: DashboardProfile
+  reports: ReportsConfig
   enabledWidgets: DashboardWidgetType[]
   simpleAnalyticsId: string     // Simple Analytics site ID / domain (default analytics provider)
   useGoogleAnalytics: boolean   // Override: use Google Analytics GA4 instead of Simple Analytics

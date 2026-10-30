@@ -6,10 +6,10 @@ import {
   ExternalLink, MessageSquare, Send, CheckCircle2, LogIn,
   Menu, X, ChevronLeft, ChevronRight,
   UserCircle, LogOut, Sun, Moon, CreditCard, ClipboardList,
-  HelpCircle, Upload, ChevronDown
+  HelpCircle, Upload, ChevronDown, FileBarChart, Printer
 } from 'lucide-vue-next'
 import type { DashboardConfig, TutorialVideo } from '../types/dashboard'
-import { BRAND_PERSONALITY_OPTIONS } from '../types/dashboard'
+import { BRAND_PERSONALITY_OPTIONS, defaultReviewCadence } from '../types/dashboard'
 
 const route        = useRoute()
 const clientName   = computed(() => (route.query.clientName as string) || 'Client Dashboard')
@@ -17,6 +17,7 @@ const primaryColor = computed(() => (route.query.primaryColor as string) || '#63
 const logoUrl      = computed(() => (route.query.logoUrl as string) || '')
 
 const config      = ref<DashboardConfig | null>(null)
+const bundle      = ref<string | null>(null)
 const activePage  = ref('overview')
 const collapsed   = ref(false)   // desktop sidebar collapsed
 const mobileOpen  = ref(false)   // mobile sidebar overlay open
@@ -101,10 +102,19 @@ const videosByCategory = computed(() => {
 // ─── Nav items ────────────────────────────────────────────────────────────────
 interface NavItem { id: string; label: string; icon: unknown }
 
+const isMinimal = computed(() => config.value?.profile === 'minimal')
+
 const navItems = computed((): NavItem[] => {
   const items: NavItem[] = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard }
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'reports', label: 'Monthly Reports', icon: FileBarChart }
   ]
+  if (isMinimal.value) {
+    items.push({ id: 'billing', label: 'Billing', icon: CreditCard })
+    items.push({ id: 'contact', label: 'Contact & Support', icon: MessageSquare })
+    items.push({ id: 'help', label: 'Help', icon: HelpCircle })
+    return items
+  }
   if (config.value?.enabledWidgets.includes('analytics'))
     items.push({ id: 'analytics', label: 'Analytics', icon: BarChart3 })
   if (config.value?.enabledWidgets.includes('contentEditor') && config.value.contentEditors.some(e => e.label))
@@ -137,6 +147,13 @@ const quickActions = computed(() =>
 const summaryCards = computed(() => {
   if (!config.value) return []
   const cards: { id: string; title: string; sub: string; icon: unknown }[] = []
+  cards.push({ id: 'reports', title: `${sampleReport.value.month} report`, icon: FileBarChart,
+    sub: `${sampleReport.value.visits} visits · speed ${sampleReport.value.phone.speed}/100` })
+  if (isMinimal.value) {
+    cards.push({ id: 'billing', title: 'Billing', icon: CreditCard, sub: 'Manage subscription & payments' })
+    cards.push({ id: 'contact', title: 'Contact & Support', icon: MessageSquare, sub: 'Get help from your developer' })
+    return cards
+  }
   if (config.value.enabledWidgets.includes('analytics'))
     cards.push({ id: 'analytics', title: 'Analytics', icon: BarChart3,
       sub: config.value.analyticsId ? 'GA4 Connected' : 'Traffic overview' })
@@ -166,6 +183,39 @@ const summaryCards = computed(() => {
   return cards
 })
 
+// ─── Monthly report (sample snapshot of last month) ───────────────────────────
+const sampleReport = computed(() => {
+  const now = new Date()
+  const last = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const prev = new Date(now.getFullYear(), now.getMonth() - 2, 1)
+  const monthName = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  const visits = 142, prevVisits = 118
+  return {
+    month: monthName(last),
+    prevMonth: monthName(prev).split(' ')[0],
+    prepared: new Date(now.getFullYear(), now.getMonth(), 3)
+      .toLocaleDateString('en-US', { month: 'long', day: 'numeric' }),
+    nextReport: new Date(now.getFullYear(), now.getMonth() + 1, 3)
+      .toLocaleDateString('en-US', { month: 'long', day: 'numeric' }),
+    visits, prevVisits,
+    inquiries: 3, prevInquiries: 1,
+    avgVisit: '1m 12s',
+    phone:    { speed: 94, access: 100, practices: 96, search: 100 },
+    computer: { speed: 99, access: 100, practices: 96, search: 100 },
+    topPages: [['/', 88], ['/services', 31], ['/contact', 14], ['/about', 9]] as [string, number][],
+    sources:  [['Google', 61], ['Direct', 44], ['Facebook', 19], ['Everything else', 18]] as [string, number][],
+    months: Array.from({ length: 6 }, (_, i) => monthName(new Date(now.getFullYear(), now.getMonth() - 1 - i, 1)))
+  }
+})
+const reviewCadence = computed(() =>
+  config.value?.reports?.reviewCadence ?? defaultReviewCadence(bundle.value)
+)
+// Inquiry figures come from the submissions inbox only (never estimated from analytics)
+const hasInbox = computed(() => !!config.value?.enabledWidgets.includes('submissions'))
+function scoreColor(score: number): string {
+  return score >= 90 ? '#16a34a' : score >= 50 ? '#d97706' : '#dc2626'
+}
+
 const today = computed(() =>
   new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
 )
@@ -174,7 +224,11 @@ const today = computed(() =>
 onMounted(() => {
   try {
     const raw = localStorage.getItem('build-tools-site-builder')
-    if (raw) config.value = JSON.parse(raw).dashboardConfig ?? null
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      config.value = parsed.dashboardConfig ?? null
+      bundle.value = parsed.bundle ?? null
+    }
   } catch { /* ignore */ }
 })
 </script>
@@ -443,6 +497,92 @@ onMounted(() => {
                 <p class="text-gray-500 text-xs mt-0.5">{{ card.sub }}</p>
               </div>
             </button>
+          </div>
+        </template>
+
+        <!-- ─── MONTHLY REPORTS ──────────────────────────────────────────────── -->
+        <template v-else-if="activePage === 'reports'">
+          <div class="max-w-4xl space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <select class="bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700">
+                <option v-for="m in sampleReport.months" :key="m">{{ m }}</option>
+              </select>
+              <span class="flex items-center gap-1.5 text-xs text-gray-500">
+                <Printer class="w-3.5 h-3.5" /> Print or save as PDF
+              </span>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-200 p-6">
+              <p class="text-xs uppercase tracking-wide text-gray-400">Monthly website report</p>
+              <h2 class="text-2xl font-bold text-gray-900 mt-1">{{ sampleReport.month }}</h2>
+              <p class="text-xs text-gray-500 mt-1">Prepared {{ sampleReport.prepared }} · Next report {{ sampleReport.nextReport }}</p>
+
+              <h3 class="text-sm font-semibold text-gray-900 mt-6 mb-2">The month in brief</h3>
+              <ul class="list-disc list-inside space-y-1 text-sm text-gray-700">
+                <li>{{ sampleReport.visits }} visits in {{ sampleReport.month.split(' ')[0] }}, up 20% on {{ sampleReport.prevMonth }}.</li>
+                <li v-if="hasInbox">{{ sampleReport.inquiries }} inquiries came in through the website, up from {{ sampleReport.prevInquiries }} in {{ sampleReport.prevMonth }}.</li>
+                <li>Services was the page people looked at most after the homepage.</li>
+                <li>On a phone the homepage scored {{ sampleReport.phone.speed }} out of 100 for speed in Google's test: fast.</li>
+              </ul>
+            </div>
+
+            <div class="rounded-2xl border p-5" :style="{ borderColor: primaryColor + '40', backgroundColor: primaryColor + '0d' }">
+              <p class="text-sm font-semibold text-gray-900">From your web team</p>
+              <p class="text-sm text-gray-600 mt-1">
+                <template v-if="reviewCadence === 'monthly'">A short write-up from us appears here each month: work done, anything unusual in the numbers, and what comes next.</template>
+                <template v-else>Your annual review appears on that month's report, alongside our check-in email. Other months show the numbers only.</template>
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="bg-white rounded-xl border border-gray-200 p-4">
+                <p class="text-2xl font-bold text-gray-900">{{ sampleReport.visits }}</p>
+                <p class="text-xs text-gray-500">visits · {{ sampleReport.prevVisits }} in {{ sampleReport.prevMonth }}</p>
+              </div>
+              <div v-if="hasInbox" class="bg-white rounded-xl border border-gray-200 p-4">
+                <p class="text-2xl font-bold text-gray-900">{{ sampleReport.inquiries }}</p>
+                <p class="text-xs text-gray-500">inquiries · {{ sampleReport.prevInquiries }} in {{ sampleReport.prevMonth }}</p>
+              </div>
+              <div class="bg-white rounded-xl border border-gray-200 p-4">
+                <p class="text-2xl font-bold text-gray-900">{{ sampleReport.avgVisit }}</p>
+                <p class="text-xs text-gray-500">average visit</p>
+              </div>
+              <div class="bg-white rounded-xl border border-gray-200 p-4">
+                <p class="text-2xl font-bold text-gray-900">{{ sampleReport.phone.speed }}<span class="text-sm text-gray-400">/100</span></p>
+                <p class="text-xs text-gray-500">phone speed</p>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-200 p-5">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3">Speed and quality</h3>
+              <div v-for="device in (['phone', 'computer'] as const)" :key="device" class="flex flex-wrap items-center gap-3 sm:gap-5 mb-3 last:mb-0">
+                <span class="w-20 text-xs font-medium text-gray-500 capitalize">{{ device }}</span>
+                <div
+                  v-for="(label, key) in { speed: 'Speed', access: 'Access', practices: 'Practices', search: 'Search' }"
+                  :key="key"
+                  class="flex flex-col items-center"
+                >
+                  <span
+                    class="w-10 h-10 rounded-full border-[3px] flex items-center justify-center text-xs font-bold"
+                    :style="{ borderColor: scoreColor(sampleReport[device][key]), color: scoreColor(sampleReport[device][key]) }"
+                  >{{ sampleReport[device][key] }}</span>
+                  <span class="text-[10px] text-gray-500 mt-1">{{ label }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div v-for="list in [{ title: 'Most visited pages', rows: sampleReport.topPages }, { title: 'How people found the site', rows: sampleReport.sources }]"
+                :key="list.title" class="bg-white rounded-2xl border border-gray-200 p-5">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ list.title }}</h3>
+                <div v-for="[name, count] in list.rows" :key="name" class="flex justify-between text-sm py-1 border-b border-gray-100 last:border-0">
+                  <span class="text-gray-700 font-mono text-xs">{{ name }}</span>
+                  <span class="text-gray-500 text-xs">{{ count }}</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-xs text-gray-400">Sample data. Each report is written once, early the following month, and kept here.</p>
           </div>
         </template>
 

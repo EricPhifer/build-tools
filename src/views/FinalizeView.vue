@@ -12,6 +12,8 @@ import { useWorkflowStore } from '../stores/workflow'
 import { useCompositionStore } from '../stores/composition'
 import { useRegistryStore } from '../stores/registry'
 import { BUSINESS_TYPES } from '../data/siteBuilderData'
+import { defaultReviewCadence } from '../types/dashboard'
+import type { DashboardConfig } from '../types/dashboard'
 import type { PortfolioEntry, SchemaRequirement, ClientInfo } from '../types/registry'
 import WorkflowProgress from '../components/WorkflowProgress.vue'
 
@@ -79,6 +81,20 @@ const tutorialCount      = computed(() => dashboardConfig.value.tutorialVideos.f
 const linkCount          = computed(() => dashboardConfig.value.links.filter(l => l.title && l.url).length)
 const contentEditorCount = computed(() => dashboardConfig.value.contentEditors.filter(e => e.label).length)
 
+// Resolves the bundle-default review cadence and enforces the minimal (Sustain) profile
+function exportedDashboardConfig(): DashboardConfig {
+  const dc = dashboardConfig.value
+  const minimal = dc.profile === 'minimal'
+  return {
+    ...dc,
+    reports: { reviewCadence: dc.reports?.reviewCadence ?? defaultReviewCadence(composition.siteBuilder.bundle) },
+    ...(minimal ? {
+      enabledWidgets: dc.enabledWidgets.filter(w => w === 'links'),
+      contentKit: { ...dc.contentKit, enabled: false }
+    } : {})
+  }
+}
+
 const WIDGET_ICONS: Record<string, unknown>  = {
   analytics: BarChart3, tutorials: BookOpen, links: Link2, contentEditor: FileEdit
 }
@@ -103,7 +119,7 @@ const checklist = computed(() => [
 ])
 const allChecksPassed = computed(() => checklist.value.every(c => c.done))
 
-// ─── Deployment phases (46 items) ───────────────────────────────────────────
+// ─── Deployment phases ───────────────────────────────────────────────────────
 interface ChecklistItem { id: string; label: string }
 interface Phase { id: string; label: string; items: ChecklistItem[] }
 
@@ -163,6 +179,8 @@ const BASE_PHASES: Phase[] = [
       { id: 'p3-11', label: 'Auth0: add VITE_AUTH0_* env vars to Netlify website site settings (if gated pages)' },
       { id: 'p3-12', label: 'Auth0: add staging callback/logout/web origins to Auth0 SPA app (if gated pages)' },
       { id: 'p3-13', label: 'Auth0: create role (e.g. "Resident") and install Post-Login Action for roles claim (if gated pages)' },
+      { id: 'p3-14', label: 'Reports: issue the dashboard key on the client\'s Pipeline ClientDetail page; set PIPELINE_FUNCTIONS_URL + PIPELINE_DASHBOARD_KEY (secret, Functions scope) on the dashboard site, then redeploy' },
+      { id: 'p3-15', label: 'Reports: set PSI_API_KEY on the dashboard site (Google refuses anonymous PageSpeed requests) — not needed if a GA4 service account has the PageSpeed Insights API enabled' },
     ]
   },
   {
@@ -188,6 +206,9 @@ const BASE_PHASES: Phase[] = [
       { id: 'p4-17', label: 'Auth0: add production callback/logout/web origins to Auth0 SPA app (if gated pages)' },
       { id: 'p4-18', label: 'Auth0: seed initial members — assign role to authorized users (if gated pages)' },
       { id: 'p4-19', label: 'Auth0: test login flow on production domain — gated pages accessible to members only (if gated pages)' },
+      { id: 'p4-20', label: 'Reports: first speed baseline — `pnpm lighthouse:check --write` in the dashboard project' },
+      { id: 'p4-21', label: 'Reports: backfill history — `pnpm reports:generate --last 12 --write`, leaving out a partial first month' },
+      { id: 'p4-22', label: 'Reports: `lighthouse-check` and `monthly-report` scheduled functions listed on the production deploy (they never run on staging)' },
     ]
   }
 ]
@@ -516,7 +537,7 @@ function buildExportConfig() {
           : {})
       }
     } : {}),
-    dashboard: sb.dashboardConfig,
+    dashboard: exportedDashboardConfig(),
     ...(sb.appScreens.length > 0 || sb.dataModel.length > 0
       ? { app: { screens: sb.appScreens, dataModel: sb.dataModel } }
       : {})
@@ -574,7 +595,6 @@ const newPages = computed(() =>
 )
 
 function buildDeltaConfig() {
-  const sb = composition.siteBuilder
   const c  = client.value
 
   function resolveBlockDelta(id: string) {
@@ -629,7 +649,7 @@ function buildDeltaConfig() {
     // All current schemas — safe to re-apply additively to existing Sanity project
     cms: { schemas: composition.mergedSchemaRequirements },
     // Full current dashboard config — additive to apply
-    dashboard: sb.dashboardConfig
+    dashboard: exportedDashboardConfig()
   }
 }
 

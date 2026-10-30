@@ -108,6 +108,8 @@ function createDefaultEnvConfig(): EnvConfig {
 
 function createDefaultDashboardConfig(): DashboardConfig {
   return {
+    profile: 'standard',
+    reports: { reviewCadence: null },
     enabledWidgets: ['links', 'analytics', 'tutorials'],
     simpleAnalyticsId: '',
     useGoogleAnalytics: false,
