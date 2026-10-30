@@ -7,7 +7,7 @@ import type {
   AppScreen, DataEntity
 } from '../types/registry'
 import type { DashboardConfig } from '../types/dashboard'
-import { DEFAULT_CONTENT_KIT_SECTIONS } from '../types/dashboard'
+import { DEFAULT_CONTENT_KIT_SECTIONS, SUBMISSION_KIND_PRESETS } from '../types/dashboard'
 
 const STORAGE_KEY = 'build-tools-composition'
 
@@ -110,6 +110,7 @@ function createDefaultDashboardConfig(): DashboardConfig {
   return {
     profile: 'standard',
     reports: { reviewCadence: null },
+    submissionKinds: [{ ...SUBMISSION_KIND_PRESETS[0]! }],
     enabledWidgets: ['links', 'analytics', 'tutorials'],
     simpleAnalyticsId: '',
     useGoogleAnalytics: false,

@@ -126,12 +126,30 @@ export function defaultReviewCadence(bundle: string | null): ReviewCadence {
   return bundle === 'enrich' || bundle === 'growth' ? 'monthly' : 'annual'
 }
 
+// ─── Form submissions inbox ──────────────────────────────────────────────────
+
+/** One kind of website form submission, e.g. contact → "inquiry" / "inquiries" (OVERVIEW-STANDARD 3.2). */
+export interface SubmissionKind {
+  kind: string        // stored on each submission: lowercase slug
+  one: string         // singular label
+  many: string        // plural label
+  match?: string      // regex source matched against the form's slug/title
+}
+
+export const SUBMISSION_KIND_PRESETS: SubmissionKind[] = [
+  { kind: 'contact', one: 'inquiry', many: 'inquiries', match: 'contact|sales|inquir|enquir|quote|message' },
+  { kind: 'application', one: 'job application', many: 'job applications', match: 'employ|applic|career|job|hiring' },
+  { kind: 'volunteer', one: 'volunteer signup', many: 'volunteer signups', match: 'volunteer' },
+  { kind: 'referral', one: 'referral', many: 'referrals', match: 'referr' },
+]
+
 // 'minimal' (Sustain): Overview with links, Reports, Support, Billing, Help — nothing else
 export type DashboardProfile = 'standard' | 'minimal'
 
 export interface DashboardConfig {
   profile: DashboardProfile
   reports: ReportsConfig
+  submissionKinds: SubmissionKind[]  // the inbox; empty = none (always empty on the minimal profile)
   enabledWidgets: DashboardWidgetType[]
   simpleAnalyticsId: string     // Simple Analytics site ID / domain (default analytics provider)
   useGoogleAnalytics: boolean   // Override: use Google Analytics GA4 instead of Simple Analytics

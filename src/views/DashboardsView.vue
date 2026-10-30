@@ -4,13 +4,13 @@ import { useRouter } from 'vue-router'
 import {
   LayoutDashboard, BarChart3, BookOpen, Link2, FileEdit,
   ArrowRight, Plus, Trash2, Lock, ExternalLink, Monitor, Tablet, Smartphone, CreditCard,
-  ClipboardList, GripVertical, Inbox, CalendarCheck, Mail, Mic, FileText, FileBarChart
+  ClipboardList, GripVertical, Inbox, CalendarCheck, Mail, Mic, FileText, FileBarChart, MessagesSquare
 } from 'lucide-vue-next'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
 import WorkflowProgress from '../components/WorkflowProgress.vue'
-import type { DashboardWidgetType, TutorialVideo, DashboardLink, ContentEditorWidget, ContentEditorField, ContentKitSectionConfig, DashboardProfile, ReviewCadence } from '../types/dashboard'
-import { BRAND_PERSONALITY_OPTIONS, defaultReviewCadence } from '../types/dashboard'
+import type { DashboardWidgetType, TutorialVideo, DashboardLink, ContentEditorWidget, ContentEditorField, ContentKitSectionConfig, DashboardProfile, ReviewCadence, SubmissionKind } from '../types/dashboard'
+import { BRAND_PERSONALITY_OPTIONS, defaultReviewCadence, SUBMISSION_KIND_PRESETS } from '../types/dashboard'
 
 const router = useRouter()
 const composition = useCompositionStore()
@@ -161,7 +161,8 @@ function setProfile(profile: DashboardProfile) {
     composition.setDashboardConfig({
       profile,
       enabledWidgets: ['links'],
-      contentKit: { ...config.value.contentKit, enabled: false }
+      contentKit: { ...config.value.contentKit, enabled: false },
+      submissionKinds: []
     })
     if (activeTab.value !== 'widgets' && activeTab.value !== 'links' && activeTab.value !== 'reports' && activeTab.value !== 'billing') {
       activeTab.value = 'widgets'
@@ -170,9 +171,23 @@ function setProfile(profile: DashboardProfile) {
     composition.setDashboardConfig({
       profile,
       enabledWidgets: ['links', 'analytics', 'tutorials'],
-      contentKit: { ...config.value.contentKit, enabled: true }
+      contentKit: { ...config.value.contentKit, enabled: true },
+      submissionKinds: [{ ...SUBMISSION_KIND_PRESETS[0]! }]
     })
   }
+}
+
+// --- Submissions inbox kinds ---
+const submissionKinds = computed(() => config.value.submissionKinds ?? [])
+const availablePresets = computed(() => SUBMISSION_KIND_PRESETS.filter(p => !submissionKinds.value.some(k => k.kind === p.kind)))
+function addKind(preset: SubmissionKind) {
+  composition.setDashboardConfig({ submissionKinds: [...submissionKinds.value, { ...preset }] })
+}
+function updateKind(kind: string, partial: Partial<SubmissionKind>) {
+  composition.setDashboardConfig({ submissionKinds: submissionKinds.value.map(k => k.kind === kind ? { ...k, ...partial } : k) })
+}
+function removeKind(kind: string) {
+  composition.setDashboardConfig({ submissionKinds: submissionKinds.value.filter(k => k.kind !== kind) })
 }
 
 // --- Reports (always on; only the web team's review cadence is configurable) ---
@@ -376,6 +391,22 @@ const inputStyle = {
         >
           <FileBarChart class="w-4 h-4 shrink-0" />
           Monthly Reports
+        </button>
+        <button
+          v-if="!isMinimal"
+          @click="activeTab = 'submissions'"
+          class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-left transition-colors"
+          :style="activeTab === 'submissions'
+            ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+            : { color: submissionKinds.length ? 'var(--theme-text-secondary)' : 'var(--theme-text-muted)' }"
+        >
+          <MessagesSquare class="w-4 h-4 shrink-0" />
+          Submissions
+          <span
+            v-if="!submissionKinds.length"
+            class="ml-auto text-xs px-1.5 py-0.5 rounded"
+            :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
+          >Off</span>
         </button>
         <button
           @click="activeTab = 'billing'"
@@ -846,6 +877,41 @@ const inputStyle = {
               Bundle default: {{ bundleReviewCadence }}<template v-if="config.reports?.reviewCadence"> (overridden)</template>.
               Published notes appear on that month's report as "From your web team".
             </p>
+          </div>
+        </template>
+
+        <!-- SUBMISSIONS TAB -->
+        <template v-else-if="activeTab === 'submissions'">
+          <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">
+            The website's forms copy each submission to the dashboard inbox. Each kind gets its own tab, overview tile and report count;
+            a form is filed by matching its name against the pattern. Remove every kind to turn the inbox off.
+          </p>
+          <div
+            v-for="k in submissionKinds"
+            :key="k.kind"
+            class="p-3 rounded-xl border space-y-2"
+            :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono" :style="{ color: 'var(--theme-text-muted)' }">{{ k.kind }}</span>
+              <button @click="removeKind(k.kind)" class="p-1 rounded" :style="{ color: 'var(--theme-text-muted)' }" title="Remove kind">
+                <Trash2 class="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <input :value="k.one" @input="updateKind(k.kind, { one: ($event.target as HTMLInputElement).value })" placeholder="Singular" :class="smallInputClass" :style="inputStyle" />
+              <input :value="k.many" @input="updateKind(k.kind, { many: ($event.target as HTMLInputElement).value })" placeholder="Plural" :class="smallInputClass" :style="inputStyle" />
+            </div>
+            <input :value="k.match" @input="updateKind(k.kind, { match: ($event.target as HTMLInputElement).value })" placeholder="Form name pattern (regex)" :class="smallInputClass + ' font-mono'" :style="inputStyle" />
+          </div>
+          <div v-if="availablePresets.length" class="flex flex-wrap gap-1.5">
+            <button
+              v-for="p in availablePresets"
+              :key="p.kind"
+              @click="addKind(p)"
+              class="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium"
+              :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-secondary)' }"
+            ><Plus class="w-3 h-3" />{{ p.many }}</button>
           </div>
         </template>
 

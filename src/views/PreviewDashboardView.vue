@@ -6,7 +6,7 @@ import {
   ExternalLink, MessageSquare, Send, CheckCircle2, LogIn,
   Menu, X, ChevronLeft, ChevronRight,
   UserCircle, LogOut, Sun, Moon, CreditCard, ClipboardList,
-  HelpCircle, Upload, ChevronDown, FileBarChart, Printer
+  HelpCircle, Upload, ChevronDown, FileBarChart, Printer, Inbox
 } from 'lucide-vue-next'
 import type { DashboardConfig, TutorialVideo } from '../types/dashboard'
 import { BRAND_PERSONALITY_OPTIONS, defaultReviewCadence } from '../types/dashboard'
@@ -103,6 +103,17 @@ const videosByCategory = computed(() => {
 interface NavItem { id: string; label: string; icon: unknown }
 
 const isMinimal = computed(() => config.value?.profile === 'minimal')
+const kinds = computed(() => isMinimal.value ? [] : (config.value?.submissionKinds ?? []))
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+// Sample inbox rows, one or two per configured kind
+const sampleSubmissions = computed(() => {
+  const people = ['Jordan Lee', 'Sam Rivera', 'Taylor Brooks', 'Alex Kim', 'Morgan Diaz']
+  return kinds.value.flatMap((k, i) => [
+    { id: `${k.kind}-1`, kind: k, name: people[(i * 2) % people.length], status: 'New', ago: `${i + 1} day${i ? 's' : ''} ago` },
+    { id: `${k.kind}-2`, kind: k, name: people[(i * 2 + 1) % people.length], status: 'Done', ago: `${i + 4} days ago` },
+  ])
+})
 
 const navItems = computed((): NavItem[] => {
   const items: NavItem[] = [
@@ -115,6 +126,8 @@ const navItems = computed((): NavItem[] => {
     items.push({ id: 'help', label: 'Help', icon: HelpCircle })
     return items
   }
+  if (kinds.value.length)
+    items.push({ id: 'submissions', label: 'Submissions', icon: Inbox })
   if (config.value?.enabledWidgets.includes('analytics'))
     items.push({ id: 'analytics', label: 'Analytics', icon: BarChart3 })
   if (config.value?.enabledWidgets.includes('contentEditor') && config.value.contentEditors.some(e => e.label))
@@ -149,6 +162,9 @@ const summaryCards = computed(() => {
   const cards: { id: string; title: string; sub: string; icon: unknown }[] = []
   cards.push({ id: 'reports', title: `${sampleReport.value.month} report`, icon: FileBarChart,
     sub: `${sampleReport.value.visits} visits · speed ${sampleReport.value.phone.speed}/100` })
+  if (kinds.value.length)
+    cards.push({ id: 'submissions', title: `${kinds.value.length} new ${kinds.value.length === 1 ? kinds.value[0]!.one : 'submissions'}`, icon: Inbox,
+      sub: 'Review in Submissions' })
   if (isMinimal.value) {
     cards.push({ id: 'billing', title: 'Billing', icon: CreditCard, sub: 'Manage subscription & payments' })
     cards.push({ id: 'contact', title: 'Contact & Support', icon: MessageSquare, sub: 'Get help from your developer' })
@@ -211,7 +227,7 @@ const reviewCadence = computed(() =>
   config.value?.reports?.reviewCadence ?? defaultReviewCadence(bundle.value)
 )
 // Inquiry figures come from the submissions inbox only (never estimated from analytics)
-const hasInbox = computed(() => !!config.value?.enabledWidgets.includes('submissions'))
+const hasInbox = computed(() => kinds.value.length > 0)
 function scoreColor(score: number): string {
   return score >= 90 ? '#16a34a' : score >= 50 ? '#d97706' : '#dc2626'
 }
@@ -583,6 +599,31 @@ onMounted(() => {
             </div>
 
             <p class="text-xs text-gray-400">Sample data. Each report is written once, early the following month, and kept here.</p>
+          </div>
+        </template>
+
+        <!-- ─── SUBMISSIONS ──────────────────────────────────────────────────── -->
+        <template v-else-if="activePage === 'submissions'">
+          <div class="max-w-4xl space-y-4">
+            <div v-if="kinds.length > 1" class="flex flex-wrap gap-2">
+              <span class="px-3 py-1 rounded-full text-xs font-medium text-white" :style="{ backgroundColor: primaryColor }">All</span>
+              <span v-for="k in kinds" :key="k.kind" class="px-3 py-1 rounded-full text-xs font-medium bg-white border border-gray-200 text-gray-600">{{ cap(k.many) }}</span>
+            </div>
+            <div class="bg-white rounded-2xl border border-gray-200 divide-y divide-gray-100">
+              <div v-for="row in sampleSubmissions" :key="row.id" class="flex items-center gap-3 px-5 py-3">
+                <span class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold" :style="{ backgroundColor: primaryColor + '20', color: primaryColor }">
+                  {{ row.name!.split(' ').map(p => p[0]).join('') }}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900">{{ row.name }}
+                    <span v-if="row.status === 'New'" class="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded text-white" :style="{ backgroundColor: primaryColor }">NEW</span>
+                  </p>
+                  <p class="text-xs text-gray-500">{{ cap(row.kind.one) }} · {{ row.ago }}</p>
+                </div>
+                <span class="text-xs text-gray-400">{{ row.status }}</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400">Sample data. Each form on the website copies its submissions here; search, statuses, notes, attachments and CSV export in the live dashboard.</p>
           </div>
         </template>
 

@@ -90,7 +90,8 @@ function exportedDashboardConfig(): DashboardConfig {
     reports: { reviewCadence: dc.reports?.reviewCadence ?? defaultReviewCadence(composition.siteBuilder.bundle) },
     ...(minimal ? {
       enabledWidgets: dc.enabledWidgets.filter(w => w === 'links'),
-      contentKit: { ...dc.contentKit, enabled: false }
+      contentKit: { ...dc.contentKit, enabled: false },
+      submissionKinds: []
     } : {})
   }
 }
