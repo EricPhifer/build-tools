@@ -30,6 +30,11 @@ export const SCAFFOLDED_BLOCKS = new Set([
   'block-contact', 'block-contact-info', 'block-contact-form',
   'block-text',
   'block-portfolio',
+  'block-team',
+  'block-gallery',
+  'block-map',
+  'block-video',
+  'block-logos',
 ])
 
 export function isScaffoldedBlock(blockId: string): boolean {
