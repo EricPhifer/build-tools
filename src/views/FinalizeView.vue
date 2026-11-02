@@ -13,6 +13,7 @@ import { useCompositionStore } from '../stores/composition'
 import { useRegistryStore } from '../stores/registry'
 import { BUSINESS_TYPES } from '../data/siteBuilderData'
 import { isScaffolded } from '../data/scaffoldedVariants'
+import { buildEnvChecklist, envChecklistMarkdown, envItemId, envItemLabel, type EnvVarItem } from '../utils/envChecklist'
 import { defaultReviewCadence } from '../types/dashboard'
 import type { DashboardConfig } from '../types/dashboard'
 import type { PortfolioEntry, SchemaRequirement, ClientInfo } from '../types/registry'
@@ -148,7 +149,7 @@ const BASE_PHASES: Phase[] = [
       { id: 'p1-4',  label: 'Website runs locally (`pnpm dev`) — all pages load' },
       { id: 'p1-5',  label: 'Sanity studio runs locally (`pnpm dev`) — schemas load correctly' },
       { id: 'p1-6',  label: 'Verify Sanity project ID is set in studio `.env` (must match your Sanity project)' },
-      { id: 'p1-7',  label: 'Run seed script from studio directory: `npx sanity exec seed.ts --with-user-token`' },
+      { id: 'p1-7',  label: 'Run seed script on the new, empty dataset from the studio directory: `pnpm exec sanity exec seed.ts --with-user-token` (it refuses a dataset with content)' },
       { id: 'p1-8',  label: 'Dashboard runs locally (`pnpm dev`, or `netlify dev` to test functions) — all widgets render' },
       { id: 'p1-9',  label: 'All page routes verified in local website' },
       { id: 'p1-10', label: 'Header and footer display correctly' },
@@ -174,6 +175,8 @@ const BASE_PHASES: Phase[] = [
       { id: 'p2-4', label: 'All three repos pushed to GitHub (main branch)' },
       { id: 'p2-5', label: '`.env.example` added to each repo (keys only, no values)' },
       { id: 'p2-6', label: '`README.md` added to each repo with setup instructions' },
+      { id: 'p2-7', label: 'Website and studio repos may live in the client\'s GitHub org; the dashboard repo stays in the agency org (it\'s the agency\'s tool, not transferred)' },
+      { id: 'p2-8', label: 'Git push identity: a per-client `includeIf "gitdir:<client folder>/"` credential file, so pushes use the right account without signing in and out' },
     ]
   },
   {
@@ -182,19 +185,18 @@ const BASE_PHASES: Phase[] = [
     items: [
       { id: 'p3-1', label: 'Netlify site created for website — connected to GitHub repo' },
       { id: 'p3-2', label: 'Netlify site created for dashboard — connected to GitHub repo' },
-      { id: 'p3-3', label: 'All env vars added to Netlify website site settings' },
-      { id: 'p3-4', label: 'All env vars added to Netlify dashboard site settings' },
+      { id: 'p3-16', label: 'Each Netlify site linked to the right repo (a studio site linked to the dashboard repo served the dashboard at RMWS)' },
+      { id: 'p3-17', label: 'Visitor access protection (password) on for all three sites until launch' },
+      { id: 'p3-18', label: 'Pipeline client record: Netlify account/login per site, staging URLs, Sanity project ID, Auth0 tenant. No passwords or keys in notes' },
       { id: 'p3-5', label: 'Website staging deploy succeeds — no build errors' },
       { id: 'p3-6', label: 'Dashboard staging deploy succeeds — no build errors' },
       { id: 'p3-7', label: 'Sanity studio deployed (`pnpm deploy`)' },
       { id: 'p3-8', label: 'Sanity CORS origins include all staging URLs' },
-      { id: 'p3-9', label: 'Create build hook in Netlify: Site Settings → Build & Deploy → Build Hooks → Add build hook → Copy URL → paste into Client Dashboard → Managed Services → Netlify → Build Hook URL → Add as VITE_NETLIFY_BUILD_HOOK_URL in Netlify env vars for the dashboard site' },
+      { id: 'p3-9', label: 'Create build hook in Netlify: Site Settings → Build & Deploy → Build Hooks → Add build hook → Copy URL → paste into Client Dashboard → Managed Services → Netlify → Build Hook URL' },
       { id: 'p3-10', label: 'Smoke test: all three staging URLs load correctly' },
-      { id: 'p3-11', label: 'Auth0: add VITE_AUTH0_* env vars to Netlify website site settings (if gated pages)' },
       { id: 'p3-12', label: 'Auth0: add staging callback/logout/web origins to Auth0 SPA app (if gated pages)' },
       { id: 'p3-13', label: 'Auth0: create role (e.g. "Resident") and install Post-Login Action for roles claim (if gated pages)' },
-      { id: 'p3-14', label: 'Reports: issue the dashboard key on the client\'s Pipeline ClientDetail page; set PIPELINE_FUNCTIONS_URL + PIPELINE_DASHBOARD_KEY (secret, Functions scope) on the dashboard site, then redeploy' },
-      { id: 'p3-15', label: 'Reports: set PSI_API_KEY on the dashboard site (Google refuses anonymous PageSpeed requests) — not needed if a GA4 service account has the PageSpeed Insights API enabled' },
+      { id: 'p3-19', label: 'Auth0: dashboard users created with their exact email addresses, and verified' },
     ]
   },
   {
@@ -223,39 +225,43 @@ const BASE_PHASES: Phase[] = [
       { id: 'p4-20', label: 'Reports: first speed baseline — `pnpm lighthouse:check --write` in the dashboard project' },
       { id: 'p4-21', label: 'Reports: backfill history — `pnpm reports:generate --last 12 --write`, leaving out a partial first month' },
       { id: 'p4-22', label: 'Reports: `lighthouse-check` and `monthly-report` scheduled functions listed on the production deploy (they never run on staging)' },
+      { id: 'p4-23', label: 'Other domains added as Netlify domain aliases; each one 301s to `[clientdomain.com]` (rules are in netlify.toml)' },
+      { id: 'p4-24', label: 'SSL checked on any custom subdomain (e.g. a Simple Analytics `sa.` CNAME)' },
+      { id: 'p4-25', label: 'Auth0: `https://dashboard.[clientdomain.com]` in the dashboard app\'s callback, logout and web-origin URLs' },
+      { id: 'p4-26', label: 'PageSpeed on phone: first paint succeeds, layout shift under 0.1' },
+      { id: 'p4-27', label: 'One real contact form message sent: emailed and in the dashboard\'s Submissions inbox. One real support request sent from the dashboard' },
+      { id: 'p4-28', label: 'Visitor access protection removed from all three sites' },
+      { id: 'p4-29', label: 'Transition in the Pipeline: maintenance start date, rate and dashboard link checked before sending' },
     ]
   }
 ]
 
-// Growth-tier env vars (added to Phase 3 when bundle === 'growth')
-const GROWTH_ENV_ITEMS: ChecklistItem[] = [
-  { id: 'p3-growth-1', label: 'TURSO_DATABASE_URL added to Netlify env vars (website + functions scope)' },
-  { id: 'p3-growth-2', label: 'TURSO_AUTH_TOKEN added to Netlify env vars' },
-  { id: 'p3-growth-3', label: 'AWEBER_CLIENT_ID + AWEBER_CLIENT_SECRET + AWEBER_ACCOUNT_ID + AWEBER_LIST_ID added to Netlify env vars' },
-  { id: 'p3-growth-4', label: 'RESEND_API_KEY confirmed in Netlify (Foundation has this; verify Growth functions can access it)' },
-  { id: 'p3-growth-5', label: 'STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET scaffolded (activate at Phase 2 cutover)' },
-  { id: 'p3-growth-6', label: 'VITE_DONATION_PROVIDER set (start with "harness", switch to "stripe" at cutover)' },
-  { id: 'p3-growth-7', label: 'SANITY_WRITE_TOKEN added (editor-role token for sync functions)' },
-]
-
-// Nonprofit-only sub-items (added under Growth env vars when businessType === 'nonprofit')
-const NONPROFIT_ENV_ITEMS: ChecklistItem[] = [
-  { id: 'p3-np-1', label: 'YOUTUBE_API_KEY added to Netlify env vars (functions scope)' },
-  { id: 'p3-np-2', label: 'COFFEE_CHAT_PLAYLIST_ID added to Netlify env vars' },
-  { id: 'p3-np-3', label: 'VITE_HARNESS_GIVING_URL set to current Harness Giving page (Phase 1)' },
-]
+// Environment variables: generated per site from the build config (utils/envChecklist.ts)
+const envItems = computed<EnvVarItem[]>(() => {
+  if (isPortfolioMode.value) {
+    try {
+      const saved = JSON.parse(activeEntry.value?.buildConfigJson ?? '{}')
+      return saved.envChecklist?.items ?? buildEnvChecklist(saved)
+    } catch {
+      return []
+    }
+  }
+  return buildEnvChecklist(buildExportConfig())
+})
 
 const PHASES = computed<Phase[]>(() => {
   const phases = BASE_PHASES.map(p => ({ ...p, items: [...p.items] }))
-  const isGrowth = composition.siteBuilder.bundle === 'growth'
-  const isNonprofit = composition.siteBuilder.businessType === 'nonprofit'
-  if (isGrowth) {
-    const phase3 = phases.find(p => p.id === 'p3')
-    if (phase3) {
-      phase3.items.push(...GROWTH_ENV_ITEMS)
-      if (isNonprofit) phase3.items.push(...NONPROFIT_ENV_ITEMS)
-    }
+  const envPhase: Phase = {
+    id: 'p-env',
+    label: 'Environment Variables',
+    items: [
+      { id: 'p-env-account', label: 'Working in the right Netlify account and site for each variable (client sites live under the client\'s login)' },
+      ...envItems.value.map(item => ({ id: envItemId(item), label: envItemLabel(item) })),
+      { id: 'p-env-redeploy', label: 'Each site redeployed after its variables were set (functions only see env changes after a new deploy)' },
+    ]
   }
+  const githubIndex = phases.findIndex(p => p.id === 'p2')
+  phases.splice(githubIndex + 1, 0, envPhase)
   return phases
 })
 
@@ -278,7 +284,8 @@ function toggleItem(itemId: string) {
   }
 }
 
-const totalChecked      = computed(() => Object.values(checkedItems.value).filter(Boolean).length)
+// Count only items on the current list (ids from older checklist versions may linger in saved progress)
+const totalChecked      = computed(() => PHASES.value.reduce((sum, p) => sum + phaseChecked(p), 0))
 const allPhasesComplete = computed(() => totalChecked.value === TOTAL_ITEMS.value)
 
 function phaseChecked(phase: Phase): number {
@@ -474,7 +481,7 @@ function buildExportConfig() {
   if (headingFont) cssVars['--font-heading'] = headingFont.name
   if (bodyFont)    cssVars['--font-body']    = bodyFont.name
 
-  return {
+  const config = {
     meta: {
       exportedAt:  new Date().toISOString(),
       version:     '1.0',
@@ -559,6 +566,8 @@ function buildExportConfig() {
       ? { app: { screens: sb.appScreens, dataModel: sb.dataModel } }
       : {})
   }
+  const envItems = buildEnvChecklist(config)
+  return { ...config, envChecklist: { items: envItems, markdown: envChecklistMarkdown(envItems) } }
 }
 
 function exportProject() {
