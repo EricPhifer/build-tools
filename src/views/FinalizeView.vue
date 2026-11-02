@@ -232,6 +232,9 @@ const BASE_PHASES: Phase[] = [
       { id: 'p4-27', label: 'One real contact form message sent: emailed and in the dashboard\'s Submissions inbox. One real support request sent from the dashboard' },
       { id: 'p4-28', label: 'Visitor access protection removed from all three sites' },
       { id: 'p4-29', label: 'Transition in the Pipeline: maintenance start date, rate and dashboard link checked before sending' },
+      { id: 'p4-30', label: 'No Content-Security-Policy errors in the browser console on every page of the site and dashboard (a blocked host is added in netlify.toml)' },
+      { id: 'p4-31', label: 'Uptime monitor (keyword) on `https://[clientdomain.com]/api/send-message` looking for `"ready":true`' },
+      { id: 'p4-32', label: 'Sentry (if used): VITE_SENTRY_DSN set on the site and dashboard; a test error shows up with a readable stack trace' },
     ]
   }
 ]

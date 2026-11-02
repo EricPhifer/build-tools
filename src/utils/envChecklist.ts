@@ -50,6 +50,13 @@ export function buildEnvChecklist(config: ChecklistConfig): EnvVarItem[] {
   const items: EnvVarItem[] = []
   const add = (site: EnvSite, name: string, scope: EnvVarItem['scope'], secret: boolean, source: string, optional = false) =>
     items.push({ site, name, scope, secret, source, ...(optional ? { optional } : {}) })
+  // Optional error monitoring (site and dashboard)
+  const addSentry = (site: EnvSite) => {
+    add(site, 'VITE_SENTRY_DSN', 'builds', false, 'Sentry → the project → Client Keys (DSN); turns error monitoring on', true)
+    add(site, 'SENTRY_AUTH_TOKEN', 'builds', true, 'Sentry → Settings → Auth Tokens (uploads hidden source maps at build)', true)
+    add(site, 'SENTRY_ORG', 'builds', false, 'Sentry organization slug', true)
+    add(site, 'SENTRY_PROJECT', 'builds', false, 'Sentry project slug', true)
+  }
 
   // ── Website ──
   add('website', 'VITE_SANITY_PROJECT_ID', 'builds', false, 'sanity.io/manage → project ID')
@@ -58,6 +65,7 @@ export function buildEnvChecklist(config: ChecklistConfig): EnvVarItem[] {
   add('website', 'RESEND_API_KEY', 'functions', true, 'Resend → API Keys (sending access for the client domain)')
   add('website', 'CONTACT_TO_EMAIL', 'functions', false, "the client's inbox for contact messages")
   add('website', 'CONTACT_FROM_EMAIL', 'functions', false, `a verified Resend sender, e.g. website@${domain}`)
+  add('website', 'FORM_TOKEN_SECRET', 'functions', true, 'any long random string; signs contact form tokens (otherwise derived from RESEND_API_KEY)', true)
   if (inbox) {
     add('website', 'FORMS_INTAKE_URL', 'functions', false, `https://dashboard.${domain}/.netlify/functions/form-submissions`)
     add('website', 'FORMS_INTAKE_SECRET', 'functions', true, ".pws-secrets.json in the project folder — the dashboard's value, exactly")
@@ -86,6 +94,8 @@ export function buildEnvChecklist(config: ChecklistConfig): EnvVarItem[] {
       add('website', 'COFFEE_CHAT_PLAYLIST_ID', 'functions', false, 'the YouTube playlist ID')
     }
   }
+
+  addSentry('website')
 
   // ── Studio ──
   add('studio', 'SANITY_STUDIO_PROJECT_ID', 'builds', false, 'sanity.io/manage → project ID')
@@ -123,6 +133,7 @@ export function buildEnvChecklist(config: ChecklistConfig): EnvVarItem[] {
   if (inbox) {
     add('dashboard', 'FORMS_INTAKE_SECRET', 'functions', true, ".pws-secrets.json in the project folder — the website's value, exactly")
   }
+  addSentry('dashboard')
 
   return items
 }
