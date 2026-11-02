@@ -113,6 +113,7 @@ function createDefaultDashboardConfig(): DashboardConfig {
     submissionKinds: [{ ...SUBMISSION_KIND_PRESETS[0]! }],
     enabledWidgets: ['links', 'analytics', 'tutorials'],
     simpleAnalyticsId: '',
+    simpleAnalyticsScriptDomain: '',
     useGoogleAnalytics: false,
     analyticsId: '',
     analyticsInternalRoutes: [],
@@ -532,7 +533,7 @@ export const useCompositionStore = defineStore('composition', () => {
     composition.value.footer          = config.site?.footer?.id ?? null
     composition.value.defaultTemplate = config.site?.defaultTemplate?.id ?? null
     composition.value.headerAuthEnabled     = config.site?.header?.authEnabled ?? false
-    composition.value.headerDarkModeEnabled = config.site?.header?.darkModeEnabled ?? false
+    composition.value.headerDarkModeEnabled = config.site?.darkModeEnabled ?? config.site?.header?.darkModeEnabled ?? false
     composition.value.name = config.project?.name ?? config.client?.name ?? ''
     save()
 

@@ -85,12 +85,22 @@ function removeInternalRoute(route: string) {
   })
 }
 
+// The hostname field must be the site itself, not the custom script domain or a URL
+const saHostnameProblem = computed(() => {
+  const v = (config.value.simpleAnalyticsId || '').trim().toLowerCase()
+  if (!v) return ''
+  if (/^https?:\/\//.test(v) || v.includes('/')) return 'Just the hostname, without https:// or a path.'
+  if (v.startsWith('sa.')) return `"${v}" looks like the custom script domain. Use the site's hostname (${v.slice(3)}); the script domain has its own field below.`
+  return ''
+})
+
 onMounted(() => {
   // Seed links from known project config if empty
   if (config.value.links.length === 0) {
     const seeds: DashboardLink[] = []
-    const siteUrl = composition.siteBuilder.envConfig.siteUrl || `https://${domain.value}.com`
-    const studioUrl = `https://studio.${domain.value}.com`
+    const primary = client.value?.domain || `${domain.value}.com`
+    const siteUrl = composition.siteBuilder.envConfig.siteUrl || `https://${primary}`
+    const studioUrl = `https://studio.${primary}`
     const useGA = config.value.useGoogleAnalytics
     const saId = config.value.simpleAnalyticsId
     const gaId = config.value.analyticsId
@@ -547,15 +557,27 @@ const inputStyle = {
           <div class="space-y-3">
             <!-- Simple Analytics (default) -->
             <div v-if="!config.useGoogleAnalytics">
-              <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Simple Analytics Site ID</label>
+              <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Site Hostname (as in Simple Analytics)</label>
               <input
                 :value="config.simpleAnalyticsId"
                 @input="composition.setDashboardConfig({ simpleAnalyticsId: ($event.target as HTMLInputElement).value })"
-                placeholder="yourdomain.com"
+                :placeholder="client?.domain || 'yourdomain.com'"
                 :class="inputClass"
                 :style="inputStyle"
               />
-              <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">Your domain as registered in Simple Analytics. Cookieless, privacy-first — no cookie banner needed.</p>
+              <p v-if="saHostnameProblem" class="text-xs mt-1" :style="{ color: 'var(--theme-warning)' }">{{ saHostnameProblem }}</p>
+              <p v-else class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">The site's bare hostname, exactly as it's listed in Simple Analytics. Cookieless, privacy-first — no cookie banner needed.</p>
+            </div>
+            <div v-if="!config.useGoogleAnalytics">
+              <label class="block text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Custom Script Domain <span class="font-normal opacity-60">(optional)</span></label>
+              <input
+                :value="config.simpleAnalyticsScriptDomain"
+                @input="composition.setDashboardConfig({ simpleAnalyticsScriptDomain: ($event.target as HTMLInputElement).value })"
+                :placeholder="`sa.${client?.domain || 'yourdomain.com'}`"
+                :class="inputClass"
+                :style="inputStyle"
+              />
+              <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">Only if a custom domain is set up in Simple Analytics. Blank loads the script from Simple Analytics' CDN, which is safer: a custom domain needs its own certificate, and one has failed before.</p>
             </div>
 
             <!-- GA4 (override) -->

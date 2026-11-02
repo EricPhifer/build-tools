@@ -265,8 +265,10 @@ export interface BusinessContact {
 export interface ClientInfo {
   id: string
   name: string
+  brandName?: string          // name exactly as the client writes it ("Advocate of SHALOM"); used on the site over `name`
   contactEmail: string
-  domain: string
+  domain: string              // primary domain, e.g. "acme.org"
+  redirectDomains?: string[]  // other domains the client owns, 301-redirected to `domain`
   brandKit: BrandKit
   idealCustomer: string
   createdAt: string

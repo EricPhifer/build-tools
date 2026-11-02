@@ -151,7 +151,8 @@ export interface DashboardConfig {
   reports: ReportsConfig
   submissionKinds: SubmissionKind[]  // the inbox; empty = none (always empty on the minimal profile)
   enabledWidgets: DashboardWidgetType[]
-  simpleAnalyticsId: string     // Simple Analytics site ID / domain (default analytics provider)
+  simpleAnalyticsId: string     // Simple Analytics site: the bare hostname as registered there ("example.com", never "sa.example.com")
+  simpleAnalyticsScriptDomain?: string  // optional custom script domain ("sa.example.com"); blank = Simple Analytics' CDN
   useGoogleAnalytics: boolean   // Override: use Google Analytics GA4 instead of Simple Analytics
   analyticsId: string           // GA4 Measurement ID (G-XXXXXXXX) — only used when useGoogleAnalytics is true
   analyticsInternalRoutes: string[]  // Dashboard routes filtered from public traffic view

@@ -12,6 +12,7 @@ import { useWorkflowStore } from '../stores/workflow'
 import { useCompositionStore } from '../stores/composition'
 import { useRegistryStore } from '../stores/registry'
 import { BUSINESS_TYPES } from '../data/siteBuilderData'
+import { isScaffolded } from '../data/scaffoldedVariants'
 import { defaultReviewCadence } from '../types/dashboard'
 import type { DashboardConfig } from '../types/dashboard'
 import type { PortfolioEntry, SchemaRequirement, ClientInfo } from '../types/registry'
@@ -44,12 +45,24 @@ const exportedFilename = ref('')
 const client = computed(() => workflow.clientInfo)
 const domain = computed(() => {
   if (isPortfolioMode.value && activeEntry.value) {
-    return activeEntry.value.domain.replace(/\.com$/, '')
+    return activeEntry.value.domain.split('.')[0] ?? ''
   }
   return composition.composition.name
     ? composition.composition.name.toLowerCase().replace(/\s+/g, '')
-    : client.value?.domain ?? 'project'
+    : client.value?.domain?.split('.')[0] ?? 'project'
 })
+// The client's real primary domain, whatever its TLD; .com is only a last-resort guess
+const primaryDomain = computed(() => {
+  if (isPortfolioMode.value && activeEntry.value) return activeEntry.value.domain
+  return client.value?.domain || `${domain.value}.com`
+})
+
+// Selections the website template can't build (the scaffolder stops on these)
+const unbuiltVariants = computed(() =>
+  [composition.selectedHeaderVariant, composition.selectedFooterVariant]
+    .filter(v => v && !isScaffolded(v.id))
+    .map(v => v!.name)
+)
 
 // ─── Active-mode: site selections ───────────────────────────────────────────
 const headerName   = computed(() => composition.selectedHeaderVariant?.name ?? null)
@@ -282,7 +295,7 @@ function togglePhase(phaseId: string) {
 function resolveLabel(label: string): string {
   return label
     .replace(/\[client-slug\]/g, domain.value)
-    .replace(/\[clientdomain\.com\]/g, `${domain.value}.com`)
+    .replace(/\[clientdomain\.com\]/g, `${primaryDomain.value}`)
 }
 
 // ─── Export helpers ──────────────────────────────────────────────────────────
@@ -473,9 +486,10 @@ function buildExportConfig() {
       bundle: sb.bundle, businessType: sb.businessType, businessTypeInfo,
       formatId: composition.composition.formatId,
       domains: {
-        main:      `${domain.value}.com`,
-        studio:    `studio.${domain.value}.com`,
-        dashboard: `dashboard.${domain.value}.com`
+        main:      `${primaryDomain.value}`,
+        studio:    `studio.${primaryDomain.value}`,
+        dashboard: `dashboard.${primaryDomain.value}`,
+        redirects: c?.redirectDomains ?? []
       },
       isPublic: sb.isPublic, projectMode: sb.projectMode
     },
@@ -495,6 +509,8 @@ function buildExportConfig() {
         schemaRequirements: footerVariant.schemaRequirements ?? [],
         ...(footerVariant.styleNotes ? { styleNotes: footerVariant.styleNotes } : {})
       } : null,
+      // Site-wide dark mode (header toggle); kept here so it applies with the default header too
+      darkModeEnabled: composition.composition.headerDarkModeEnabled,
       defaultTemplate: templateVariant ? {
         id: templateVariant.id, componentName: toComponentName(templateVariant.id),
         name: templateVariant.name, description: templateVariant.description,
@@ -562,18 +578,18 @@ function reexportEntryConfig() {
 function handleComplete() {
   const c  = client.value
   const sb = composition.siteBuilder
-  const siteUrl = sb.envConfig.siteUrl || (c?.domain ? `https://${c.domain}` : `https://${domain.value}.com`)
+  const siteUrl = sb.envConfig.siteUrl || (c?.domain ? `https://${c.domain}` : `https://${primaryDomain.value}`)
 
   const entry: PortfolioEntry = {
     id:              c?.id ?? `project-${Date.now()}`,
     clientId:        c?.id ?? '',
     clientName:      c?.name ?? composition.composition.name ?? 'Unnamed Client',
     projectName:     composition.composition.name || c?.name || 'Unnamed Project',
-    domain:          `${domain.value}.com`,
+    domain:          `${primaryDomain.value}`,
     logoUrl:         c?.brandKit?.logos?.primary ?? c?.brandKit?.logoUrl ?? null,
     siteUrl,
-    studioUrl:       `https://studio.${domain.value}.com`,
-    dashboardUrl:    `https://dashboard.${domain.value}.com`,
+    studioUrl:       `https://studio.${primaryDomain.value}`,
+    dashboardUrl:    `https://dashboard.${primaryDomain.value}`,
     businessType:    sb.businessType,
     status:          'building',
     completedAt:     new Date().toISOString(),
@@ -638,7 +654,7 @@ function buildDeltaConfig() {
       version:       '1.0',
       projectName:   c?.name ?? composition.composition.name ?? 'Unnamed Project',
       deltaMode:     true,
-      baseProject:   `${domain.value}.com`
+      baseProject:   `${primaryDomain.value}`
     },
     site: {
       newPages: newPagesExport,
@@ -869,7 +885,7 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
         <div class="mb-4">
           <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">
             Project Name
-            <span class="ml-1 font-normal" :style="{ color: 'var(--theme-text-muted)' }">(used for domain slug)</span>
+            <span class="ml-1 font-normal" :style="{ color: 'var(--theme-text-muted)' }">(used for the export file name; domains come from Client Setup)</span>
           </label>
           <input
             :value="composition.composition.name"
@@ -891,8 +907,17 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
             :key="prefix"
             class="text-xs px-3 py-1.5 rounded-full font-mono"
             :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)' }"
-          >{{ prefix }}{{ domain }}.com</span>
+          >{{ prefix }}{{ primaryDomain }}</span>
         </div>
+      </div>
+
+      <div
+        v-if="!isExtendMode && unbuiltVariants.length"
+        class="mb-6 p-4 rounded-xl border text-sm"
+        :style="{ borderColor: 'var(--theme-warning)', color: 'var(--theme-text-primary)', backgroundColor: 'var(--theme-bg-card)' }"
+      >
+        <strong>{{ unbuiltVariants.join(' and ') }}</strong> {{ unbuiltVariants.length > 1 ? "aren't" : "isn't" }} in the website template yet, so the scaffold will stop.
+        Pick a variant marked "In template" in the Site Builder, or build it into pws-foundation-template first.
       </div>
 
       <!-- Config Summary Cards (active mode only) -->
@@ -1085,7 +1110,7 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
         <div>
           <p class="font-semibold text-sm" :style="{ color: 'var(--theme-success)' }">All phases complete!</p>
           <p class="text-xs mt-0.5" :style="{ color: 'var(--theme-success)' }">
-            {{ domain }}.com is live and delivered.
+            {{ primaryDomain }} is live and delivered.
           </p>
         </div>
       </div>

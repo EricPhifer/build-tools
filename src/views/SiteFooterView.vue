@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useRegistryStore } from '../stores/registry'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
+import { isScaffolded } from '../data/scaffoldedVariants'
 import { SOCIAL_PLATFORM_LABELS } from '../types/registry'
 import type { ComponentVariant } from '../types/registry'
 import { Check, ArrowLeft } from 'lucide-vue-next'
@@ -15,7 +16,10 @@ const registry = useRegistryStore()
 const composition = useCompositionStore()
 const workflow = useWorkflowStore()
 
-const variants = computed(() => registry.getVariantsBySection('footer'))
+// Variants the template implements first; the rest are design reference only
+const variants = computed(() =>
+  [...registry.getVariantsBySection('footer')].sort((a, b) => Number(isScaffolded(b.id)) - Number(isScaffolded(a.id)))
+)
 const selectedVariant = ref<ComponentVariant | null>(null)
 
 const client = computed(() => workflow.clientInfo)
@@ -91,6 +95,7 @@ function selectVariant(variant: ComponentVariant) {
 }
 
 const selectForProject = (id: string) => {
+  if (composition.composition.footer !== id && !isScaffolded(id)) return
   if (composition.composition.footer === id) {
     composition.setFooter(null)
   } else {
@@ -135,6 +140,9 @@ const widthPresets = [
     <div class="mb-8">
       <h1 class="text-2xl font-bold" :style="{ color: 'var(--theme-text-primary)' }">Footer Variants</h1>
       <p class="mt-1" :style="{ color: 'var(--theme-text-secondary)' }">Browse and preview available footer components for client sites.</p>
+      <p class="mt-1 text-sm" :style="{ color: 'var(--theme-text-muted)' }">
+        Only variants marked as in the template can be selected; the rest are design references until they're built into the website template. No selection uses the template's default footer.
+      </p>
     </div>
 
     <!-- Variant Cards -->
@@ -164,6 +172,12 @@ const widthPresets = [
           <p class="text-sm mb-3" :style="{ color: 'var(--theme-text-secondary)' }">{{ variant.description }}</p>
           <div class="flex flex-wrap gap-1.5">
             <span
+              class="text-xs px-2 py-0.5 rounded-full font-medium"
+              :style="isScaffolded(variant.id)
+                ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+                : { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-warning)' }"
+            >{{ isScaffolded(variant.id) ? 'In template' : 'Design only' }}</span>
+            <span
               v-for="tag in variant.tags"
               :key="tag"
               class="text-xs px-2 py-0.5 rounded-full"
@@ -174,13 +188,19 @@ const widthPresets = [
         <div class="px-5 pb-4">
           <button
             @click="selectForProject(variant.id)"
-            class="w-full text-sm py-2 rounded-lg font-medium transition-colors"
-            :style="composition.composition.footer === variant.id
+            :disabled="composition.composition.footer !== variant.id && !isScaffolded(variant.id)"
+            class="w-full text-sm py-2 rounded-lg font-medium transition-colors disabled:cursor-not-allowed"
+            :style="composition.composition.footer === variant.id || !isScaffolded(variant.id)
               ? { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-secondary)' }
               : { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }"
           >
-            {{ composition.composition.footer === variant.id ? 'Deselect' : 'Select for Project' }}
+            {{ composition.composition.footer === variant.id ? 'Deselect' : isScaffolded(variant.id) ? 'Select for Project' : 'Not in the template yet' }}
           </button>
+          <p
+            v-if="composition.composition.footer === variant.id && !isScaffolded(variant.id)"
+            class="text-xs mt-2"
+            :style="{ color: 'var(--theme-warning)' }"
+          >Selected in an earlier session, but the template doesn't have it: the scaffold will stop. Deselect it or pick one marked "In template".</p>
         </div>
       </div>
     </div>

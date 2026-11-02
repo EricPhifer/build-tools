@@ -47,6 +47,15 @@ function splitDomain(full: string): [string, string] {
 const [_initSlug, _initTld] = splitDomain(workflow.clientInfo?.domain ?? '')
 const domain = ref(_initSlug)   // slug only, e.g. "acme"
 const tld = ref(_initTld)       // everything after first dot, e.g. "com" or "co.uk"
+const brandName = ref(workflow.clientInfo?.brandName ?? '')
+// Other domains the client owns; each gets a 301 to the primary domain
+const redirectDomainsText = ref((workflow.clientInfo?.redirectDomains ?? []).join(', '))
+const redirectDomains = computed(() =>
+  redirectDomainsText.value
+    .split(/[\s,]+/)
+    .map(d => d.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, ''))
+    .filter(d => d.includes('.'))
+)
 const whatTheyOffer = ref(workflow.clientInfo?.brandKit.whatTheyOffer ?? '')
 const idealCustomer = ref(workflow.clientInfo?.idealCustomer ?? '')
 
@@ -245,6 +254,8 @@ function previewFamily(name: string, generic: string) {
 // ─── Client Load ──────────────────────────────────────────────────────────────
 function loadClient(client: ClientInfo) {
   clientName.value = client.name
+  brandName.value = client.brandName ?? ''
+  redirectDomainsText.value = (client.redirectDomains ?? []).join(', ')
   contactEmail.value = client.contactEmail
   const [slug, clientTld] = splitDomain(client.domain)
   domain.value = slug
@@ -434,14 +445,16 @@ function buildClientInfo(): ClientInfo {
   return {
     id: workflow.clientInfo?.id ?? crypto.randomUUID(),
     name: clientName.value,
+    brandName: brandName.value.trim() || undefined,
     contactEmail: contactEmail.value,
     domain: tld.value ? `${domain.value}.${tld.value}` : domain.value,
+    redirectDomains: redirectDomains.value.length ? redirectDomains.value : undefined,
     brandKit,
     idealCustomer: idealCustomer.value,
     createdAt: workflow.clientInfo?.createdAt ?? now,
     updatedAt: now,
     businessContact: hasBusinessContact ? {
-      businessName:  clientName.value || undefined,
+      businessName:  brandName.value.trim() || clientName.value || undefined,
       streetAddress: bcStreetAddress.value || undefined,
       city:          bcCity.value          || undefined,
       region:        bcRegion.value        || undefined,
@@ -765,6 +778,27 @@ onMounted(() => {
             />
           </div>
           <div>
+            <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">
+              Name as Written on the Site
+              <span class="font-normal opacity-60 ml-1">— exact casing</span>
+            </label>
+            <input
+              v-model="brandName"
+              type="text"
+              :placeholder="clientName || 'e.g., Advocate of SHALOM'"
+              class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
+              :style="{
+                backgroundColor: 'var(--theme-bg-secondary)',
+                borderColor: 'var(--theme-border)',
+                color: 'var(--theme-text-primary)',
+                '--tw-ring-color': 'var(--theme-primary)'
+              }"
+            />
+            <p class="text-xs mt-1" :style="{ color: 'var(--theme-text-muted)' }">
+              Used everywhere the site, studio and dashboard show the name. Blank = Client Name.
+            </p>
+          </div>
+          <div>
             <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Contact Email</label>
             <input
               v-model="contactEmail"
@@ -781,7 +815,7 @@ onMounted(() => {
           </div>
           <div>
             <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">
-              Domain Slug
+              Primary Domain
               <span class="font-normal opacity-60 ml-1">— from Main Website</span>
             </label>
             <div class="flex items-center gap-1.5">
@@ -813,6 +847,24 @@ onMounted(() => {
                 }"
               />
             </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">
+              Other Domains
+              <span class="font-normal opacity-60 ml-1">— redirect to the primary</span>
+            </label>
+            <input
+              v-model="redirectDomainsText"
+              type="text"
+              placeholder="e.g., acme.net, acme.org"
+              class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
+              :style="{
+                backgroundColor: 'var(--theme-bg-secondary)',
+                borderColor: 'var(--theme-border)',
+                color: 'var(--theme-text-primary)',
+                '--tw-ring-color': 'var(--theme-primary)'
+              }"
+            />
           </div>
           <div>
             <label class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Industry</label>
