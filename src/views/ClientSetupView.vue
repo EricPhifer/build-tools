@@ -161,8 +161,12 @@ const currentLogoSrc = computed(() => {
 })
 
 // ─── Google Fonts Loader ──────────────────────────────────────────────────────
+// "System UI" means the device's own font: nothing to load anywhere
+const SYSTEM_FONT = /^(system[\s-]?ui|system|-apple-system)$/i
+const SYSTEM_STACK = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+
 function loadGoogleFont(fontName: string) {
-  if (!fontName.trim()) return
+  if (!fontName.trim() || SYSTEM_FONT.test(fontName.trim())) return
   const id = `gfont-${fontName.replace(/\s+/g, '-').toLowerCase()}`
   if (document.getElementById(id)) return
   const link = document.createElement('link')
@@ -174,6 +178,69 @@ function loadGoogleFont(fontName: string) {
 
 watch(headingFont, (font) => loadGoogleFont(font), { immediate: true })
 watch(bodyFont, (font) => loadGoogleFont(font), { immediate: true })
+
+// ─── Font Check ───────────────────────────────────────────────────────────────
+// The scaffolder self-hosts fonts from Fontsource, so check the name there now
+// rather than finding out at scaffold time.
+type FontCheck =
+  | { state: 'empty' | 'checking' | 'system' | 'unknown' | 'offline' }
+  | { state: 'ok'; family: string; weights: number[] }
+
+const headingFontCheck = ref<FontCheck>({ state: 'checking' })
+const bodyFontCheck = ref<FontCheck>({ state: 'checking' })
+const fontCheckCache = new Map<string, FontCheck>()
+
+async function checkFont(name: string): Promise<FontCheck> {
+  const trimmed = name.trim()
+  if (!trimmed) return { state: 'empty' }
+  if (SYSTEM_FONT.test(trimmed)) return { state: 'system' }
+  const id = trimmed.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const cached = fontCheckCache.get(id)
+  if (cached) return cached
+  try {
+    const res = await fetch(`https://api.fontsource.org/v1/fonts/${id}`)
+    const result: FontCheck = res.ok
+      ? { state: 'ok', ...(await res.json() as { family: string; weights: number[] }) }
+      : res.status === 404 ? { state: 'unknown' } : { state: 'offline' }
+    if (result.state !== 'offline') fontCheckCache.set(id, result)
+    return result
+  } catch {
+    return { state: 'offline' }
+  }
+}
+
+function watchFontCheck(font: typeof headingFont, target: typeof headingFontCheck) {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  watch(font, (name) => {
+    clearTimeout(timer)
+    target.value = { state: 'checking' }
+    timer = setTimeout(async () => {
+      const result = await checkFont(name)
+      if (font.value === name) target.value = result
+    }, 400)
+  }, { immediate: true })
+}
+watchFontCheck(headingFont, headingFontCheck)
+watchFontCheck(bodyFont, bodyFontCheck)
+
+function fontCheckNote(check: FontCheck, weights: number[]): { tone: 'muted' | 'warn'; text: string } | null {
+  switch (check.state) {
+    case 'system': return { tone: 'muted', text: 'Device system font. Nothing to download.' }
+    case 'unknown': return { tone: 'warn', text: 'Not found on Fontsource or Google Fonts. Check the spelling, or the site falls back to a generic font.' }
+    case 'empty': return { tone: 'warn', text: 'Choose a font.' }
+    case 'ok': {
+      const missing = weights.filter(w => !check.weights.includes(w))
+      return missing.length
+        ? { tone: 'warn', text: `${check.family} doesn't come in ${missing.join(', ')}; the nearest weight will be used.` }
+        : null
+    }
+    default: return null
+  }
+}
+
+function previewFamily(name: string, generic: string) {
+  return SYSTEM_FONT.test(name.trim()) ? SYSTEM_STACK : `'${name}', ${generic}`
+}
 
 // ─── Client Load ──────────────────────────────────────────────────────────────
 function loadClient(client: ClientInfo) {
@@ -298,7 +365,10 @@ async function importFromJson(event: Event) {
 }
 
 // ─── Build & Continue ─────────────────────────────────────────────────────────
-const canContinue = computed(() => clientName.value.trim().length > 0 && colorPrimary.value.length > 0)
+const canContinue = computed(() =>
+  clientName.value.trim().length > 0 && colorPrimary.value.length > 0 &&
+  headingFont.value.trim().length > 0 && bodyFont.value.trim().length > 0
+)
 
 function buildClientInfo(): ClientInfo {
   const now = new Date().toISOString()
@@ -453,7 +523,7 @@ async function resyncClient() {
 
 // Popular font quick-picks
 const headingFontPicks = ['Playfair Display', 'Merriweather', 'Montserrat', 'Lora', 'Raleway', 'Oswald', 'Plus Jakarta Sans', 'Space Grotesk']
-const bodyFontPicks = ['Inter', 'Poppins', 'Open Sans', 'Lato', 'Roboto', 'Nunito', 'DM Sans']
+const bodyFontPicks = ['Inter', 'Poppins', 'Open Sans', 'Lato', 'Roboto', 'Nunito', 'DM Sans', 'System UI']
 
 const fontWeights = [300, 400, 500, 600, 700, 800, 900]
 
@@ -999,6 +1069,11 @@ onMounted(() => {
                   : { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)', borderColor: 'var(--theme-border)' }"
               >{{ pick }}</button>
             </div>
+            <p
+              v-if="fontCheckNote(headingFontCheck, headingFontWeights)"
+              class="text-xs mb-3"
+              :style="{ color: fontCheckNote(headingFontCheck, headingFontWeights)!.tone === 'warn' ? 'var(--theme-warning)' : 'var(--theme-text-muted)' }"
+            >{{ fontCheckNote(headingFontCheck, headingFontWeights)!.text }}</p>
             <!-- Weight multi-select chips + italic toggle -->
             <div class="mb-3">
               <p class="text-xs mb-1.5" :style="{ color: 'var(--theme-text-muted)' }">Weights</p>
@@ -1026,7 +1101,7 @@ onMounted(() => {
               class="text-xl leading-tight"
               :style="{
                 color: 'var(--theme-text-primary)',
-                fontFamily: `'${headingFont}', serif`,
+                fontFamily: previewFamily(headingFont, 'serif'),
                 fontWeight: headingPreviewWeight,
                 fontStyle: headingFontStyle
               }"
@@ -1060,6 +1135,11 @@ onMounted(() => {
                   : { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-muted)', borderColor: 'var(--theme-border)' }"
               >{{ pick }}</button>
             </div>
+            <p
+              v-if="fontCheckNote(bodyFontCheck, bodyFontWeights)"
+              class="text-xs mb-3"
+              :style="{ color: fontCheckNote(bodyFontCheck, bodyFontWeights)!.tone === 'warn' ? 'var(--theme-warning)' : 'var(--theme-text-muted)' }"
+            >{{ fontCheckNote(bodyFontCheck, bodyFontWeights)!.text }}</p>
             <!-- Weight multi-select chips + italic toggle -->
             <div class="mb-3">
               <p class="text-xs mb-1.5" :style="{ color: 'var(--theme-text-muted)' }">Weights</p>
@@ -1087,7 +1167,7 @@ onMounted(() => {
               class="text-sm"
               :style="{
                 color: 'var(--theme-text-secondary)',
-                fontFamily: `'${bodyFont}', sans-serif`,
+                fontFamily: previewFamily(bodyFont, 'sans-serif'),
                 fontWeight: '400',
                 fontStyle: bodyFontStyle
               }"
