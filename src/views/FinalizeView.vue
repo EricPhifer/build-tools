@@ -13,6 +13,7 @@ import { useCompositionStore } from '../stores/composition'
 import { useRegistryStore } from '../stores/registry'
 import { BUSINESS_TYPES } from '../data/siteBuilderData'
 import { isScaffolded } from '../data/scaffoldedVariants'
+import { checkBrandContrast } from '../utils/contrast'
 import { buildEnvChecklist, envChecklistMarkdown, envItemId, envItemLabel, type EnvVarItem } from '../utils/envChecklist'
 import { defaultReviewCadence } from '../types/dashboard'
 import type { DashboardConfig } from '../types/dashboard'
@@ -64,6 +65,13 @@ const unbuiltVariants = computed(() =>
     .filter(v => v && !isScaffolded(v.id))
     .map(v => v!.name)
 )
+
+// Brand color pairs below WCAG AA, and where the scaffolder adjusts primary for text
+const brandContrast = computed(() =>
+  checkBrandContrast(client.value?.brandKit?.colors, !!composition.composition.headerDarkModeEnabled)
+)
+const contrastFailures = computed(() => brandContrast.value.flatMap(t => t.failures))
+const adjustedInks = computed(() => brandContrast.value.filter(t => t.inkAdjusted))
 
 // ─── Active-mode: site selections ───────────────────────────────────────────
 const headerName   = computed(() => composition.selectedHeaderVariant?.name ?? null)
@@ -946,6 +954,27 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
       >
         <strong>{{ unbuiltVariants.join(' and ') }}</strong> {{ unbuiltVariants.length > 1 ? "aren't" : "isn't" }} in the website template yet, so the scaffold will stop.
         Pick a variant marked "In template" in the Site Builder, or build it into pws-foundation-template first.
+      </div>
+
+      <div
+        v-if="!isExtendMode && (contrastFailures.length || adjustedInks.length)"
+        class="mb-6 p-4 rounded-xl border text-sm space-y-2"
+        :style="{ borderColor: contrastFailures.length ? 'var(--theme-warning)' : 'var(--theme-border)', color: 'var(--theme-text-primary)', backgroundColor: 'var(--theme-bg-card)' }"
+      >
+        <template v-if="contrastFailures.length">
+          <p><strong>Brand colors below WCAG AA.</strong> Fix these in the brand kit (Client Setup → Resync after changing them) before scaffolding:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li v-for="f in contrastFailures" :key="f.theme + f.label">
+              {{ f.theme }}: {{ f.label }} — {{ f.ratio.toFixed(2) }}:1, needs {{ f.need }}:1
+              <span class="font-mono text-xs" :style="{ color: 'var(--theme-text-muted)' }">({{ f.fg }} on {{ f.bg }})</span>
+            </li>
+          </ul>
+        </template>
+        <p v-for="t in adjustedInks" :key="t.theme" :style="{ color: 'var(--theme-text-secondary)' }">
+          {{ t.theme }} theme: primary is too faint as text, so links and accents will use
+          <span class="inline-block w-3 h-3 rounded-sm align-middle border" :style="{ backgroundColor: t.primaryInk, borderColor: 'var(--theme-border)' }" />
+          <span class="font-mono">{{ t.primaryInk }}</span>. Buttons keep the brand color.
+        </p>
       </div>
 
       <!-- Config Summary Cards (active mode only) -->
