@@ -236,6 +236,18 @@ const BASE_PHASES: Phase[] = [
   }
 ]
 
+// Growth sites are prerendered; Studio "Publish site" batches edits into one build
+const GROWTH_PUBLISH_ITEMS: ChecklistItem[] = [
+  { id: 'p3-growth-publish-1', label: 'Netlify build hook "Studio publish" on the production branch (and one on staging if used); URLs in the website env' },
+  { id: 'p3-growth-publish-2', label: 'Sanity webhook: URL `https://[clientdomain.com]/.netlify/functions/trigger-deploy`, trigger on Create, filter `_type == "sitePublish"`, projection `{_id, target}`, secret = DEPLOY_WEBHOOK_SECRET' },
+  { id: 'p3-growth-publish-3', label: 'No other build-on-publish webhook or Netlify–Sanity integration left on (one build per Publish click)' },
+  { id: 'p3-growth-publish-4', label: 'Netlify plan build credits raised for this client (1,500–3,000; part of Growth maintenance)' },
+  { id: 'p3-growth-publish-5', label: 'Built HTML checked: view-source on a page shows its content; an unknown URL returns a real 404' },
+]
+const GROWTH_LAUNCH_ITEMS: ChecklistItem[] = [
+  { id: 'p4-growth-publish-1', label: 'Studio → Publish site on production: status reaches "Building" and the change shows on the live site' },
+]
+
 // Environment variables: generated per site from the build config (utils/envChecklist.ts)
 const envItems = computed<EnvVarItem[]>(() => {
   if (isPortfolioMode.value) {
@@ -262,6 +274,10 @@ const PHASES = computed<Phase[]>(() => {
   }
   const githubIndex = phases.findIndex(p => p.id === 'p2')
   phases.splice(githubIndex + 1, 0, envPhase)
+  if (composition.siteBuilder.bundle === 'growth') {
+    phases.find(p => p.id === 'p3')?.items.push(...GROWTH_PUBLISH_ITEMS)
+    phases.find(p => p.id === 'p4')?.items.push(...GROWTH_LAUNCH_ITEMS)
+  }
   return phases
 })
 

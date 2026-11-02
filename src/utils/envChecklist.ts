@@ -67,7 +67,10 @@ export function buildEnvChecklist(config: ChecklistConfig): EnvVarItem[] {
     add('website', 'VITE_AUTH0_CLIENT_ID', 'builds', false, 'Auth0 → Applications → the SPA app → Client ID')
   }
   if (isGrowth) {
-    add('website', 'SANITY_WRITE_TOKEN', 'functions', true, 'sanity.io/manage → API → Tokens (Editor), for the sync functions')
+    add('website', 'SANITY_WRITE_TOKEN', 'functions', true, 'sanity.io/manage → API → Tokens (Editor), for the sync functions and recording Studio publishes')
+    add('website', 'DEPLOY_WEBHOOK_SECRET', 'functions', true, ".pws-secrets.json (in the scaffolded .env); the same value goes on the Sanity webhook")
+    add('website', 'NETLIFY_DEPLOY_HOOK_URL', 'functions', true, 'Netlify → Build hooks → "Studio publish" on the production branch')
+    add('website', 'NETLIFY_STAGING_DEPLOY_HOOK_URL', 'functions', true, 'a second build hook on the staging branch', true)
     add('website', 'TURSO_DATABASE_URL', 'functions', false, "the client's own Growth database (not the agency database)")
     add('website', 'TURSO_AUTH_TOKEN', 'functions', true, 'turso db tokens create <client db>')
     add('website', 'AWEBER_CLIENT_ID', 'functions', false, 'AWeber developer app')
@@ -87,6 +90,9 @@ export function buildEnvChecklist(config: ChecklistConfig): EnvVarItem[] {
   // ── Studio ──
   add('studio', 'SANITY_STUDIO_PROJECT_ID', 'builds', false, 'sanity.io/manage → project ID')
   add('studio', 'SANITY_STUDIO_DATASET', 'builds', false, '"production"')
+  if (isGrowth) {
+    add('studio', 'SANITY_STUDIO_MONTHLY_BUILDS', 'builds', false, 'builds included per month, shown in "Publish site" (blank = just count)', true)
+  }
 
   // ── Dashboard ──
   add('dashboard', 'VITE_AUTH0_DOMAIN', 'builds', false, 'Auth0 → Applications → the dashboard SPA app → Domain')
