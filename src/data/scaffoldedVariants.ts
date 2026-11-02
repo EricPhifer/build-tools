@@ -12,3 +12,26 @@ export const SCAFFOLDED_VARIANTS = new Set([
 export function isScaffolded(variantId: string | null | undefined): boolean {
   return !variantId || SCAFFOLDED_VARIANTS.has(variantId)
 }
+
+// Content blocks that have a real section type in the website template and
+// Studio. Keep in step with SECTION_TYPES in
+// build-script/pws-scaffolder/lib/sections.js. Any other block still scaffolds,
+// but the page gets no section for it (editors use Text Content instead).
+export const SCAFFOLDED_BLOCKS = new Set([
+  'block-hero',
+  'block-features', 'block-services', 'block-service-list',
+  'block-stats',
+  'block-process', 'block-timeline',
+  'block-testimonials',
+  'block-pricing',
+  'block-cta',
+  'block-faq',
+  'block-split',
+  'block-contact', 'block-contact-info', 'block-contact-form',
+  'block-text',
+  'block-portfolio',
+])
+
+export function isScaffoldedBlock(blockId: string): boolean {
+  return SCAFFOLDED_BLOCKS.has(blockId)
+}
