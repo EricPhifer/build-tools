@@ -36,6 +36,11 @@ export const SCAFFOLDED_BLOCKS = new Set([
   'block-video',
   'block-logos',
   'block-dynamic-form',
+  'block-blog-preview',
+  'block-transparency',
+  'block-podcast-episodes',
+  'block-video-grid',
+  'block-divider-diagonal',
 ])
 
 export function isScaffoldedBlock(blockId: string): boolean {
