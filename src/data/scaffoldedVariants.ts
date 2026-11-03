@@ -43,6 +43,7 @@ export const SCAFFOLDED_BLOCKS = new Set([
   'block-divider-diagonal',
   'block-event-registration',
   'block-newsletter',
+  'block-donation',
 ])
 
 // Built only on Growth: they need the client's own database (`growthOnly` in

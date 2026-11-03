@@ -32,6 +32,7 @@ interface ChecklistConfig {
   client?: { domain?: string | null } | null
   project?: { bundle?: string | null; businessType?: string | null } | null
   auth?: { enabled?: boolean } | null
+  site?: { pages?: Array<{ slots?: Record<string, Array<{ id?: string } | null> | null> | null }> | null } | null
   dashboard?: {
     submissionKinds?: unknown[]
     useGoogleAnalytics?: boolean
@@ -81,14 +82,21 @@ export function buildEnvChecklist(config: ChecklistConfig): EnvVarItem[] {
     add('website', 'NETLIFY_STAGING_DEPLOY_HOOK_URL', 'functions', true, 'a second build hook on the staging branch', true)
     add('website', 'TURSO_DATABASE_URL', 'functions', false, "the client's own Growth database (not the agency database)")
     add('website', 'TURSO_AUTH_TOKEN', 'functions', true, 'turso db tokens create <client db>')
-    add('website', 'VITE_DONATION_PROVIDER', 'builds', false, '"harness" now; "stripe" at the Phase 2 cutover')
-    add('website', 'VITE_HARNESS_GIVING_URL', 'builds', false, "the client's Harness Giving page", true)
-    add('website', 'STRIPE_SECRET_KEY', 'functions', true, 'Stripe → Developers → API keys (activate at cutover)', true)
-    add('website', 'STRIPE_WEBHOOK_SECRET', 'functions', true, 'Stripe → Webhooks → the donations endpoint (activate at cutover)', true)
     if (isNonprofit) {
       add('website', 'YOUTUBE_API_KEY', 'functions', true, 'Google Cloud → YouTube Data API key')
       add('website', 'COFFEE_CHAT_PLAYLIST_ID', 'functions', false, 'the YouTube playlist ID')
     }
+  }
+
+  // Donation section, any tier: the client's own Stripe account
+  const usesDonations = (config.site?.pages ?? []).some((page) =>
+    Object.values(page.slots ?? {}).some((blocks) => (blocks ?? []).some((b) => b?.id === 'block-donation')))
+  if (usesDonations) {
+    add('website', 'STRIPE_SECRET_KEY', 'functions', true, "the client's Stripe → Developers → API keys → restricted key (Checkout Sessions, Products, Prices: Write)")
+    add('website', 'STRIPE_WEBHOOK_SECRET', 'functions', true, `the client's Stripe → Webhooks → https://${domain}/api/donation-webhook (checkout.session.completed, checkout.session.async_payment_succeeded, invoice.paid)`)
+    add('website', 'DONATION_ORG_NAME', 'functions', false, 'legal name on the donor receipt (defaults to the business name)', true)
+    add('website', 'DONATION_EIN', 'functions', false, 'the EIN; adds it and "No goods or services were provided" to the receipt', true)
+    add('website', 'STRIPE_PORTAL_LOGIN_URL', 'functions', false, "the client's Stripe → Billing → Customer portal login link, where monthly donors cancel", true)
   }
 
   addSentry('website')

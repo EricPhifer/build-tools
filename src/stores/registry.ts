@@ -1316,6 +1316,32 @@ const contentBlocks: ContentBlock[] = [
     ]
   },
   {
+    id: 'block-donation',
+    name: 'Donation',
+    description: 'Donation form: suggested amounts, other amount and a one-time/monthly switch, paid through Stripe Checkout on the client\'s own account. Every gift is receipted by email and filed in the dashboard inbox. Any tier.',
+    component: () => import('../components/variants/blocks/BlockDonation.vue'),
+    category: 'cta',
+    tags: ['donation', 'donate', 'give', 'giving', 'stripe', 'nonprofit', 'monthly'],
+    styleNotes: 'Donation. py-16 px-6 surface background. max-w-xl centered. h2 text-3xl bold. Intro secondary text. One-time/Monthly two-up toggle. Amount grid of 4 pill buttons + full-width "Other amount"; selected pill uses primaryColor. Full-width primary "Give $50" button. Lock icon + "Secure payment by Stripe" note.',
+    schemaRequirements: [
+      {
+        documentType: 'page',
+        title: 'Page',
+        fields: [
+          { name: 'donationHeading', type: 'string', title: 'Donation Heading', description: 'Section heading' },
+          { name: 'donationIntro', type: 'text', title: 'Donation Intro', description: 'What a gift makes possible' },
+          { name: 'donationAmounts', type: 'array', title: 'Suggested Amounts', description: 'Whole dollars, smallest first' },
+          { name: 'donationAllowMonthly', type: 'boolean', title: 'Offer Monthly Giving', description: 'Show the one-time / monthly switch' }
+        ],
+        defaultValues: {
+          donationHeading: 'Support Our Work',
+          donationIntro: 'Your gift keeps our programs running.',
+          donationAllowMonthly: true
+        }
+      }
+    ]
+  },
+  {
     id: 'block-newsletter',
     name: 'Newsletter Signup',
     description: 'Email newsletter signup form with indigo background and success state.',

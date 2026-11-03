@@ -268,6 +268,16 @@ const GROWTH_LAUNCH_ITEMS: ChecklistItem[] = [
   { id: 'p4-growth-publish-1', label: 'Studio → Publish site on production: status reaches "Building" and the change shows on the live site' },
 ]
 
+// Donation block on any page: Stripe on the client's own account
+const DONATION_STAGING_ITEMS: ChecklistItem[] = [
+  { id: 'p3-donation-1', label: "Client's own Stripe account (their legal name and bank account, never ours); restricted key and webhook set (env checklist)" },
+  { id: 'p3-donation-2', label: 'Stripe customer portal turned on, its login link in STRIPE_PORTAL_LOGIN_URL (monthly donors cancel there)' },
+  { id: 'p3-donation-3', label: 'Test mode: a one-time and a monthly gift go through; receipt arrives (EIN line correct), client is emailed, gift shows in the dashboard inbox' },
+]
+const DONATION_LAUNCH_ITEMS: ChecklistItem[] = [
+  { id: 'p4-donation-1', label: 'Live Stripe keys and live webhook secret in place of the test ones; a real $5 gift receipted, then refunded' },
+]
+
 // Environment variables: generated per site from the build config (utils/envChecklist.ts)
 const envItems = computed<EnvVarItem[]>(() => {
   if (isPortfolioMode.value) {
@@ -297,6 +307,10 @@ const PHASES = computed<Phase[]>(() => {
   if (composition.siteBuilder.bundle === 'growth') {
     phases.find(p => p.id === 'p3')?.items.push(...GROWTH_PUBLISH_ITEMS)
     phases.find(p => p.id === 'p4')?.items.push(...GROWTH_LAUNCH_ITEMS)
+  }
+  if (composition.usesDonations) {
+    phases.find(p => p.id === 'p3')?.items.push(...DONATION_STAGING_ITEMS)
+    phases.find(p => p.id === 'p4')?.items.push(...DONATION_LAUNCH_ITEMS)
   }
   return phases
 })
@@ -482,17 +496,23 @@ function buildExportConfig() {
   if (sb.envConfig.auth0Domain)   env['VITE_AUTH0_DOMAIN']    = sb.envConfig.auth0Domain
   if (sb.envConfig.auth0ClientId) env['VITE_AUTH0_CLIENT_ID'] = sb.envConfig.auth0ClientId
 
+  // Email for forms, signups and donation receipts, any tier
+  if (sb.envConfig.resendApiKey)   env['RESEND_API_KEY']   = sb.envConfig.resendApiKey
+  if (sb.envConfig.contactToEmail) env['CONTACT_TO_EMAIL'] = sb.envConfig.contactToEmail
+
+  // Donation section, any tier: the client's own Stripe account
+  if (composition.usesDonations) {
+    if (sb.envConfig.stripeSecretKey)     env['STRIPE_SECRET_KEY']     = sb.envConfig.stripeSecretKey
+    if (sb.envConfig.stripeWebhookSecret) env['STRIPE_WEBHOOK_SECRET'] = sb.envConfig.stripeWebhookSecret
+    if (sb.envConfig.donationOrgName)     env['DONATION_ORG_NAME']     = sb.envConfig.donationOrgName
+    if (sb.envConfig.donationEin)         env['DONATION_EIN']          = sb.envConfig.donationEin
+  }
+
   // Growth-tier integration env vars (only emitted when bundle === 'growth')
   if (sb.bundle === 'growth') {
-    if (sb.envConfig.resendApiKey)        env['RESEND_API_KEY']         = sb.envConfig.resendApiKey
-    if (sb.envConfig.contactToEmail)      env['CONTACT_TO_EMAIL']       = sb.envConfig.contactToEmail
     if (sb.envConfig.sanityWriteToken)    env['SANITY_WRITE_TOKEN']     = sb.envConfig.sanityWriteToken
     if (sb.envConfig.tursoDatabaseUrl)    env['TURSO_DATABASE_URL']     = sb.envConfig.tursoDatabaseUrl
     if (sb.envConfig.tursoAuthToken)      env['TURSO_AUTH_TOKEN']       = sb.envConfig.tursoAuthToken
-    if (sb.envConfig.stripeSecretKey)     env['STRIPE_SECRET_KEY']      = sb.envConfig.stripeSecretKey
-    if (sb.envConfig.stripeWebhookSecret) env['STRIPE_WEBHOOK_SECRET']  = sb.envConfig.stripeWebhookSecret
-    if (sb.envConfig.harnessGivingUrl)    env['VITE_HARNESS_GIVING_URL'] = sb.envConfig.harnessGivingUrl
-    env['VITE_DONATION_PROVIDER']         = sb.envConfig.donationProvider
     if (sb.businessType === 'nonprofit') {
       if (sb.envConfig.youtubeApiKey)        env['YOUTUBE_API_KEY']        = sb.envConfig.youtubeApiKey
       if (sb.envConfig.coffeeChatPlaylistId) env['COFFEE_CHAT_PLAYLIST_ID'] = sb.envConfig.coffeeChatPlaylistId
@@ -583,14 +603,6 @@ function buildExportConfig() {
         loginRoute:     '/login',
         callbackRoute:  '/callback',
         unauthorizedRoute: '/unauthorized'
-      }
-    } : {}),
-    ...(sb.bundle === 'growth' ? {
-      donation: {
-        provider: sb.envConfig.donationProvider,
-        ...(sb.envConfig.donationProvider === 'harness' && sb.envConfig.harnessGivingUrl
-          ? { harnessGivingUrl: sb.envConfig.harnessGivingUrl }
-          : {})
       }
     } : {}),
     dashboard: exportedDashboardConfig(),

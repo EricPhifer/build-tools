@@ -114,9 +114,9 @@ const flowSteps = computed<FlowStep[]>(() => {
     }
   ]
 
-  // Growth-only step: Integrations
-  if (sb.bundle === 'growth') {
-    const integrationsDone = !!(sb.envConfig.resendApiKey || sb.envConfig.tursoDatabaseUrl || sb.envConfig.aweberClientId)
+  // Integrations: Growth services, or donations on any tier
+  if (sb.bundle === 'growth' || composition.usesDonations) {
+    const integrationsDone = !!(sb.envConfig.resendApiKey || sb.envConfig.tursoDatabaseUrl || sb.envConfig.stripeSecretKey)
     steps.push({
       id: 'integrations',
       label: 'Integrations',

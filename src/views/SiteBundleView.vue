@@ -254,15 +254,14 @@ async function selectProjectMode() {
               >Active</span>
             </div>
             <p class="text-sm" :style="{ color: 'var(--theme-text-secondary)' }">
-              Full digital presence: Netlify Functions for forms and donations, Turso DB, AWeber newsletter, scheduled YouTube sync (nonprofit), and Stripe-ready donation flow.
+              Full digital presence: prerendered pages with a Studio "Publish site" button, event registration on the client's own Turso DB, newsletter signups added to their AWeber list, and scheduled YouTube sync (nonprofit).
             </p>
             <ul class="mt-3 space-y-1">
               <li
                 v-for="item in [
                   'Everything in Enrich',
-                  'Netlify functions: contact, forms, event registrations, newsletter, donations',
-                  'Turso DB for submissions + registrations + donations',
-                  'Donation provider toggle: Harness (Phase 1) → Stripe (Phase 2)',
+                  'Event registration with capacity limits (client\'s own Turso DB)',
+                  'Newsletter signups added to the client\'s AWeber list',
                   'Nonprofit add-on: Coffee Chat YouTube sync + transparency / 990 reports',
                   'Integrations sub-step in Site Builder for credentials'
                 ]"

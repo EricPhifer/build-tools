@@ -98,8 +98,8 @@ function isEnrichPattern(name: string): boolean {
 
 function save() {
   composition.setSitemapPages(pages.value)
-  // Growth tier has an Integrations sub-step between Sitemap and Checklist
-  const next = composition.siteBuilder.bundle === 'growth' ? '/site/integrations' : '/site/checklist'
+  // Integrations sits between Sitemap and Checklist on Growth, and for donations on any tier
+  const next = composition.siteBuilder.bundle === 'growth' || composition.usesDonations ? '/site/integrations' : '/site/checklist'
   router.push(next)
 }
 

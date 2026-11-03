@@ -12,7 +12,6 @@ import { DEFAULT_CONTENT_KIT_SECTIONS, SUBMISSION_KIND_PRESETS } from '../types/
 const STORAGE_KEY = 'build-tools-composition'
 
 export type Auth0WhitelistStrategy = 'role' | 'appMetadata'
-export type DonationProvider = 'harness' | 'stripe'
 
 export interface EnvConfig {
   sanityProjectId: string
@@ -30,7 +29,7 @@ export interface EnvConfig {
   resendApiKey: string                // form notification emails
   contactToEmail: string              // staff inbox for contact form submissions
   sanityWriteToken: string            // for sync-coffee-chat and other write functions
-  // Turso (form submissions, event registrations, donations)
+  // Turso (event registrations, Growth)
   tursoDatabaseUrl: string
   tursoAuthToken: string
   // AWeber
@@ -38,12 +37,11 @@ export interface EnvConfig {
   aweberClientSecret: string
   aweberAccountId: string
   aweberListId: string
-  // Stripe (Phase 2 — donations)
+  // Donation section (any tier): the client's own Stripe account, and the receipt's legal name + EIN
   stripeSecretKey: string
   stripeWebhookSecret: string
-  // Donation provider toggle
-  donationProvider: DonationProvider
-  harnessGivingUrl: string             // outbound donate link when provider === 'harness'
+  donationOrgName: string
+  donationEin: string
   // Nonprofit-only (only relevant when businessType === 'nonprofit')
   youtubeApiKey: string
   coffeeChatPlaylistId: string
@@ -99,8 +97,8 @@ function createDefaultEnvConfig(): EnvConfig {
     aweberListId: '',
     stripeSecretKey: '',
     stripeWebhookSecret: '',
-    donationProvider: 'harness',
-    harnessGivingUrl: '',
+    donationOrgName: '',
+    donationEin: '',
     youtubeApiKey: '',
     coffeeChatPlaylistId: ''
   }
@@ -437,6 +435,11 @@ export const useCompositionStore = defineStore('composition', () => {
     saveSiteBuilder()
   }
 
+  /** A page uses the Donation block (Stripe donations on the client's own account, any tier). */
+  const usesDonations = computed(() =>
+    siteBuilder.value.sitemapPages.some((p) =>
+      [...(p.blocks ?? []), ...Object.values(p.slotBlocks ?? {}).flatMap((v) => v ?? [])].includes('block-donation')))
+
   function setSitemapPages(pages: SitemapPage[]) {
     siteBuilder.value.sitemapPages = pages
     saveSiteBuilder()
@@ -575,7 +578,6 @@ export const useCompositionStore = defineStore('composition', () => {
 
     const env = config.env ?? {}
     const auth = config.auth ?? {}
-    const donation = config.donation ?? {}
     siteBuilder.value.envConfig = {
       sanityProjectId:        env['VITE_SANITY_PROJECT_ID'] ?? '',
       sanityDataset:          env['VITE_SANITY_DATASET']    ?? 'production',
@@ -598,8 +600,8 @@ export const useCompositionStore = defineStore('composition', () => {
       aweberListId:           env['AWEBER_LIST_ID']         ?? '',
       stripeSecretKey:        env['STRIPE_SECRET_KEY']      ?? '',
       stripeWebhookSecret:    env['STRIPE_WEBHOOK_SECRET']  ?? '',
-      donationProvider:       donation.provider             ?? 'harness',
-      harnessGivingUrl:       env['VITE_HARNESS_GIVING_URL'] ?? donation.harnessGivingUrl ?? '',
+      donationOrgName:        env['DONATION_ORG_NAME']      ?? '',
+      donationEin:            env['DONATION_EIN']           ?? '',
       youtubeApiKey:          env['YOUTUBE_API_KEY']        ?? '',
       coffeeChatPlaylistId:   env['COFFEE_CHAT_PLAYLIST_ID'] ?? ''
     }
@@ -640,6 +642,7 @@ export const useCompositionStore = defineStore('composition', () => {
     selectedTemplate,
     mergedSchemaRequirements,
     isComplete,
+    usesDonations,
     setProjectName,
     setHeader,
     setHeaderAuthEnabled,
