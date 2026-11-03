@@ -35,6 +35,7 @@ export const SCAFFOLDED_BLOCKS = new Set([
   'block-map',
   'block-video',
   'block-logos',
+  'block-dynamic-form',
 ])
 
 export function isScaffoldedBlock(blockId: string): boolean {
