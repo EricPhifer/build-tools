@@ -12,7 +12,7 @@ import { useWorkflowStore } from '../stores/workflow'
 import { useCompositionStore } from '../stores/composition'
 import { useRegistryStore } from '../stores/registry'
 import { BUSINESS_TYPES } from '../data/siteBuilderData'
-import { isScaffolded, isScaffoldedBlock } from '../data/scaffoldedVariants'
+import { GROWTH_ONLY_BLOCKS, isScaffolded, isScaffoldedBlock } from '../data/scaffoldedVariants'
 import { checkBrandContrast } from '../utils/contrast'
 import { buildEnvChecklist, envChecklistMarkdown, envItemId, envItemLabel, type EnvVarItem } from '../utils/envChecklist'
 import { defaultReviewCadence } from '../types/dashboard'
@@ -90,7 +90,12 @@ const pageBlocks   = computed(() => {
 const blockCount = computed(() => pageBlocks.value.length)
 // Chosen blocks with no section type in the template yet (they scaffold as nothing)
 const unbuiltBlocks = computed(() =>
-  pageBlocks.value.filter(id => !isScaffoldedBlock(id)).map(id => registry.getBlockById(id)?.name ?? id)
+  pageBlocks.value
+    .filter(id => !isScaffoldedBlock(id, composition.siteBuilder.bundle))
+    .map(id => {
+      const name = registry.getBlockById(id)?.name ?? id
+      return GROWTH_ONLY_BLOCKS.has(id) ? `${name} (Growth only)` : name
+    })
 )
 const blockNames = computed(() =>
   pageBlocks.value.map(id => registry.getBlockById(id)?.name).filter(Boolean) as string[]
@@ -965,8 +970,8 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
         class="mb-6 p-4 rounded-xl border text-sm"
         :style="{ borderColor: 'var(--theme-warning)', color: 'var(--theme-text-primary)', backgroundColor: 'var(--theme-bg-card)' }"
       >
-        <strong>No section in the template yet:</strong> {{ unbuiltBlocks.join(', ') }}.
-        The site scaffolds without them; editors can use Text Content there, or build the section into pws-foundation-template (and the scaffolder's section list) first.
+        <strong>Not built for this site:</strong> {{ unbuiltBlocks.join(', ') }}.
+        The site scaffolds without them; editors can use Text Content there. Growth-only blocks need the Growth tier; the others need a section built into pws-foundation-template (and the scaffolder's section list) first.
       </div>
 
       <div

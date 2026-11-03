@@ -1615,7 +1615,7 @@ const contentBlocks: ContentBlock[] = [
   {
     id: 'block-event-registration',
     name: 'Event Registration',
-    description: 'RSVP form for a single event. Reads registration config (enabled, capacity, closingDate) from the event Sanity document. Shows capacity progress bar. Auto-disables after closing date. Submits to submit-event-registration Netlify function.',
+    description: 'RSVP form for a single event (Growth only: places are counted in the client\'s own database). Reads registration settings (enabled, capacity, largest party, closing date) from the event Sanity document. Shows places left and closes when full, after the closing date, or when the event starts. Submits to /api/event-registration.',
     component: () => import('../components/variants/blocks/BlockEventRegistration.vue'),
     category: 'contact',
     tags: ['event', 'registration', 'rsvp', 'form'],

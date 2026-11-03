@@ -41,8 +41,15 @@ export const SCAFFOLDED_BLOCKS = new Set([
   'block-podcast-episodes',
   'block-video-grid',
   'block-divider-diagonal',
+  'block-event-registration',
 ])
 
-export function isScaffoldedBlock(blockId: string): boolean {
-  return SCAFFOLDED_BLOCKS.has(blockId)
+// Built only on Growth: they need the client's own database (`growthOnly` in
+// SECTION_TYPES). On other tiers the scaffolder leaves them out.
+export const GROWTH_ONLY_BLOCKS = new Set([
+  'block-event-registration',
+])
+
+export function isScaffoldedBlock(blockId: string, bundle?: string | null): boolean {
+  return SCAFFOLDED_BLOCKS.has(blockId) && (bundle === 'growth' || !GROWTH_ONLY_BLOCKS.has(blockId))
 }
