@@ -125,6 +125,7 @@ export function buildEnvChecklist(config: ChecklistConfig): EnvVarItem[] {
     add('dashboard', 'GA4_PROPERTY_ID', 'functions', false, 'GA4 → Admin → Property details (numeric, not the G- ID)')
     add('dashboard', 'GA4_CLIENT_EMAIL', 'functions', false, 'service account email with Viewer on the property')
     add('dashboard', 'GA4_PRIVATE_KEY', 'functions', true, "that service account's private key, newlines as \\n")
+    add('dashboard', 'GSC_SITE_URL', 'functions', false, "the Search Console property (sc-domain:… or https://…/); found from the domain if blank. Add the service account as a user there for the report's Google search section", true)
   } else {
     add('dashboard', 'SIMPLE_ANALYTICS_API_KEY', 'functions', true, 'Simple Analytics → Account → API keys')
     add('dashboard', 'ANALYTICS_HOSTNAME', 'functions', false, `${domain} (as listed in Simple Analytics, no sa. prefix)`)
