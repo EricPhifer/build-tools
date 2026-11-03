@@ -489,10 +489,6 @@ function buildExportConfig() {
     if (sb.envConfig.sanityWriteToken)    env['SANITY_WRITE_TOKEN']     = sb.envConfig.sanityWriteToken
     if (sb.envConfig.tursoDatabaseUrl)    env['TURSO_DATABASE_URL']     = sb.envConfig.tursoDatabaseUrl
     if (sb.envConfig.tursoAuthToken)      env['TURSO_AUTH_TOKEN']       = sb.envConfig.tursoAuthToken
-    if (sb.envConfig.aweberClientId)      env['AWEBER_CLIENT_ID']       = sb.envConfig.aweberClientId
-    if (sb.envConfig.aweberClientSecret)  env['AWEBER_CLIENT_SECRET']   = sb.envConfig.aweberClientSecret
-    if (sb.envConfig.aweberAccountId)     env['AWEBER_ACCOUNT_ID']      = sb.envConfig.aweberAccountId
-    if (sb.envConfig.aweberListId)        env['AWEBER_LIST_ID']         = sb.envConfig.aweberListId
     if (sb.envConfig.stripeSecretKey)     env['STRIPE_SECRET_KEY']      = sb.envConfig.stripeSecretKey
     if (sb.envConfig.stripeWebhookSecret) env['STRIPE_WEBHOOK_SECRET']  = sb.envConfig.stripeWebhookSecret
     if (sb.envConfig.harnessGivingUrl)    env['VITE_HARNESS_GIVING_URL'] = sb.envConfig.harnessGivingUrl

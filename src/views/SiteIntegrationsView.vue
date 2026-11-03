@@ -125,33 +125,18 @@ function next() {
         </div>
       </section>
 
-      <!-- AWeber -->
+      <!-- AWeber: set in the Pipeline, not on the site -->
       <section class="p-5 rounded-xl border" :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }">
         <header class="flex items-center gap-2 mb-1">
           <Send class="w-4 h-4" :style="{ color: 'var(--theme-primary)' }" />
-          <h2 class="text-base font-semibold" :style="{ color: 'var(--theme-text-primary)' }">AWeber</h2>
+          <h2 class="text-base font-semibold" :style="{ color: 'var(--theme-text-primary)' }">AWeber newsletter</h2>
         </header>
-        <p class="text-xs mb-4" :style="{ color: 'var(--theme-text-muted)' }">
-          OAuth credentials from <a href="https://labs.aweber.com" target="_blank" rel="noopener" class="underline">labs.aweber.com → My Apps</a>.
+        <p class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">
+          Nothing to enter here: the website holds no AWeber credentials. Newsletter signups go to the client's dashboard
+          inbox and are emailed to them on every tier. On Growth, the Pipeline also adds them to the client's list in the
+          agency AWeber account: create the list in AWeber, then choose it on the client's page in the Pipeline
+          (Newsletter List).
         </p>
-        <div class="grid md:grid-cols-2 gap-3">
-          <label>
-            <span class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Client ID <span class="font-mono opacity-60">AWEBER_CLIENT_ID</span></span>
-            <input :value="env.aweberClientId" @input="update('aweberClientId', ($event.target as HTMLInputElement).value)" type="text" :class="inputClass" :style="inputStyle" />
-          </label>
-          <label>
-            <span class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Client Secret <span class="font-mono opacity-60">AWEBER_CLIENT_SECRET</span></span>
-            <input :value="env.aweberClientSecret" @input="update('aweberClientSecret', ($event.target as HTMLInputElement).value)" type="text" :class="inputClass" :style="inputStyle" />
-          </label>
-          <label>
-            <span class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Account ID <span class="font-mono opacity-60">AWEBER_ACCOUNT_ID</span></span>
-            <input :value="env.aweberAccountId" @input="update('aweberAccountId', ($event.target as HTMLInputElement).value)" type="text" :class="inputClass" :style="inputStyle" />
-          </label>
-          <label>
-            <span class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">List ID <span class="font-mono opacity-60">AWEBER_LIST_ID</span></span>
-            <input :value="env.aweberListId" @input="update('aweberListId', ($event.target as HTMLInputElement).value)" type="text" :class="inputClass" :style="inputStyle" />
-          </label>
-        </div>
       </section>
 
       <!-- Donation Provider -->
