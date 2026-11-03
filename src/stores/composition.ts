@@ -72,6 +72,13 @@ export interface SiteBuilderData {
   checklistConfirmedApp: Record<string, boolean>
   // Dashboard builder configuration
   dashboardConfig: DashboardConfig
+  // Replacing an existing site: its address, and old page addresses → new ones (301s)
+  migration: MigrationConfig
+}
+
+export interface MigrationConfig {
+  existingSiteUrl: string
+  redirects: { from: string; to: string }[]
 }
 
 function createDefaultEnvConfig(): EnvConfig {
@@ -157,7 +164,8 @@ function createDefaultSiteBuilder(): SiteBuilderData {
     envConfig: createDefaultEnvConfig(),
     checklistConfirmedWebsite: {},
     checklistConfirmedApp: {},
-    dashboardConfig: createDefaultDashboardConfig()
+    dashboardConfig: createDefaultDashboardConfig(),
+    migration: { existingSiteUrl: '', redirects: [] }
   }
 }
 
@@ -513,6 +521,11 @@ export const useCompositionStore = defineStore('composition', () => {
     saveSiteBuilder()
   }
 
+  function setMigration(partial: Partial<MigrationConfig>) {
+    siteBuilder.value.migration = { ...siteBuilder.value.migration, ...partial }
+    saveSiteBuilder()
+  }
+
   function setEnvConfig(partial: Partial<EnvConfig>) {
     siteBuilder.value.envConfig = { ...createDefaultEnvConfig(), ...siteBuilder.value.envConfig, ...partial }
     saveSiteBuilder()
@@ -574,6 +587,11 @@ export const useCompositionStore = defineStore('composition', () => {
     siteBuilder.value.dashboardConfig = {
       ...createDefaultDashboardConfig(),
       ...(config.dashboard ?? {})
+    }
+
+    siteBuilder.value.migration = {
+      existingSiteUrl: config.migration?.existingSiteUrl ?? '',
+      redirects: Array.isArray(config.migration?.redirects) ? config.migration.redirects : []
     }
 
     const env = config.env ?? {}
@@ -643,6 +661,7 @@ export const useCompositionStore = defineStore('composition', () => {
     mergedSchemaRequirements,
     isComplete,
     usesDonations,
+    setMigration,
     setProjectName,
     setHeader,
     setHeaderAuthEnabled,

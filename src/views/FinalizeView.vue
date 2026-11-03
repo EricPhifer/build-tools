@@ -281,6 +281,18 @@ const DONATION_LAUNCH_ITEMS: ChecklistItem[] = [
   { id: 'p4-donation-1', label: 'Live Stripe keys and live webhook secret in place of the test ones; a real $5 gift receipted, then refunded' },
 ]
 
+// Replacing an existing site (RMWS 3.4): migrate on staging, keep its addresses working
+const MIGRATION_STAGING_ITEMS: ChecklistItem[] = [
+  { id: 'p3-migrate-1', label: 'Old site inventoried: every page address (crawl, its sitemap, Search Console → Pages) and content that was hardcoded in its markup (buttons, taglines, card text, social and compliance links)' },
+  { id: 'p3-migrate-2', label: 'Content migrated into the staging dataset only (migration scripts refuse production); run twice to confirm a rerun changes nothing' },
+  { id: 'p3-migrate-3', label: 'Images without alt text from the old site listed and given alt text (or marked decorative on purpose)' },
+  { id: 'p3-migrate-4', label: 'Every changed address has a redirect in the Sitemap step; each old address checked on staging lands on the right page (301)' },
+]
+const MIGRATION_LAUNCH_ITEMS: ChecklistItem[] = [
+  { id: 'p4-migrate-1', label: 'Staging dataset reviewed, then exported and imported to production (not re-run against production)' },
+  { id: 'p4-migrate-2', label: 'After the domain moves: old addresses spot-checked on the live domain, sitemap resubmitted in Search Console, its Pages report watched for 404s for two weeks' },
+]
+
 // Environment variables: generated per site from the build config (utils/envChecklist.ts)
 const envItems = computed<EnvVarItem[]>(() => {
   if (isPortfolioMode.value) {
@@ -310,6 +322,11 @@ const PHASES = computed<Phase[]>(() => {
   if (composition.siteBuilder.bundle === 'growth') {
     phases.find(p => p.id === 'p3')?.items.push(...GROWTH_PUBLISH_ITEMS)
     phases.find(p => p.id === 'p4')?.items.push(...GROWTH_LAUNCH_ITEMS)
+  }
+  const migration = composition.siteBuilder.migration
+  if (migration?.existingSiteUrl || migration?.redirects?.length) {
+    phases.find(p => p.id === 'p3')?.items.push(...MIGRATION_STAGING_ITEMS)
+    phases.find(p => p.id === 'p4')?.items.push(...MIGRATION_LAUNCH_ITEMS)
   }
   if (composition.usesDonations) {
     phases.find(p => p.id === 'p3')?.items.push(...DONATION_STAGING_ITEMS)
@@ -606,6 +623,13 @@ function buildExportConfig() {
         loginRoute:     '/login',
         callbackRoute:  '/callback',
         unauthorizedRoute: '/unauthorized'
+      }
+    } : {}),
+    // Replacing an existing site: the scaffolder writes the redirects as 301s
+    ...(sb.migration?.existingSiteUrl || sb.migration?.redirects?.length ? {
+      migration: {
+        existingSiteUrl: sb.migration.existingSiteUrl,
+        redirects: sb.migration.redirects.filter(r => r.from.trim() && r.to.trim())
       }
     } : {}),
     dashboard: exportedDashboardConfig(),

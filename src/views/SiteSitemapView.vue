@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ArrowLeft, ArrowRight, Plus, Trash2, TriangleAlert, Globe, BookLock,
-  ChevronRight, FlaskConical, Layers, Lock
+  ChevronRight, FlaskConical, Layers, Lock, Replace
 } from 'lucide-vue-next'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
@@ -18,8 +18,34 @@ const workflow    = useWorkflowStore()
 const isSnapshotPage = (id: string) =>
   workflow.extendMode && (workflow.extendSnapshot?.pageIds.includes(id) ?? false)
 
+// ─── Replacing an existing site ─────────────────────────────────────────────
+// Old addresses that people and search engines still link to, sent to their
+// new page with a 301 so the rebuild doesn't break them (RMWS).
+const migration = computed(() => composition.siteBuilder.migration ?? { existingSiteUrl: '', redirects: [] })
+const replacing = ref(false)
+const setRedirects = (redirects: { from: string; to: string }[]) => composition.setMigration({ redirects })
+function addRedirect() {
+  setRedirects([...migration.value.redirects, { from: '', to: '' }])
+}
+function updateRedirect(i: number, key: 'from' | 'to', value: string) {
+  setRedirects(migration.value.redirects.map((r, j) => (j === i ? { ...r, [key]: value.trim() } : r)))
+}
+function removeRedirect(i: number) {
+  setRedirects(migration.value.redirects.filter((_, j) => j !== i))
+}
+/** A redirect row that the scaffolder would refuse, in words; '' when fine. */
+function redirectProblem(r: { from: string; to: string }): string {
+  if (!r.from && !r.to) return ''
+  if (!r.from.startsWith('/')) return 'The old address is a path on the old site, starting with /'
+  if (!/^(\/|https:\/\/)/.test(r.to)) return 'The new address is a page here (/about) or a full https:// address'
+  if (r.from === r.to) return 'Old and new are the same, so no redirect is needed'
+  return ''
+}
+const newPagePaths = computed(() => pages.value.map((p) => p.slug).filter((s) => s && !s.includes(':')))
+
 const pages = ref<SitemapPage[]>([])
 onMounted(() => {
+  replacing.value = Boolean(migration.value.existingSiteUrl || migration.value.redirects.length)
   if (composition.siteBuilder.sitemapPages.length > 0) {
     pages.value = composition.siteBuilder.sitemapPages.map(p => ({ ...p }))
   } else if (composition.siteBuilder.businessType) {
@@ -506,6 +532,50 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
       <p v-if="bundle !== 'growth'" class="text-xs mt-2" :style="{ color: 'var(--theme-text-muted)' }">
         These pages require the Growth bundle. Upgrade in the Bundle step to enable them.
       </p>
+    </div>
+
+    <!-- Replacing an existing site -->
+    <div class="mb-6 p-5 rounded-xl border" :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" v-model="replacing" />
+        <Replace class="w-4 h-4" :style="{ color: 'var(--theme-primary)' }" />
+        <span class="text-sm font-semibold" :style="{ color: 'var(--theme-text-primary)' }">This site replaces an existing website</span>
+      </label>
+      <div v-if="replacing" class="mt-4 space-y-4">
+        <label class="block">
+          <span class="block text-xs font-medium mb-1.5" :style="{ color: 'var(--theme-text-secondary)' }">Current website address</span>
+          <input
+            :value="migration.existingSiteUrl"
+            @input="composition.setMigration({ existingSiteUrl: ($event.target as HTMLInputElement).value.trim() })"
+            type="url" placeholder="https://www.example.com"
+            class="w-full px-3 py-2 rounded-lg border text-sm"
+            :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)' }"
+          />
+        </label>
+        <div>
+          <p class="text-xs font-medium mb-1" :style="{ color: 'var(--theme-text-secondary)' }">Old addresses → new pages</p>
+          <p class="text-xs mb-3" :style="{ color: 'var(--theme-text-muted)' }">
+            Every old page address that changes (crawl the old site, and check its sitemap and Search Console). Each becomes a permanent (301) redirect, so links and search results keep working. Addresses that stay the same need no row.
+          </p>
+          <div v-for="(r, i) in migration.redirects" :key="i" class="mb-2">
+            <div class="flex items-center gap-2">
+              <input :value="r.from" @change="updateRedirect(i, 'from', ($event.target as HTMLInputElement).value)" placeholder="/about-us.html" :aria-label="`Old address ${i + 1}`"
+                class="flex-1 px-3 py-2 rounded-lg border text-sm font-mono" :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)' }" />
+              <ArrowRight class="w-4 h-4 shrink-0" :style="{ color: 'var(--theme-text-muted)' }" />
+              <input :value="r.to" @change="updateRedirect(i, 'to', ($event.target as HTMLInputElement).value)" placeholder="/about" list="new-page-paths" :aria-label="`New address ${i + 1}`"
+                class="flex-1 px-3 py-2 rounded-lg border text-sm font-mono" :style="{ backgroundColor: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)' }" />
+              <button type="button" @click="removeRedirect(i)" class="p-2 rounded-lg" :aria-label="`Remove redirect ${i + 1}`" :style="{ color: 'var(--theme-text-muted)' }">
+                <Trash2 class="w-4 h-4" />
+              </button>
+            </div>
+            <p v-if="redirectProblem(r)" class="text-xs mt-1" :style="{ color: 'var(--theme-danger)' }">{{ redirectProblem(r) }}</p>
+          </div>
+          <datalist id="new-page-paths"><option v-for="p in newPagePaths" :key="p" :value="p" /></datalist>
+          <button type="button" @click="addRedirect" class="flex items-center gap-1.5 text-sm font-medium mt-1" :style="{ color: 'var(--theme-primary)' }">
+            <Plus class="w-4 h-4" /> Add a redirect
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Nav summary -->
