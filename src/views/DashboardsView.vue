@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import {
   LayoutDashboard, BarChart3, BookOpen, Link2, FileEdit,
   ArrowRight, Plus, Trash2, Lock, ExternalLink, Monitor, Tablet, Smartphone, CreditCard,
-  ClipboardList, GripVertical, Inbox, CalendarCheck, Mail, Mic, FileText, FileBarChart, MessagesSquare
+  ClipboardList, GripVertical, FileBarChart, MessagesSquare
 } from 'lucide-vue-next'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
@@ -153,13 +153,9 @@ const ALL_WIDGETS: WidgetMeta[] = [
   { id: 'analytics', label: 'Site Analytics', description: 'Traffic overview widget — Simple Analytics by default, GA4 override available.' },
   { id: 'tutorials', label: 'Tutorial Videos', description: 'Embedded video library grouped by category.' },
   { id: 'contentEditor', label: 'Content Editors', description: 'Simple forms for clients to update Sanity content and trigger rebuilds.' },
-  // Growth tier
-  { id: 'submissions', label: 'Form Submissions', description: 'View volunteer, referral, and dynamic form submissions from Turso.', requires: 'growth' },
-  { id: 'eventRegistrations', label: 'Event Registrations', description: 'Per-event RSVP lists with capacity tracking and export.', requires: 'growth' },
-  { id: 'subscribers', label: 'Newsletter Subscribers', description: 'AWeber list size and recent signup count.', requires: 'growth' },
-  // Growth + nonprofit only
-  { id: 'coffeeChat', label: 'Coffee Chat Episodes', description: 'Manage podcast episodes — featured flag, platform links.', requires: 'growth+nonprofit' },
-  { id: 'annualReports', label: 'Annual Reports', description: 'View and manage uploaded 990s and annual report PDFs.', requires: 'growth+nonprofit' },
+  // Form submissions, event registrations, newsletter signups and gifts are the
+  // Submissions inbox (its own tab); episodes and annual reports are edited in
+  // the Studio. Only widgets the dashboard template builds are offered here.
 ]
 
 const isMinimal = computed(() => config.value.profile === 'minimal')
@@ -379,7 +375,7 @@ const inputStyle = {
             : { color: isEnabled(w.id) ? 'var(--theme-text-secondary)' : 'var(--theme-text-muted)' }"
         >
           <component
-            :is="{ links: Link2, analytics: BarChart3, tutorials: BookOpen, contentEditor: FileEdit, submissions: Inbox, eventRegistrations: CalendarCheck, subscribers: Mail, coffeeChat: Mic, annualReports: FileText }[w.id]"
+            :is="{ links: Link2, analytics: BarChart3, tutorials: BookOpen, contentEditor: FileEdit }[w.id]"
             class="w-4 h-4 shrink-0"
           />
           {{ w.label }}
@@ -477,7 +473,7 @@ const inputStyle = {
             :style="{ backgroundColor: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }"
           >
             <component
-              :is="{ links: Link2, analytics: BarChart3, tutorials: BookOpen, contentEditor: FileEdit, submissions: Inbox, eventRegistrations: CalendarCheck, subscribers: Mail, coffeeChat: Mic, annualReports: FileText }[w.id]"
+              :is="{ links: Link2, analytics: BarChart3, tutorials: BookOpen, contentEditor: FileEdit }[w.id]"
               class="w-4 h-4 mt-0.5 shrink-0"
               :style="{ color: isEnabled(w.id) ? 'var(--theme-primary)' : 'var(--theme-text-muted)' }"
             />

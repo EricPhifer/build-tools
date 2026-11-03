@@ -4,13 +4,6 @@ export type DashboardWidgetType =
   | 'tutorials'
   | 'links'
   | 'contentEditor'
-  // Growth tier
-  | 'submissions'           // form submissions from Turso
-  | 'eventRegistrations'    // per-event RSVP lists with capacity tracking
-  | 'subscribers'           // AWeber list size + recent signup count
-  // Growth + nonprofit only
-  | 'coffeeChat'            // podcast episode management
-  | 'annualReports'         // 990s and annual report PDFs
 
 export interface TutorialVideo {
   id: string

@@ -116,8 +116,11 @@ const contentEditorCount = computed(() => dashboardConfig.value.contentEditors.f
 function exportedDashboardConfig(): DashboardConfig {
   const dc = dashboardConfig.value
   const minimal = dc.profile === 'minimal'
+  // Saved builds may still list the retired Growth widgets (never built)
+  const built = new Set(['analytics', 'tutorials', 'links', 'contentEditor', 'contentEditors'])
   return {
     ...dc,
+    enabledWidgets: dc.enabledWidgets.filter(w => built.has(w)),
     reports: { reviewCadence: dc.reports?.reviewCadence ?? defaultReviewCadence(composition.siteBuilder.bundle) },
     ...(minimal ? {
       enabledWidgets: dc.enabledWidgets.filter(w => w === 'links'),
