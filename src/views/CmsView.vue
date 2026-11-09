@@ -36,7 +36,7 @@ const contributingVariants = computed(() => {
   if (composition.selectedTemplate) names.push(composition.selectedTemplate.name)
 
   // Check page blocks (all slots)
-  for (const page of composition.siteBuilder.sitemapPages) {
+  for (const page of composition.buildPages) {
     const allPageBlockIds = [
       ...(page.blocks ?? []),
       ...Object.values(page.slotBlocks ?? {}).flatMap(v => v ?? [])

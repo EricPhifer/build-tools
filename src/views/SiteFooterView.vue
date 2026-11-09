@@ -32,7 +32,7 @@ const copyrightText = computed(() =>
 )
 
 const footerNavLinks = computed(() => {
-  const pages = composition.siteBuilder.sitemapPages.filter(p => p.nav === 'footer' || p.nav === 'both').map(p => p.name)
+  const pages = composition.buildPages.filter(p => p.nav === 'footer' || p.nav === 'both').map(p => p.name)
   return pages.length > 0 ? pages : ['Privacy Policy', 'Terms & Conditions', 'Accessibility']
 })
 

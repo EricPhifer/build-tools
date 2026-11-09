@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useRegistryStore } from './registry'
+import { pageInBundle } from '../utils/bundlePages'
 import type {
   ProjectComposition, PageConfig, SchemaRequirement, SchemaField,
   BusinessType, SitemapPage, LegalPageContent, ChecklistItem, ChecklistCategory, BundleType,
@@ -451,9 +452,13 @@ export const useCompositionStore = defineStore('composition', () => {
     saveSiteBuilder()
   }
 
+  /** The pages this bundle builds: Enrich-/Growth-only pages above the bundle stay in the Sitemap only */
+  const buildPages = computed(() =>
+    siteBuilder.value.sitemapPages.filter((p) => pageInBundle(p, siteBuilder.value.bundle)))
+
   /** A page uses the Donation block (Stripe donations on the client's own account, any tier). */
   const usesDonations = computed(() =>
-    siteBuilder.value.sitemapPages.some((p) =>
+    buildPages.value.some((p) =>
       [...(p.blocks ?? []), ...Object.values(p.slotBlocks ?? {}).flatMap((v) => v ?? [])].includes('block-donation')))
 
   function setSitemapPages(pages: SitemapPage[]) {
@@ -684,6 +689,7 @@ export const useCompositionStore = defineStore('composition', () => {
     selectedTemplate,
     mergedSchemaRequirements,
     isComplete,
+    buildPages,
     usesDonations,
     setMigration,
     setProjectName,

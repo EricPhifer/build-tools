@@ -68,7 +68,7 @@ const unbuiltVariants = computed(() =>
 
 // A page's submenu parent as its address (ids are Build Tools' own)
 function navParentSlug(page: { navParent?: string }): string | undefined {
-  return page.navParent ? composition.siteBuilder.sitemapPages.find(p => p.id === page.navParent)?.slug : undefined
+  return page.navParent ? composition.buildPages.find(p => p.id === page.navParent)?.slug : undefined
 }
 
 // Brand color pairs below WCAG AA, and where the scaffolder adjusts primary for text
@@ -88,7 +88,7 @@ const footerName   = computed(() => composition.selectedFooterVariant?.name ?? n
 const templateName = computed(() => composition.selectedTemplate?.name ?? null)
 const pageBlocks   = computed(() => {
   const allIds = new Set<string>()
-  for (const page of composition.siteBuilder.sitemapPages) {
+  for (const page of composition.buildPages) {
     for (const id of page.blocks ?? []) allIds.add(id)
     for (const ids of Object.values(page.slotBlocks ?? {})) {
       for (const id of ids ?? []) allIds.add(id)
@@ -113,7 +113,7 @@ const schemaCount = computed(() => composition.mergedSchemaRequirements.length)
 const fieldCount  = computed(() =>
   composition.mergedSchemaRequirements.reduce((sum, s) => sum + s.fields.length, 0)
 )
-const pageCount = computed(() => composition.siteBuilder.sitemapPages.length)
+const pageCount = computed(() => composition.buildPages.length)
 
 const dashboardConfig    = computed(() => composition.siteBuilder.dashboardConfig)
 const enabledWidgetCount = computed(() => dashboardConfig.value.enabledWidgets.length)
@@ -463,7 +463,7 @@ function buildExportConfig() {
     return !key || sb.enabledLegalPages[key]
   }
 
-  const pages = sb.sitemapPages.filter(isLegalPageEnabled).map(page => {
+  const pages = composition.buildPages.filter(isLegalPageEnabled).map(page => {
     const pageTemplate = page.template ? registry.getTemplateById(page.template) : null
     const slots: Record<string, ReturnType<typeof resolveBlock>[]> = {
       content: (page.blocks ?? []).map(resolveBlock)
@@ -613,8 +613,8 @@ function buildExportConfig() {
       } : null,
       pages,
       navigation: {
-        primary: sb.sitemapPages.filter(p => (p.nav === 'primary' || p.nav === 'both') && isLegalPageEnabled(p)).map(p => ({ name: p.name, slug: p.slug })),
-        footer:  sb.sitemapPages.filter(p => (p.nav === 'footer'  || p.nav === 'both') && isLegalPageEnabled(p)).map(p => ({ name: p.name, slug: p.slug }))
+        primary: composition.buildPages.filter(p => (p.nav === 'primary' || p.nav === 'both') && isLegalPageEnabled(p)).map(p => ({ name: p.name, slug: p.slug })),
+        footer:  composition.buildPages.filter(p => (p.nav === 'footer'  || p.nav === 'both') && isLegalPageEnabled(p)).map(p => ({ name: p.name, slug: p.slug }))
       }
     },
     cms: { sanityDocumentTypes, schemas: injectSiteSettingsDefaults(composition.mergedSchemaRequirements, c), schemaJsonLd },
@@ -625,7 +625,7 @@ function buildExportConfig() {
       ...(sb.enabledLegalPages.accessibilityStatement  ? { accessibilityStatement: sb.legalContent.accessibilityStatement ?? '' } : {}),
       ...(sb.enabledLegalPages.cookiePolicy            ? { cookiePolicy:           sb.legalContent.cookiePolicy ?? '' } : {})
     },
-    ...((composition.composition.headerAuthEnabled || sb.sitemapPages.some(p => p.authRequired)) ? {
+    ...((composition.composition.headerAuthEnabled || composition.buildPages.some(p => p.authRequired)) ? {
       auth: {
         enabled: true,
         showHeaderLogin: composition.composition.headerAuthEnabled,
@@ -702,7 +702,7 @@ function handleComplete() {
 const extendSnapshotIds = computed(() => new Set(workflow.extendSnapshot?.pageIds ?? []))
 
 const newPages = computed(() =>
-  composition.siteBuilder.sitemapPages.filter(p => !extendSnapshotIds.value.has(p.id))
+  composition.buildPages.filter(p => !extendSnapshotIds.value.has(p.id))
 )
 
 function buildDeltaConfig() {

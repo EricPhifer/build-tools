@@ -25,7 +25,7 @@ const selectedVariant = ref<ComponentVariant | null>(null)
 const client = computed(() => workflow.clientInfo)
 
 const navLinks = computed(() => {
-  const pages = composition.siteBuilder.sitemapPages.filter(p => p.nav === 'primary').map(p => p.name)
+  const pages = composition.buildPages.filter(p => p.nav === 'primary').map(p => p.name)
   return pages.length > 0 ? pages : ['Home', 'About', 'Services', 'Contact']
 })
 

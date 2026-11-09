@@ -12,6 +12,7 @@ import { STARTER_PAGE_LIMIT } from '../types/registry'
 import type { SitemapPage, NavAssignment } from '../types/registry'
 import NavParentSelect from '../components/NavParentSelect.vue'
 import { SUBMENU_HEADERS } from '../data/scaffoldedVariants'
+import { pageInBundle } from '../utils/bundlePages'
 
 const router      = useRouter()
 const composition = useCompositionStore()
@@ -71,12 +72,16 @@ const enrichPagesList = computed(() => pages.value.filter(p => p.isEnrichOnly &&
 const growthPagesList = computed(() => pages.value.filter(p => p.isGrowthOnly))
 
 // Starter scope is advisory: warn past the limit, never block
-const contentPageCount = computed(() => pages.value.filter(p => !p.isLegal).length)
+// Enrich-/Growth-only pages above the bundle stay listed here but aren't built
+const enrichOn = computed(() => pageInBundle({ isEnrichOnly: true }, bundle.value))
+const growthOn = computed(() => pageInBundle({ isEnrichOnly: false, isGrowthOnly: true }, bundle.value))
+const builtPages = computed(() => pages.value.filter(p => pageInBundle(p, bundle.value)))
+const contentPageCount = computed(() => builtPages.value.filter(p => !p.isLegal).length)
 const overStarterLimit = computed(() => bundle.value === 'starter' && contentPageCount.value > STARTER_PAGE_LIMIT)
 
-const primaryPages = computed(() => pages.value.filter(p => p.nav === 'primary' || p.nav === 'both'))
-const footerPages = computed(() => pages.value.filter(p => p.nav === 'footer' || p.nav === 'both'))
-const hiddenPages = computed(() => pages.value.filter(p => p.nav === 'none'))
+const primaryPages = computed(() => builtPages.value.filter(p => p.nav === 'primary' || p.nav === 'both'))
+const footerPages = computed(() => builtPages.value.filter(p => p.nav === 'footer' || p.nav === 'both'))
+const hiddenPages = computed(() => builtPages.value.filter(p => p.nav === 'none'))
 
 // The chosen header shows submenus: main-menu pages can sit under another
 const submenusOn = computed(() => SUBMENU_HEADERS.has(composition.composition.header ?? ''))
@@ -414,18 +419,18 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
       <div class="flex items-center gap-2 mb-3">
         <FlaskConical class="w-4 h-4" :style="{ color: 'var(--theme-warning)' }" />
         <p class="text-xs font-semibold uppercase tracking-widest" :style="{ color: 'var(--theme-warning)' }">Enrich-Only</p>
-        <span class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">— requires dynamic content, out of base scope</span>
+        <span class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">— requires Enrich or Growth (dynamic content)</span>
       </div>
       <div class="space-y-2">
         <div
           v-for="page in enrichPagesList"
           :key="page.id"
           class="rounded-lg border overflow-hidden"
-          :style="{ backgroundColor: 'var(--theme-warning-light)', borderColor: 'var(--theme-warning)' }"
+          :style="{ backgroundColor: enrichOn ? 'var(--theme-warning-light)' : 'var(--theme-bg-secondary)', borderColor: 'var(--theme-warning)', opacity: enrichOn ? 1 : 0.5 }"
         >
           <div class="flex items-center gap-3 px-4 py-3">
             <button
-              v-if="!page.isCore"
+              v-if="!page.isCore && enrichOn"
               @click="removePage(page.id)"
               class="shrink-0 p-1 rounded transition-colors"
               :style="{ color: 'var(--theme-text-muted)' }"
@@ -448,8 +453,9 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
             </div>
             <select
               :value="page.nav"
+              :disabled="!enrichOn"
               @change="setNav(page.id, ($event.target as HTMLSelectElement).value as NavAssignment)"
-              class="text-xs rounded-lg px-2 py-1.5 border shrink-0 focus:outline-none focus:ring-1"
+              class="text-xs rounded-lg px-2 py-1.5 border shrink-0 focus:outline-none focus:ring-1 disabled:opacity-40 disabled:cursor-not-allowed"
               :style="{
                 backgroundColor: 'var(--theme-bg-secondary)',
                 borderColor: 'var(--theme-border)',
@@ -459,8 +465,9 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
             >
               <option v-for="opt in NAV_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
-            <NavParentSelect v-if="submenusOn" :page="page" :pages="pages" />
+            <NavParentSelect v-if="submenusOn && enrichOn" :page="page" :pages="pages" />
             <button
+              v-if="enrichOn"
               @click="router.push('/site/page/' + page.id)"
               class="shrink-0 p-1 rounded transition-colors"
               :style="{ color: 'var(--theme-primary)' }"
@@ -469,6 +476,9 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
           </div>
         </div>
       </div>
+      <p v-if="!enrichOn" class="text-xs mt-2" :style="{ color: 'var(--theme-text-muted)' }">
+        Not built on this bundle: left out of meta tags, menus, previews and the export. Move the client to Enrich or Growth in the Bundle step to include them.
+      </p>
     </div>
 
     <!-- ── Section: Growth-Only Pages ─────────────────────────────────────── -->
@@ -484,14 +494,14 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
           :key="page.id"
           class="rounded-lg border overflow-hidden"
           :style="{
-            backgroundColor: bundle === 'growth' ? 'var(--theme-bg-card)' : 'var(--theme-bg-secondary)',
+            backgroundColor: growthOn ? 'var(--theme-bg-card)' : 'var(--theme-bg-secondary)',
             borderColor: 'var(--theme-primary)',
-            opacity: bundle === 'growth' ? 1 : 0.5
+            opacity: growthOn ? 1 : 0.5
           }"
         >
           <div class="flex items-center gap-3 px-4 py-3">
             <button
-              v-if="!page.isCore && bundle === 'growth'"
+              v-if="!page.isCore && growthOn"
               @click="removePage(page.id)"
               class="shrink-0 p-1 rounded transition-colors"
               :style="{ color: 'var(--theme-text-muted)' }"
@@ -522,7 +532,7 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
             </div>
             <select
               :value="page.nav"
-              :disabled="bundle !== 'growth'"
+              :disabled="!growthOn"
               @change="setNav(page.id, ($event.target as HTMLSelectElement).value as NavAssignment)"
               class="text-xs rounded-lg px-2 py-1.5 border shrink-0 focus:outline-none focus:ring-1 disabled:opacity-40 disabled:cursor-not-allowed"
               :style="{
@@ -534,9 +544,9 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
             >
               <option v-for="opt in NAV_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
-            <NavParentSelect v-if="submenusOn" :page="page" :pages="pages" />
+            <NavParentSelect v-if="submenusOn && growthOn" :page="page" :pages="pages" />
             <button
-              v-if="bundle === 'growth'"
+              v-if="growthOn"
               @click="router.push('/site/page/' + page.id)"
               class="shrink-0 p-1 rounded transition-colors"
               :style="{ color: 'var(--theme-primary)' }"
@@ -545,8 +555,8 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
           </div>
         </div>
       </div>
-      <p v-if="bundle !== 'growth'" class="text-xs mt-2" :style="{ color: 'var(--theme-text-muted)' }">
-        These pages require the Growth bundle. Upgrade in the Bundle step to enable them.
+      <p v-if="!growthOn" class="text-xs mt-2" :style="{ color: 'var(--theme-text-muted)' }">
+        Not built on this bundle: left out of meta tags, menus, previews and the export. Move the client to Growth in the Bundle step to include them.
       </p>
     </div>
 

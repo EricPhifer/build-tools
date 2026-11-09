@@ -192,14 +192,14 @@ const widthMap = { mobile: '390px', tablet: '768px', desktop: '100%' }
 const siteName = computed(() => workflow.clientInfo?.name ?? 'Your Business')
 
 const navLinks = computed(() => {
-  const pages = composition.siteBuilder.sitemapPages
+  const pages = composition.buildPages
     .filter(p => p.nav === 'primary' || p.nav === 'both')
     .map(p => p.name)
   return pages.length > 0 ? pages : ['Home', 'About', 'Services', 'Contact']
 })
 
 const footerNavLinks = computed(() => {
-  const pages = composition.siteBuilder.sitemapPages
+  const pages = composition.buildPages
     .filter(p => p.nav === 'footer' || p.nav === 'both')
     .map(p => p.name)
   return pages.length > 0 ? pages : ['Privacy Policy', 'Terms & Conditions', 'Accessibility']

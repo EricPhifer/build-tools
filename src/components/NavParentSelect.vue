@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { SitemapPage } from '../types/registry'
+import { useCompositionStore } from '../stores/composition'
+import { pageInBundle } from '../utils/bundlePages'
 
 // "Under": puts a main-menu page in another item's submenu (headers with
 // submenus only). One level: a page with its own submenu can't move under another.
 const props = defineProps<{ page: SitemapPage; pages: SitemapPage[] }>()
+const composition = useCompositionStore()
 
 const inMain = (p: SitemapPage) => (p.nav === 'primary' || p.nav === 'both') && !p.isLegal
 const hasChildren = computed(() => props.pages.some(p => p.navParent === props.page.id && inMain(p)))
 const parents = computed(() =>
-  props.pages.filter(p => p.id !== props.page.id && inMain(p) && !p.navParent && p.slug !== '/')
+  props.pages.filter(p => p.id !== props.page.id && inMain(p) && !p.navParent && p.slug !== '/' && pageInBundle(p, composition.siteBuilder.bundle))
 )
 const shown = computed(() => inMain(props.page) && props.page.slug !== '/')
 

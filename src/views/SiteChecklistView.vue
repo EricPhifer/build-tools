@@ -71,15 +71,15 @@ const schemaOutput = computed(() => {
 })
 
 const nonLegalPages = computed(() =>
-  sb.value.sitemapPages.filter(p => !p.isLegal)
+  composition.buildPages.filter(p => !p.isLegal)
 )
 
 const primaryNavPages = computed(() =>
-  sb.value.sitemapPages.filter(p => p.nav === 'primary' || p.nav === 'both')
+  composition.buildPages.filter(p => p.nav === 'primary' || p.nav === 'both')
 )
 
 const footerNavPages = computed(() =>
-  sb.value.sitemapPages.filter(p => p.nav === 'footer' || p.nav === 'both')
+  composition.buildPages.filter(p => p.nav === 'footer' || p.nav === 'both')
 )
 
 const sanityDocTypes = computed(() => {

@@ -27,7 +27,7 @@ const domainSlug = computed(() =>
     : 'clientname'
 )
 
-const pageCount = computed(() => composition.siteBuilder.sitemapPages.length)
+const pageCount = computed(() => composition.buildPages.length)
 
 const siteSelections = computed(() => [
   {
