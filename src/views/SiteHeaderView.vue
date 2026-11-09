@@ -5,6 +5,7 @@ import { useRegistryStore } from '../stores/registry'
 import { useCompositionStore } from '../stores/composition'
 import { useWorkflowStore } from '../stores/workflow'
 import { isScaffolded } from '../data/scaffoldedVariants'
+import SiteThemePicker from '../components/SiteThemePicker.vue'
 import type { ComponentVariant } from '../types/registry'
 import { Check, ArrowLeft } from 'lucide-vue-next'
 
@@ -42,7 +43,8 @@ const iframeSrc = computed(() => {
     siteName: client.value?.name ?? 'Your Business',
     navLinks: navLinks.value.join(','),
     authEnabled: String(composition.composition.headerAuthEnabled),
-    darkModeEnabled: String(composition.composition.headerDarkModeEnabled),
+    darkModeEnabled: String(composition.composition.siteTheme === 'both'),
+    theme: composition.composition.siteTheme,
     headingFont: client.value?.brandKit?.fonts?.find(f => f.category === 'heading')?.name ?? '',
     bodyFont: client.value?.brandKit?.fonts?.find(f => f.category === 'body')?.name ?? '',
     ...(brandColors?.light ? { colorsLight: JSON.stringify(brandColors.light) } : {}),
@@ -257,20 +259,10 @@ const widthPresets = [
             />
           </div>
 
-          <!-- Dark mode toggle -->
+          <!-- Site theme (site-wide; also on the Site Builder page) -->
           <div class="flex items-center gap-2">
-            <span class="text-xs font-medium" :style="{ color: 'var(--theme-text-secondary)' }">Dark Mode</span>
-            <button
-              @click="composition.setHeaderDarkModeEnabled(!composition.composition.headerDarkModeEnabled)"
-              class="relative w-9 h-5 rounded-full transition-colors shrink-0"
-              :style="{ backgroundColor: composition.composition.headerDarkModeEnabled ? 'var(--theme-primary)' : 'var(--theme-bg-secondary)', border: '1px solid var(--theme-border)' }"
-              :aria-label="`Dark mode ${composition.composition.headerDarkModeEnabled ? 'on' : 'off'}`"
-            >
-              <span
-                class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-200"
-                :style="{ left: composition.composition.headerDarkModeEnabled ? 'calc(100% - 1.125rem)' : '1px' }"
-              />
-            </button>
+            <span class="text-xs font-medium" :style="{ color: 'var(--theme-text-secondary)' }">Theme</span>
+            <SiteThemePicker compact />
           </div>
         </div>
 

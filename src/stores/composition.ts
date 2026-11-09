@@ -4,7 +4,7 @@ import { useRegistryStore } from './registry'
 import type {
   ProjectComposition, PageConfig, SchemaRequirement, SchemaField,
   BusinessType, SitemapPage, LegalPageContent, ChecklistItem, ChecklistCategory, BundleType,
-  AppScreen, DataEntity
+  AppScreen, DataEntity, SiteTheme
 } from '../types/registry'
 import type { DashboardConfig } from '../types/dashboard'
 import { DEFAULT_CONTENT_KIT_SECTIONS, SUBMISSION_KIND_PRESETS } from '../types/dashboard'
@@ -175,7 +175,7 @@ function createDefaultComposition(): ProjectComposition {
     formatId: 'vue3',
     header: null,
     headerAuthEnabled: false,
-    headerDarkModeEnabled: false,
+    siteTheme: 'light',
     footer: null,
     defaultTemplate: null,
     selectedBlocks: [],
@@ -192,6 +192,9 @@ function loadFromStorage(): ProjectComposition {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       const parsed = JSON.parse(stored)
+      // Saved before the site theme setting: the dark mode switch on = light + dark
+      if (!parsed.siteTheme) parsed.siteTheme = parsed.headerDarkModeEnabled ? 'both' : 'light'
+      delete parsed.headerDarkModeEnabled
       return { ...createDefaultComposition(), ...parsed }
     }
   } catch {
@@ -352,8 +355,8 @@ export const useCompositionStore = defineStore('composition', () => {
     save()
   }
 
-  function setHeaderDarkModeEnabled(value: boolean) {
-    composition.value.headerDarkModeEnabled = value
+  function setSiteTheme(value: SiteTheme) {
+    composition.value.siteTheme = value
     save()
   }
 
@@ -549,7 +552,9 @@ export const useCompositionStore = defineStore('composition', () => {
     composition.value.footer          = config.site?.footer?.id ?? null
     composition.value.defaultTemplate = config.site?.defaultTemplate?.id ?? null
     composition.value.headerAuthEnabled     = config.site?.header?.authEnabled ?? false
-    composition.value.headerDarkModeEnabled = config.site?.darkModeEnabled ?? config.site?.header?.darkModeEnabled ?? false
+    composition.value.siteTheme = ['light', 'both', 'dark'].includes(config.site?.theme)
+      ? config.site.theme
+      : (config.site?.darkModeEnabled ?? config.site?.header?.darkModeEnabled) ? 'both' : 'light'
     composition.value.name = config.project?.name ?? config.client?.name ?? ''
     save()
 
@@ -665,7 +670,7 @@ export const useCompositionStore = defineStore('composition', () => {
     setProjectName,
     setHeader,
     setHeaderAuthEnabled,
-    setHeaderDarkModeEnabled,
+    setSiteTheme,
     setFooter,
     setDefaultTemplate,
     toggleBlock,

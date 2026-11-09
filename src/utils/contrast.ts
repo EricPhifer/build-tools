@@ -4,7 +4,7 @@
 // readable --color-primary-ink and --color-on-primary; this shows what it
 // will do and which pairs need fixing in the brand kit. Keep the two in step.
 
-import type { BrandColors, BrandThemeColors } from '../types/registry'
+import type { BrandColors, BrandThemeColors, SiteTheme } from '../types/registry'
 
 const NEAR_BLACK = '#111827'
 
@@ -79,9 +79,13 @@ export interface ThemeContrast {
   failures: ContrastCheck[]
 }
 
-export function checkBrandContrast(colors: BrandColors | undefined, darkMode: boolean): ThemeContrast[] {
+/** Checks the themes visitors can see: light, dark, or both. */
+export function checkBrandContrast(colors: BrandColors | undefined, siteTheme: SiteTheme): ThemeContrast[] {
   if (!colors) return []
-  const themes: ['Light' | 'Dark', boolean][] = [['Light', false], ...(darkMode ? [['Dark', true] as ['Dark', boolean]] : [])]
+  const themes: ['Light' | 'Dark', boolean][] = [
+    ...(siteTheme !== 'dark' ? [['Light', false] as ['Light', boolean]] : []),
+    ...(siteTheme !== 'light' ? [['Dark', true] as ['Dark', boolean]] : []),
+  ]
   return themes.map(([name, dark]) => {
     const t = themeOf(colors, dark)
     const bg = t.bgPrimary

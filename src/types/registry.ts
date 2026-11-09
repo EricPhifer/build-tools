@@ -96,12 +96,24 @@ export interface PageConfig {
   blocks: string[]
 }
 
+/**
+ * The website's color theme: light only, light and dark (visitor's system
+ * preference first, with a header toggle), or dark only.
+ */
+export type SiteTheme = 'light' | 'both' | 'dark'
+
+export const SITE_THEMES: { id: SiteTheme; label: string; description: string }[] = [
+  { id: 'light', label: 'Light only', description: 'Always the light brand colors' },
+  { id: 'both', label: 'Light + dark', description: "Follows the visitor's system setting, with a toggle in the header" },
+  { id: 'dark', label: 'Dark only', description: 'Always the dark brand colors, no toggle' },
+]
+
 export interface ProjectComposition {
   name: string
   formatId: OutputFormat
   header: string | null
   headerAuthEnabled: boolean
-  headerDarkModeEnabled: boolean
+  siteTheme: SiteTheme
   footer: string | null
   defaultTemplate: string | null
   selectedBlocks: string[]

@@ -68,10 +68,14 @@ const unbuiltVariants = computed(() =>
 
 // Brand color pairs below WCAG AA, and where the scaffolder adjusts primary for text
 const brandContrast = computed(() =>
-  checkBrandContrast(client.value?.brandKit?.colors, !!composition.composition.headerDarkModeEnabled)
+  checkBrandContrast(client.value?.brandKit?.colors, composition.composition.siteTheme)
 )
 const contrastFailures = computed(() => brandContrast.value.flatMap(t => t.failures))
 const adjustedInks = computed(() => brandContrast.value.filter(t => t.inkAdjusted))
+// A dark-only site shows the main logo on dark unless the kit has a dark one
+const darkOnlyWithoutDarkLogo = computed(() =>
+  composition.composition.siteTheme === 'dark' && !!client.value?.brandKit?.logos?.primary && !client.value?.brandKit?.logos?.dark
+)
 
 // ─── Active-mode: site selections ───────────────────────────────────────────
 const headerName   = computed(() => composition.selectedHeaderVariant?.name ?? null)
@@ -578,7 +582,7 @@ function buildExportConfig() {
         id: headerVariant.id, componentName: toComponentName(headerVariant.id),
         name: headerVariant.name, description: headerVariant.description,
         authEnabled: composition.composition.headerAuthEnabled,
-        darkModeEnabled: composition.composition.headerDarkModeEnabled,
+        darkModeEnabled: composition.composition.siteTheme === 'both',
         schemaRequirements: headerVariant.schemaRequirements ?? [],
         ...(headerVariant.styleNotes ? { styleNotes: headerVariant.styleNotes } : {})
       } : null,
@@ -588,8 +592,10 @@ function buildExportConfig() {
         schemaRequirements: footerVariant.schemaRequirements ?? [],
         ...(footerVariant.styleNotes ? { styleNotes: footerVariant.styleNotes } : {})
       } : null,
-      // Site-wide dark mode (header toggle); kept here so it applies with the default header too
-      darkModeEnabled: composition.composition.headerDarkModeEnabled,
+      // Site-wide color theme: 'light' | 'both' (with a header toggle) | 'dark'.
+      // darkModeEnabled is the older switch, kept for scaffolders that predate theme
+      theme: composition.composition.siteTheme,
+      darkModeEnabled: composition.composition.siteTheme === 'both',
       defaultTemplate: templateVariant ? {
         id: templateVariant.id, componentName: toComponentName(templateVariant.id),
         name: templateVariant.name, description: templateVariant.description,
@@ -998,6 +1004,15 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
       >
         <strong>{{ unbuiltVariants.join(' and ') }}</strong> {{ unbuiltVariants.length > 1 ? "aren't" : "isn't" }} in the website template yet, so the scaffold will stop.
         Pick a variant marked "In template" in the Site Builder, or build it into pws-foundation-template first.
+      </div>
+
+      <div
+        v-if="!isExtendMode && darkOnlyWithoutDarkLogo"
+        class="mb-6 p-4 rounded-xl border text-sm"
+        :style="{ borderColor: 'var(--theme-warning)', color: 'var(--theme-text-primary)', backgroundColor: 'var(--theme-bg-card)' }"
+      >
+        <strong>Dark-only site, no dark logo:</strong> the main logo will sit on the dark background.
+        Add a dark logo to the brand kit (or later in Site Settings) if the main one is dark.
       </div>
 
       <div

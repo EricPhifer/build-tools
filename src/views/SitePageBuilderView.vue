@@ -241,7 +241,8 @@ const iframeSrc = computed(() => {
     socialLinks: socialLinks.value.join(','),
     copyrightText: copyrightText.value,
     authEnabled: String(composition.composition.headerAuthEnabled),
-    darkModeEnabled: String(composition.composition.headerDarkModeEnabled),
+    darkModeEnabled: String(composition.composition.siteTheme === 'both'),
+    theme: composition.composition.siteTheme,
     // Brand kit
     primaryColor: workflow.clientInfo?.brandKit?.colors?.primary ?? '#4f46e5',
     secondaryColor: workflow.clientInfo?.brandKit?.colors?.secondary ?? '#7c3aed',

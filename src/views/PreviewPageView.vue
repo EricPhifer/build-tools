@@ -43,6 +43,11 @@ const borderRadius = (route.query.borderRadius as string) || ''
 const colorsLight = (() => {
   try { return JSON.parse((route.query.colorsLight as string) || '{}') } catch { return {} }
 })()
+const colorsDark = (() => {
+  try { return JSON.parse((route.query.colorsDark as string) || '{}') } catch { return {} }
+})()
+// A dark-only site previews in its dark colors
+const siteColors = route.query.theme === 'dark' && Object.keys(colorsDark).length ? colorsDark : colorsLight
 
 const KEY_TO_VAR: Record<string, string> = {
   primary: '--theme-primary', primaryHover: '--theme-primary-hover', primaryLight: '--theme-primary-light',
@@ -171,7 +176,7 @@ onMounted(async () => {
   blockMap.value = loaded
 
   // Apply brand colors, radius, fonts
-  applyBrandColors(colorsLight)
+  applyBrandColors(siteColors)
   if (borderRadius) document.documentElement.style.setProperty('--theme-radius', borderRadius)
   injectBrandFonts(headingFont, bodyFont)
 

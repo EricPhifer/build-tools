@@ -11,6 +11,8 @@ import { useWorkflowStore } from '../stores/workflow'
 import { BUSINESS_TYPES } from '../data/siteBuilderData'
 import { isAppProjectType } from '../types/registry'
 import WorkflowProgress from '../components/WorkflowProgress.vue'
+import SiteThemePicker from '../components/SiteThemePicker.vue'
+import { SITE_THEMES } from '../types/registry'
 
 const router = useRouter()
 const composition = useCompositionStore()
@@ -168,6 +170,7 @@ const globalDesign = computed(() => {
 })
 
 const globalDoneCount = computed(() => globalDesign.value.filter(s => s.done).length)
+const themeDescription = computed(() => SITE_THEMES.find(t => t.id === composition.composition.siteTheme)?.description)
 </script>
 
 <template>
@@ -236,6 +239,12 @@ const globalDoneCount = computed(() => globalDesign.value.filter(s => s.done).le
             <ChevronRight class="w-3 h-3" />
           </div>
         </button>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span class="text-sm font-semibold" :style="{ color: 'var(--theme-text-primary)' }">Site theme</span>
+        <SiteThemePicker />
+        <span class="text-xs" :style="{ color: 'var(--theme-text-muted)' }">{{ themeDescription }}</span>
       </div>
     </div>
 

@@ -60,6 +60,7 @@ const iframeSrc = computed(() => {
     siteName: siteName.value,
     copyrightText: copyrightText.value,
     craftedBy: 'Crafted by Phifer Web Solutions',
+    theme: composition.composition.siteTheme,
     navLinks: footerNavLinks.value.join(','),
     socialLinks: activeSocialLinks.join(','),
     columns: JSON.stringify([
