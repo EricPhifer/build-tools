@@ -14,6 +14,7 @@ export const SCAFFOLDED_VARIANTS = new Set([
   'header-announcement',
   'header-dropdown',
   'header-mega-menu',
+  'header-search',
   'header-transparent-jc',
   'footer-simple',
   'footer-columns',
