@@ -4,7 +4,10 @@
 // other id. The rest of the library stays browsable as design reference.
 // No variant selected = the template's own default header / footer.
 export const SCAFFOLDED_VARIANTS = new Set([
+  'header-split',
   'header-split-cta',
+  'header-centered',
+  'header-minimal',
   'header-transparent-jc',
   'footer-big-cta',
 ])
