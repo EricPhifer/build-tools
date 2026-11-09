@@ -587,6 +587,13 @@ export const useCompositionStore = defineStore('composition', () => {
     siteBuilder.value.businessType  = config.project?.businessType ?? null
     siteBuilder.value.isPublic      = config.project?.isPublic ?? false
     siteBuilder.value.projectMode   = config.project?.projectMode ?? false
+    // Submenu parents arrive as addresses; back to page ids
+    const rawPages: any[] = config.site?.pages ?? []
+    for (const page of pages) {
+      const parentSlug = rawPages.find((p: any) => p.id === page.id)?.navParent
+      const parent = parentSlug ? pages.find(p => p.slug === parentSlug) : undefined
+      if (parent) page.navParent = parent.id
+    }
     siteBuilder.value.sitemapPages  = pages
 
     siteBuilder.value.dashboardConfig = {

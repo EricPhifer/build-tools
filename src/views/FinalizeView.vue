@@ -66,6 +66,11 @@ const unbuiltVariants = computed(() =>
     .map(v => v!.name)
 )
 
+// A page's submenu parent as its address (ids are Build Tools' own)
+function navParentSlug(page: { navParent?: string }): string | undefined {
+  return page.navParent ? composition.siteBuilder.sitemapPages.find(p => p.id === page.navParent)?.slug : undefined
+}
+
 // Brand color pairs below WCAG AA, and where the scaffolder adjusts primary for text
 const brandContrast = computed(() =>
   checkBrandContrast(client.value?.brandKit?.colors, composition.composition.siteTheme)
@@ -473,6 +478,8 @@ function buildExportConfig() {
       ...(page.isDynamic    ? { isDynamic: true } : {}),
       ...(page.isRepeatable ? { isRepeatable: true } : {}),
       ...(page.authRequired && !page.isLegal ? { authRequired: true } : {}),
+      // Submenu parent, by address (headers with submenus; others list it at the top level)
+      ...(navParentSlug(page) ? { navParent: navParentSlug(page) } : {}),
       notes: page.notes ?? null, metaDescription: page.metaDescription ?? null,
       template: pageTemplate
         ? { id: pageTemplate.id, componentName: toComponentName(pageTemplate.id), name: pageTemplate.name }
@@ -726,6 +733,8 @@ function buildDeltaConfig() {
       ...(page.isDynamic    ? { isDynamic: true } : {}),
       ...(page.isRepeatable ? { isRepeatable: true } : {}),
       ...(page.authRequired && !page.isLegal ? { authRequired: true } : {}),
+      // Submenu parent, by address (headers with submenus; others list it at the top level)
+      ...(navParentSlug(page) ? { navParent: navParentSlug(page) } : {}),
       notes: page.notes ?? null, metaDescription: page.metaDescription ?? null,
       template: pageTemplate
         ? { id: pageTemplate.id, componentName: toComponentName(pageTemplate.id), name: pageTemplate.name }

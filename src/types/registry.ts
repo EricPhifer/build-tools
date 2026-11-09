@@ -337,6 +337,7 @@ export interface SitemapPage {
   blocks?: string[]
   slotBlocks?: Partial<Record<string, string[]>>
   metaDescription?: string
+  navParent?: string        // id of the main-menu page this one sits under (headers with submenus)
 }
 
 // === App Build Types ===

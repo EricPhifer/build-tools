@@ -10,6 +10,8 @@ import { useWorkflowStore } from '../stores/workflow'
 import { getDefaultSitemapPages } from '../data/siteBuilderData'
 import { STARTER_PAGE_LIMIT } from '../types/registry'
 import type { SitemapPage, NavAssignment } from '../types/registry'
+import NavParentSelect from '../components/NavParentSelect.vue'
+import { SUBMENU_HEADERS } from '../data/scaffoldedVariants'
 
 const router      = useRouter()
 const composition = useCompositionStore()
@@ -76,9 +78,18 @@ const primaryPages = computed(() => pages.value.filter(p => p.nav === 'primary' 
 const footerPages = computed(() => pages.value.filter(p => p.nav === 'footer' || p.nav === 'both'))
 const hiddenPages = computed(() => pages.value.filter(p => p.nav === 'none'))
 
+// The chosen header shows submenus: main-menu pages can sit under another
+const submenusOn = computed(() => SUBMENU_HEADERS.has(composition.composition.header ?? ''))
+
 function setNav(id: string, nav: NavAssignment) {
   const page = pages.value.find(p => p.id === id)
-  if (page) page.nav = nav
+  if (!page) return
+  page.nav = nav
+  // Out of the main menu: no longer under anything, and nothing stays under it
+  if (nav !== 'primary' && nav !== 'both') {
+    page.navParent = undefined
+    for (const p of pages.value) if (p.navParent === id) p.navParent = undefined
+  }
 }
 
 function toggleAuthRequired(id: string) {
@@ -88,6 +99,7 @@ function toggleAuthRequired(id: string) {
 
 function removePage(id: string) {
   pages.value = pages.value.filter(p => p.id !== id)
+  for (const p of pages.value) if (p.navParent === id) p.navParent = undefined
 }
 
 function slugify(name: string): string {
@@ -257,6 +269,7 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
           >
             <option v-for="opt in NAV_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
           </select>
+          <NavParentSelect v-if="submenusOn" :page="page" :pages="pages" />
           <button
             @click="router.push('/site/page/' + page.id)"
             class="shrink-0 p-1 rounded transition-colors"
@@ -384,6 +397,7 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
             >
               <option v-for="opt in NAV_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
+            <NavParentSelect v-if="submenusOn" :page="page" :pages="pages" />
             <button
               @click="router.push('/site/page/' + page.id)"
               class="shrink-0 p-1 rounded transition-colors"
@@ -445,6 +459,7 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
             >
               <option v-for="opt in NAV_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
+            <NavParentSelect v-if="submenusOn" :page="page" :pages="pages" />
             <button
               @click="router.push('/site/page/' + page.id)"
               class="shrink-0 p-1 rounded transition-colors"
@@ -519,6 +534,7 @@ const NAV_OPTIONS: { value: NavAssignment; label: string }[] = [
             >
               <option v-for="opt in NAV_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
+            <NavParentSelect v-if="submenusOn" :page="page" :pages="pages" />
             <button
               v-if="bundle === 'growth'"
               @click="router.push('/site/page/' + page.id)"

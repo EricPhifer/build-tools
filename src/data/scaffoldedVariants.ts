@@ -12,6 +12,8 @@ export const SCAFFOLDED_VARIANTS = new Set([
   'header-transparent',
   'header-utility-bar',
   'header-announcement',
+  'header-dropdown',
+  'header-mega-menu',
   'header-transparent-jc',
   'footer-simple',
   'footer-columns',
@@ -24,6 +26,10 @@ export const SCAFFOLDED_VARIANTS = new Set([
   'footer-divided',
   'footer-centered-full',
 ])
+
+// Headers that show submenus: with one of these, a main-menu page can sit
+// under another (Sitemap) and Studio menus get submenu links
+export const SUBMENU_HEADERS = new Set(['header-dropdown', 'header-mega-menu'])
 
 export function isScaffolded(variantId: string | null | undefined): boolean {
   return !variantId || SCAFFOLDED_VARIANTS.has(variantId)
