@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { shallowRef, onMounted, provide, type Component } from 'vue'
 import { useRoute } from 'vue-router'
+import '../styles/preview-dark.css'
 import { useRegistryStore } from '../stores/registry'
 import { useCompositionStore } from '../stores/composition'
 import { SITE_CONTEXT_KEY, type SiteContext } from '../composables/useSiteContext'
@@ -46,8 +47,14 @@ const colorsLight = (() => {
 const colorsDark = (() => {
   try { return JSON.parse((route.query.colorsDark as string) || '{}') } catch { return {} }
 })()
-// A dark-only site previews in its dark colors
-const siteColors = route.query.theme === 'dark' && Object.keys(colorsDark).length ? colorsDark : colorsLight
+// A dark-only site previews in its dark colors. Keys a partial kit lacks are
+// filled from the ones it has, so nothing falls back to Build Tools' own UI colors.
+const withFallbacks = (c: Record<string, string>) => ({
+  bgSecondary: c.bgPrimary, bgTertiary: c.bgSecondary ?? c.bgPrimary,
+  textSecondary: c.textMuted ?? c.textPrimary, textMuted: c.textSecondary ?? c.textPrimary,
+  ...Object.fromEntries(Object.entries(c).filter(([, v]) => v)),
+}) as Record<string, string>
+const siteColors = route.query.theme === 'dark' && Object.keys(colorsDark).length ? withFallbacks(colorsDark) : colorsLight
 
 const KEY_TO_VAR: Record<string, string> = {
   primary: '--theme-primary', primaryHover: '--theme-primary-hover', primaryLight: '--theme-primary-light',
@@ -177,6 +184,7 @@ onMounted(async () => {
 
   // Apply brand colors, radius, fonts
   applyBrandColors(siteColors)
+  if (route.query.theme === 'dark') document.documentElement.dataset.previewTheme = 'dark'
   if (borderRadius) document.documentElement.style.setProperty('--theme-radius', borderRadius)
   injectBrandFonts(headingFont, bodyFont)
 

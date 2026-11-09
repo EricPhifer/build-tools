@@ -8,6 +8,10 @@ export const SCAFFOLDED_VARIANTS = new Set([
   'header-split-cta',
   'header-centered',
   'header-minimal',
+  'header-logo-split',
+  'header-transparent',
+  'header-utility-bar',
+  'header-announcement',
   'header-transparent-jc',
   'footer-big-cta',
 ])

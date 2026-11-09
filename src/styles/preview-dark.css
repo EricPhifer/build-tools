@@ -1,0 +1,39 @@
+/*
+ * Dark-only sites in the builders' previews. The design library is drawn in
+ * Tailwind's fixed grays, so on html[data-preview-theme="dark"] the light
+ * grays become the site's dark brand colors (set as --theme-* by the preview
+ * views). Already-dark bands (gray-700 and darker), white text and brand
+ * colors are left alone. Unlayered, so it wins over Tailwind's utilities.
+ */
+html[data-preview-theme='dark'] {
+  color-scheme: dark;
+  background-color: var(--theme-bg-primary, #111827);
+}
+
+html[data-preview-theme='dark'] :is(.bg-white, .bg-gray-50) {
+  background-color: var(--theme-bg-primary, #111827);
+}
+html[data-preview-theme='dark'] :is(.bg-gray-100, .bg-gray-200, .bg-gray-300) {
+  background-color: var(--theme-bg-secondary, #1f2937);
+}
+html[data-preview-theme='dark'] :is(.text-gray-900, .text-gray-800, .text-gray-700) {
+  color: var(--theme-text-primary, #f9fafb);
+}
+html[data-preview-theme='dark'] :is(.text-gray-600, .text-gray-500) {
+  color: var(--theme-text-secondary, #d1d5db);
+}
+html[data-preview-theme='dark'] .text-gray-400 {
+  color: var(--theme-text-muted, var(--theme-text-secondary, #9ca3af));
+}
+html[data-preview-theme='dark'] :is(.border-gray-100, .border-gray-200, .border-gray-300, .divide-gray-100 > *, .divide-gray-200 > *) {
+  border-color: var(--theme-border, #374151);
+}
+html[data-preview-theme='dark'] :is(.hover\:bg-gray-50, .hover\:bg-gray-100, .hover\:bg-gray-200):hover {
+  background-color: var(--theme-bg-secondary, #1f2937);
+}
+html[data-preview-theme='dark'] :is(.hover\:text-gray-900, .hover\:text-gray-800, .hover\:text-gray-700):hover {
+  color: var(--theme-text-primary, #f9fafb);
+}
+html[data-preview-theme='dark'] .placeholder-gray-400::placeholder {
+  color: var(--theme-text-muted, #9ca3af);
+}
