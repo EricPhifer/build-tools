@@ -14,7 +14,18 @@ import { BRAND_PERSONALITY_OPTIONS, defaultReviewCadence } from '../types/dashbo
 const route        = useRoute()
 const clientName   = computed(() => (route.query.clientName as string) || 'Client Dashboard')
 const primaryColor = computed(() => (route.query.primaryColor as string) || '#6366f1')
-const logoUrl      = computed(() => (route.query.logoUrl as string) || '')
+// A logo link comes in the address; an uploaded logo (data: URI) is read from
+// the saved client, since it's too long for an address
+function savedLogo(): string {
+  try {
+    const kit = JSON.parse(localStorage.getItem('build-tools-workflow') || '{}')?.clientInfo?.brandKit
+    return kit?.logos?.dark || kit?.logos?.primary || kit?.logoUrl || ''
+  } catch {
+    return ''
+  }
+}
+const storedLogo   = savedLogo()
+const logoUrl      = computed(() => (route.query.logoUrl as string) || storedLogo)
 
 const config      = ref<DashboardConfig | null>(null)
 const bundle      = ref<string | null>(null)

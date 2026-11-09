@@ -132,7 +132,9 @@ const iframeSrc = computed(() => {
     primaryColor: client.value?.brandKit.colors.primary ?? '#6366f1',
     clientName: client.value?.name ?? 'Client Dashboard',
   })
-  if (logoUrl) params.set('logoUrl', logoUrl)
+  // An uploaded logo is a data: URI, far too long for an address (414); the
+  // preview reads that one from the saved client instead
+  if (logoUrl && !logoUrl.startsWith('data:')) params.set('logoUrl', logoUrl)
   return `/preview/dashboard?${params}`
 })
 
