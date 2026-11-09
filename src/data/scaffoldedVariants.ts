@@ -13,7 +13,16 @@ export const SCAFFOLDED_VARIANTS = new Set([
   'header-utility-bar',
   'header-announcement',
   'header-transparent-jc',
+  'footer-simple',
+  'footer-columns',
+  'footer-minimal',
+  'footer-logo-tagline',
   'footer-big-cta',
+  'footer-newsletter',
+  'footer-mega',
+  'footer-stacked-dark',
+  'footer-divided',
+  'footer-centered-full',
 ])
 
 export function isScaffolded(variantId: string | null | undefined): boolean {
