@@ -74,6 +74,10 @@ export default defineConfig({
       },
       workbox: {
         navigateFallbackDenylist: [
+          // Previews load in the builders' iframes; the cached index.html
+          // carries the app's frame-ancestors 'none', so they must come from
+          // the network with /preview/*'s own headers
+          /^\/preview\//,
           /^\/callback/,
           /^\/auth/,
           /^\/logout/,
