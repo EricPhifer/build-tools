@@ -210,4 +210,23 @@ const router = createRouter({
   ]
 })
 
+// After a deploy, a tab still running the old build asks for page files that no
+// longer exist, and the navigation fails silently (Continue does nothing).
+// Load the new build at the page the user was heading to instead. The
+// timestamp stops a reload loop if the new files can't load either.
+const STALE_RELOAD_KEY = 'build-tools-stale-reload'
+const CHUNK_LOAD_FAILED = /dynamically imported module|Importing a module script failed|Unable to preload CSS/i
+
+router.onError((error: unknown, to) => {
+  if (!(error instanceof Error) || !CHUNK_LOAD_FAILED.test(error.message)) return
+  try {
+    const last = Number(sessionStorage.getItem(STALE_RELOAD_KEY) || 0)
+    if (Date.now() - last < 10_000) return
+    sessionStorage.setItem(STALE_RELOAD_KEY, String(Date.now()))
+  } catch {
+    /* storage blocked: reload anyway */
+  }
+  window.location.assign(to.fullPath)
+})
+
 export default router

@@ -42,6 +42,7 @@ export interface EnvConfig {
   stripeWebhookSecret: string
   donationOrgName: string
   donationEin: string
+  stripePortalLoginUrl: string
   // Nonprofit-only (only relevant when businessType === 'nonprofit')
   youtubeApiKey: string
   coffeeChatPlaylistId: string
@@ -67,6 +68,8 @@ export interface SiteBuilderData {
   dataModel: DataEntity[]
   isPublic: boolean
   envConfig: EnvConfig
+  // Integrations the builder chose to set up later, straight in Netlify ('resend', 'stripe', …)
+  integrationsLater: string[]
   // Persisted checklist confirmations (survive navigation)
   checklistConfirmedWebsite: Record<string, boolean>
   checklistConfirmedApp: Record<string, boolean>
@@ -106,6 +109,7 @@ function createDefaultEnvConfig(): EnvConfig {
     stripeWebhookSecret: '',
     donationOrgName: '',
     donationEin: '',
+    stripePortalLoginUrl: '',
     youtubeApiKey: '',
     coffeeChatPlaylistId: ''
   }
@@ -162,6 +166,7 @@ function createDefaultSiteBuilder(): SiteBuilderData {
     dataModel: [],
     isPublic: false,
     envConfig: createDefaultEnvConfig(),
+    integrationsLater: [],
     checklistConfirmedWebsite: {},
     checklistConfirmedApp: {},
     dashboardConfig: createDefaultDashboardConfig(),
@@ -534,6 +539,12 @@ export const useCompositionStore = defineStore('composition', () => {
     saveSiteBuilder()
   }
 
+  function setIntegrationLater(id: string, later: boolean) {
+    const rest = (siteBuilder.value.integrationsLater ?? []).filter(x => x !== id)
+    siteBuilder.value.integrationsLater = later ? [...rest, id] : rest
+    saveSiteBuilder()
+  }
+
   function setDashboardConfig(partial: Partial<DashboardConfig>) {
     siteBuilder.value.dashboardConfig = {
       ...createDefaultDashboardConfig(),
@@ -632,6 +643,7 @@ export const useCompositionStore = defineStore('composition', () => {
       stripeWebhookSecret:    env['STRIPE_WEBHOOK_SECRET']  ?? '',
       donationOrgName:        env['DONATION_ORG_NAME']      ?? '',
       donationEin:            env['DONATION_EIN']           ?? '',
+      stripePortalLoginUrl:   env['STRIPE_PORTAL_LOGIN_URL'] ?? '',
       youtubeApiKey:          env['YOUTUBE_API_KEY']        ?? '',
       coffeeChatPlaylistId:   env['COFFEE_CHAT_PLAYLIST_ID'] ?? ''
     }
@@ -704,6 +716,7 @@ export const useCompositionStore = defineStore('composition', () => {
     setDataModel,
     setIsPublic,
     setEnvConfig,
+    setIntegrationLater,
     setDashboardConfig,
     loadFromBuildConfig,
     toggleChecklistConfirmed,

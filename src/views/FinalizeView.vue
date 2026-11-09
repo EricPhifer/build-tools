@@ -537,6 +537,7 @@ function buildExportConfig() {
     if (sb.envConfig.stripeWebhookSecret) env['STRIPE_WEBHOOK_SECRET'] = sb.envConfig.stripeWebhookSecret
     if (sb.envConfig.donationOrgName)     env['DONATION_ORG_NAME']     = sb.envConfig.donationOrgName
     if (sb.envConfig.donationEin)         env['DONATION_EIN']          = sb.envConfig.donationEin
+    if (sb.envConfig.stripePortalLoginUrl) env['STRIPE_PORTAL_LOGIN_URL'] = sb.envConfig.stripePortalLoginUrl
   }
 
   // Growth-tier integration env vars (only emitted when bundle === 'growth')

@@ -93,7 +93,7 @@ export function buildEnvChecklist(config: ChecklistConfig): EnvVarItem[] {
     Object.values(page.slots ?? {}).some((blocks) => (blocks ?? []).some((b) => b?.id === 'block-donation')))
   if (usesDonations) {
     add('website', 'STRIPE_SECRET_KEY', 'functions', true, "the client's Stripe → Developers → API keys → restricted key (Checkout Sessions, Products, Prices: Write)")
-    add('website', 'STRIPE_WEBHOOK_SECRET', 'functions', true, `the client's Stripe → Webhooks → https://${domain}/api/donation-webhook (checkout.session.completed, checkout.session.async_payment_succeeded, invoice.paid)`)
+    add('website', 'STRIPE_WEBHOOK_SECRET', 'functions', true, `the client's Stripe → Webhooks → Add destination: your account, Snapshot payload, https://${domain}/api/donation-webhook, events checkout.session.completed, checkout.session.async_payment_succeeded, invoice.paid (test mode: its own webhook on the staging URL)`)
     add('website', 'DONATION_ORG_NAME', 'functions', false, 'legal name on the donor receipt (defaults to the business name)', true)
     add('website', 'DONATION_EIN', 'functions', false, 'the EIN; adds it and "No goods or services were provided" to the receipt', true)
     add('website', 'STRIPE_PORTAL_LOGIN_URL', 'functions', false, "the client's Stripe → Billing → Customer portal login link, where monthly donors cancel", true)
