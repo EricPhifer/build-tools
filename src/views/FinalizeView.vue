@@ -1374,9 +1374,11 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
         v-else
         :disabled="!allChecksPassed"
         @click="handleComplete"
-        class="flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        :style="{ backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-primary)' }"
-        :title="!allChecksPassed ? 'Complete all build config checklist items first' : ''"
+        class="flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition cursor-pointer hover:brightness-110 disabled:brightness-100 disabled:opacity-40 disabled:cursor-not-allowed"
+        :style="allChecksPassed
+          ? { backgroundColor: 'var(--theme-primary)', color: 'var(--theme-text-inverse)' }
+          : { backgroundColor: 'var(--theme-bg-tertiary)', color: 'var(--theme-text-primary)' }"
+        :title="!allChecksPassed ? 'Complete all build config checklist items first' : 'Save to the portfolio and start a new project'"
       >
         <PartyPopper class="w-4 h-4" />
         Complete Project
