@@ -64,7 +64,7 @@ function reopenProject(entry: typeof workflow.savedPortfolio[0]) {
 
 function reexportConfig(entry: typeof workflow.savedPortfolio[0]) {
   if (!entry.buildConfigJson) return
-  const blob = new Blob([entry.buildConfigJson], { type: 'application/json' })
+  const blob = new Blob([JSON.stringify(JSON.parse(entry.buildConfigJson), null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   const slug = entry.domain.replace(/\.com$/, '')

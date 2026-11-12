@@ -92,18 +92,25 @@ export const useWorkflowStore = defineStore('workflow', () => {
   const extendSnapshot = ref<ExtendSnapshot | null>(initial.extendSnapshot)
   const extendSourceEntryId = ref<string | null>(initial.extendSourceEntryId)
 
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      currentStep: currentStep.value,
-      stepStatuses: stepStatuses.value,
-      clientInfo: clientInfo.value,
-      savedClients: savedClients.value,
-      savedPortfolio: savedPortfolio.value,
-      finalizeProgress: finalizeProgress.value,
-      extendMode: extendMode.value,
-      extendSnapshot: extendSnapshot.value,
-      extendSourceEntryId: extendSourceEntryId.value
-    }))
+  /** False when the browser refused the write (storage full: uploaded logos are large) */
+  function save(): boolean {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        currentStep: currentStep.value,
+        stepStatuses: stepStatuses.value,
+        clientInfo: clientInfo.value,
+        savedClients: savedClients.value,
+        savedPortfolio: savedPortfolio.value,
+        finalizeProgress: finalizeProgress.value,
+        extendMode: extendMode.value,
+        extendSnapshot: extendSnapshot.value,
+        extendSourceEntryId: extendSourceEntryId.value
+      }))
+      return true
+    } catch (e) {
+      console.error('Saving Build Tools progress failed:', e)
+      return false
+    }
   }
 
   // === Computed ===
@@ -186,14 +193,16 @@ export const useWorkflowStore = defineStore('workflow', () => {
     return null
   }
 
-  function addPortfolioEntry(entry: PortfolioEntry) {
-    const idx = savedPortfolio.value.findIndex(e => e.id === entry.id)
-    if (idx >= 0) {
-      savedPortfolio.value[idx] = entry
-    } else {
-      savedPortfolio.value.unshift(entry)
-    }
-    save()
+  /** False (and nothing changed) when the browser's storage is full */
+  function addPortfolioEntry(entry: PortfolioEntry): boolean {
+    const before = savedPortfolio.value
+    const idx = before.findIndex(e => e.id === entry.id)
+    savedPortfolio.value = idx >= 0
+      ? before.map((e, i) => (i === idx ? entry : e))
+      : [entry, ...before]
+    if (save()) return true
+    savedPortfolio.value = before
+    return false
   }
 
   function removePortfolioEntry(id: string) {

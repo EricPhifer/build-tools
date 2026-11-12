@@ -159,9 +159,13 @@ const checklist = computed(() => [
   { label: 'CMS schemas generated',            done: schemaCount.value > 0 },
   { label: 'Dashboard widgets configured',     done: enabledWidgetCount.value > 0 },
   { label: 'Billing Stripe Customer ID set',   done: !!dashboardConfig.value.billing?.stripeCustomerId },
-  { label: 'Content Kit configured',            done: dashboardConfig.value.contentKit?.enabled && dashboardConfig.value.contentKit.sections.some(s => s.enabled) },
+  // The minimal (Sustain) dashboard has no Content Kit, so it can't be required there
+  ...(dashboardConfig.value.profile === 'minimal' ? [] : [
+    { label: 'Content Kit configured',          done: !!(dashboardConfig.value.contentKit?.enabled && dashboardConfig.value.contentKit.sections.some(s => s.enabled)) },
+  ]),
 ])
 const allChecksPassed = computed(() => checklist.value.every(c => c.done))
+const missingChecks = computed(() => checklist.value.filter(c => !c.done).map(c => c.label))
 
 // ─── Deployment phases ───────────────────────────────────────────────────────
 interface ChecklistItem { id: string; label: string }
@@ -666,7 +670,7 @@ function exportProject() {
 function reexportEntryConfig() {
   if (!activeEntry.value?.buildConfigJson) return
   const slug = activeEntry.value.domain.replace(/\.com$/, '')
-  downloadFile(activeEntry.value.buildConfigJson, `${slug}-build-config.json`)
+  downloadFile(JSON.stringify(JSON.parse(activeEntry.value.buildConfigJson), null, 2), `${slug}-build-config.json`)
 }
 
 function handleComplete() {
@@ -690,13 +694,24 @@ function handleComplete() {
     finalizeProgress: { ...workflow.finalizeProgress }
   }
 
-  entry.buildConfigJson = JSON.stringify(buildExportConfig(), null, 2)
+  // Stored compact (pretty-printed on download): browser storage is ~5 MB and
+  // uploaded logos are already in it several times
+  entry.buildConfigJson = JSON.stringify(buildExportConfig())
+  // An uploaded logo is already inside the stored config; don't keep another copy
+  if (entry.logoUrl?.startsWith('data:')) entry.logoUrl = null
 
+  completeError.value = false
+  if (!workflow.addPortfolioEntry(entry)) {
+    // Storage is full: keep the project open rather than lose it
+    completeError.value = true
+    return
+  }
   workflow.completeStep('finalize')
-  workflow.addPortfolioEntry(entry)
   workflow.resetWorkflow()
   router.push('/products/portfolio')
 }
+
+const completeError = ref(false)
 
 // ─── Extend mode: delta export ───────────────────────────────────────────────
 const extendSnapshotIds = computed(() => new Set(workflow.extendSnapshot?.pageIds ?? []))
@@ -1365,6 +1380,20 @@ if (!isPortfolioMode.value && !isExtendMode.value) {
       >
         <PartyPopper class="w-4 h-4" />
         Complete Project
+      </button>
+    </div>
+    <p v-if="!isExtendMode && !allChecksPassed" class="text-sm text-right mt-3" :style="{ color: 'var(--theme-text-muted)' }">
+      Complete Project unlocks when the Build Config Checklist is done. Still needed:
+      <strong :style="{ color: 'var(--theme-text-primary)' }">{{ missingChecks.join(', ') }}</strong>.
+    </p>
+    <div v-if="completeError" role="alert" class="mt-3 p-4 rounded-lg text-sm" :style="{ backgroundColor: 'var(--theme-warning-light)', color: 'var(--theme-warning)' }">
+      <p class="font-medium">Couldn't save this project to the portfolio: the browser's storage for Build Tools is full.</p>
+      <p class="mt-1">
+        Nothing was lost, the project is still open. Download the build config now, then free space by removing old entries
+        on the Portfolio page and press Complete Project again.
+      </p>
+      <button type="button" class="mt-2 px-3 py-1.5 rounded-lg text-xs font-medium" :style="{ backgroundColor: 'var(--theme-warning)', color: 'var(--theme-text-inverse)' }" @click="exportProject">
+        Download build config
       </button>
     </div>
 
